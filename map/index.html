@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Peta Caleg</title>
+    <!-- third-party (vendor) scripts -->
+    <script src="js/vendor/aight.min.js"></script>
+    <script src="js/vendor/d3.v3.min.js"></script>
+    <script src="js/vendor/qs.min.js"></script>
+    <!-- Google Maps - TODO: add API key -->
+    <script src="http://maps.googleapis.com/maps/api/js?sensor=true&amp;v=3.14&amp;libraries=geometry,places"></script>
+    <!-- Peta Caleg (local) scripts -->
+    <script src="js/peta_caleg.js"></script>
+    <script src="js/peta_caleg.api.js"></script>
+    <script src="js/peta_caleg.router.js"></script>
+    <style>
+
+      #bodies.none {
+        display: none;
+      }
+
+      #bodies .body {
+        display: none;
+      }
+
+      #bodies .body.active {
+        display: block;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div id="header">
+      <h1>Peta Caleg</h1>
+      <div id="nav">
+        <a href="#dpd">DPD</a>
+        <a href="#dpr">DPR</a>
+        <a href="#dprdi">DPRDI</a>
+      </div>
+    </div>
+
+    <div id="bodies" class="none">
+      <div id="dpd" class="body">
+        <h2>DPD</h2>
+        <div class="provinces">
+        </div>
+      </div>
+      <div id="dpr" class="body">
+        <h2>DPR</h2>
+        <div class="provinces">
+        </div>
+      </div>
+      <div id="dprdi" class="body">
+        <h2>DPRDI</h2>
+        <div class="provinces">
+        </div>
+      </div>
+    </div>
+
+    <script>
+
+    var pc = peta_caleg,
+        win = d3.select(window)
+          .on("hashchange", hashchange)
+          .on("load", init),
+        bodies = d3.select("#bodies"),
+        api = pc.api(),
+        route = pc.router()
+          .match("dpd", function(req) {
+            console.log("DPD root", req.data);
+            setView("dpd");
+            listProvinces();
+          })
+          .match("dpd/provinsi/{provinsi}", function(req) {
+            var provinceId = req.data.provinsi;
+            console.log("DPD province:", provinceId);
+            setView("dpd");
+            listProvinces(function() {
+              selectProvince(provinceId, function() {
+                listCandidates(provinceId);
+              });
+            });
+          })
+          .match("dpr", function(req) {
+            console.log("DPR root", req.data);
+            setView("dpr");
+          })
+          .match("dpr/provinsi/{provinsi}", function(req) {
+            var provinceId = req.data.provinsi;
+            console.log("DPR province:", provinceId);
+            setView("dpr");
+            listProvinces(function() {
+              selectProvince(provinceId, function() {
+                listDistricts(provinceId);
+              });
+            });
+          })
+          .match("dpr/provinsi/{provinsi}/dapil/{dapil}", function(req) {
+            var provinceId = req.data.provinsi,
+                districtId = req.data.dapil;
+            console.log("DPR district:", provinceId, "->", districtId);
+            setView("dpr");
+            listProvinces(function() {
+              selectProvince(provinceId, function() {
+                listDistricts(provinceId, function() {
+                  selectDistrict(provinceId, districtId);
+                });
+              });
+            });
+          })
+          /*
+          .match("dprdi", function(req) {
+            console.log("DPRDI root", req.data);
+            setView("dprdi");
+          })
+          .match("dprdi/dapil/{dapil}", function(req) {
+            var districtId = req.data.dapil;
+            console.log("DPRDI district:", districtId);
+            setView("dprdi");
+            listProvinces(function() {
+              selectProvince(districtId);
+            });
+          })
+          */
+          .notfound(function(req) {
+            console.error("404:", req.url);
+          });
+
+    var views = {
+      dpd: {
+        id: "dpd",
+        root: d3.select("#dpd")
+      },
+      dpr: {
+        id: "dpr",
+        root: d3.select("#dpr"),
+        getDistricts: function(provinceId, callback) {
+          var params = {
+            provinsi: provinceId,
+            lembaga: "DPR"
+          };
+          return api.get("dapil", params, function(error, res) {
+            if (error) return callback(error);
+            return callback(null, res.results.dapil);
+          });
+        },
+        getCandidates: function(provinceId, districtId, callback) {
+          var params = {
+            provinsi: provinceId,
+            dapil: districId,
+            lembaga: "DPR"
+          };
+          return api.get("caleg", params, function(error, res) {
+            if (error) return callback(error);
+            return callback(null, res.results.caleg);
+          });
+        }
+      },
+      dprdi: {
+        id: "dprdi",
+        root: d3.select("#dprdi"),
+        getDistricts: function(provinceId, callback) {
+          var params = {
+            provinsi: provinceId,
+            lembaga: "DPRDI"
+          };
+          return api.get("dapil", params, function(error, res) {
+            if (error) return callback(error);
+            return callback(null, res.results.dapil);
+          });
+        }
+      }
+    };
+
+    function init() {
+      if (location.hash) {
+        hashchange();
+      } else {
+        location.hash = "#dpd";
+      }
+    }
+
+    function hashchange() {
+      var hash = location.hash.substr(1);
+      route(hash);
+    }
+
+    function setView(id, callback) {
+      if (!views[id]) {
+        console.error("no such body:", body);
+        return;
+      }
+
+      // set the global view to this one
+      view = views[id];
+
+      // toggle the active state of all body-specific elements
+      bodies
+        .attr("class", id)
+        .style("display", null)
+        .selectAll(".body")
+          .classed("active", function() {
+            return this.id === id;
+          });
+
+      // abort the last active API request, if there is one
+      api.abort();
+
+      if (callback) callback(null, view);
+    }
+
+    function listProvinces(callback) {
+      var root = view.root,
+          list = root.select(".provinces");
+      api.get("provinsi", function(error, res) {
+        var provinces = res.results.provinsi;
+
+        if (error) {
+          return callback ? callback(error) : null;
+        }
+
+        console.log("provinces:", provinces);
+        var province = list.selectAll(".province")
+              .data(provinces, function(d) {
+                return d.id;
+              }),
+            enter = province.enter()
+              .append("div")
+                .attr("class", "province");
+
+        province.exit().remove();
+
+        enter.append("h3")
+          .append("a")
+            .attr("href", function(d) {
+              return "#" + getProvinceId(d);
+            })
+            .text(function(d) {
+              return d.nama;
+            });
+
+        enter.append("div")
+          .attr("class", "map");
+
+        province.attr("id", getProvinceId);
+
+        if (callback) callback(null, provinces);
+      });
+    }
+
+    function selectProvince(id, callback) {
+      var children = view.root.selectAll(".province")
+            .classed("active", function(d) {
+              return d.id == id;
+            }),
+          selected = children.filter(".active"),
+          province = selected.datum();
+      console.log("selected:", province);
+    }
+
+    function getProvinceId(d) {
+      return [view.id, "provinsi", d.id].join("/");
+    }
+
+    function getDistrictId(d) {
+      return [view.id, "provinsi", d.provinsi.id, "district", d.id].join("/");
+    }
+
+    function listDistricts(provinceId, callback) {
+      var root = view.root,
+          list = root.select(getProvinceId(provinceId))
+            .select(".districts");
+      view.getDistricts(function(error, districts) {
+        if (error) {
+          return callback ? callback(error) : null;
+        }
+
+        // XXX TODO
+      });
+    }
+
+    function listProvinceCandidates(provinceId) {
+    }
+
+    function listDistrictCandidates(districtId) {
+    }
+
+    function nameAscending(a, b) {
+      return d3.ascending(a.nama, b.nama);
+    }
+
+    </script>
+  </body>
+</html>
