@@ -58,6 +58,7 @@
         win = d3.select(window)
           .on("hashchange", hashchange)
           .on("load", init),
+        map,
         bodies = d3.select("#bodies"),
         api = pc.api()
           .key("7941b0baecd128c4de3a9ae63a85fd2c"),
@@ -118,6 +119,14 @@
           });
 
     function init() {
+      map = new google.maps.Map(document.getElementById("map"), {
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        center: pc.geo.bounds.getCenter(),
+        zoom: 5
+      });
+
+      map.fitBounds(pc.geo.bounds);
+
       if (location.hash) {
         hashchange();
       } else {
