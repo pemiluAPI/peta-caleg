@@ -1,7 +1,7 @@
 (function() {
 
   peta_caleg.api = function() {
-    var key = "7941b0baecd128c4de3a9ae63a85fd2c",
+    var key = "XXX",
         base = "http://api.pemiluapi.org/candidate/api/",
         api = {},
         cache = {},
