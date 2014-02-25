@@ -32,28 +32,22 @@
     <div id="header">
       <h1>Peta Caleg</h1>
       <div id="nav">
-        <a href="#dpd">DPD</a>
-        <a href="#dpr">DPR</a>
-        <a href="#dprdi">DPRDI</a>
+        <a href="#DPD">DPD</a>
+        <a href="#DPR">DPR</a>
+        <a href="#DPRDI">DPRDI</a>
       </div>
     </div>
 
     <div id="bodies" class="none">
-      <div id="dpd" class="body">
+      <div id="DPD" class="body">
         <h2>DPD</h2>
-        <div class="provinces">
-        </div>
       </div>
-      <div id="dpr" class="body">
+      <div id="DPR" class="body">
         <h2>DPR</h2>
-        <div class="provinces">
-        </div>
       </div>
       <!--
-      <div id="dprdi" class="body">
+      <div id="DPRDI" class="body">
         <h2>DPRDI</h2>
-        <div class="provinces">
-        </div>
       </div>
       -->
     </div>
@@ -68,52 +62,52 @@
         api = pc.api()
           .key("7941b0baecd128c4de3a9ae63a85fd2c"),
         route = pc.router()
-          .match("dpd", function(req) {
+          .match("DPD", function(req) {
             setContext({
-              body: "dpd"
+              body: "DPD"
             });
           })
-          .match("dpd/provinsi/{provinsi}", function(req) {
+          .match("DPD/provinsi/{provinsi}", function(req) {
             setContext({
-              body: "dpd",
+              body: "DPD",
               province: req.data.provinsi
             });
           })
-          .match("dpr", function(req) {
+          .match("DPR", function(req) {
             setContext({
-              body: "dpr",
+              body: "DPR",
             });
           })
-          .match("dpr/provinsi/{provinsi}", function(req) {
+          .match("DPR/provinsi/{provinsi}", function(req) {
             setContext({
-              body: "dpr",
+              body: "DPR",
               province: req.data.provinsi
             });
           })
-          .match("dpr/provinsi/{provinsi}/dapil/{dapil}", function(req) {
+          .match("DPR/provinsi/{provinsi}/dapil/{dapil}", function(req) {
             setContext({
-              body: "dpr",
+              body: "DPR",
               province: req.data.provinsi,
               district: req.data.dapil
             });
           })
-          .match("dpr/provinsi/{provinsi}/dapil/{dapil}/caleg/{caleg}", function(req) {
+          .match("DPR/provinsi/{provinsi}/dapil/{dapil}/caleg/{caleg}", function(req) {
             setContext({
-              body: "dpr",
+              body: "DPR",
               province: req.data.provinsi,
               district: req.data.dapil,
               candidate: req.data.caleg
             });
           })
           /*
-          .match("dprdi", function(req) {
+          .match("DPRDI", function(req) {
             console.log("DPRDI root", req.data);
-            setView("dprdi");
+            setView("DPRDI");
           })
-          .match("dprdi/dapil/{dapil}", function(req) {
+          .match("DPRDI/dapil/{dapil}", function(req) {
             var districtId = req.data.dapil;
             console.log("DPRDI district:", districtId);
-            setView("dprdi");
+            setView("DPRDI");
             listProvinces(function() {
               selectProvince(districtId);
             });
@@ -123,57 +117,11 @@
             console.error("404:", req.url);
           });
 
-    var views = {
-      dpd: {
-        id: "dpd",
-        root: d3.select("#dpd")
-      },
-      dpr: {
-        id: "dpr",
-        root: d3.select("#dpr"),
-        getDistricts: function(provinceId, callback) {
-          var params = {
-            provinsi: provinceId,
-            lembaga: "DPR"
-          };
-          return api.get("dapil", params, function(error, res) {
-            if (error) return callback(error);
-            return callback(null, res.results.dapil);
-          });
-        },
-        getCandidates: function(provinceId, districtId, callback) {
-          var params = {
-            provinsi: provinceId,
-            dapil: districId,
-            lembaga: "DPR"
-          };
-          return api.get("caleg", params, function(error, res) {
-            if (error) return callback(error);
-            return callback(null, res.results.caleg);
-          });
-        }
-      },
-      dprdi: {
-        id: "dprdi",
-        root: d3.select("#dprdi"),
-        getDistricts: function(provinceId, callback) {
-          var params = {
-            provinsi: provinceId,
-            lembaga: "DPRDI"
-          };
-          return api.get("dapil", params, function(error, res) {
-            if (error) return callback(error);
-            return callback(null, res.results.dapil);
-          });
-        }
-      }
-    };
-
     function init() {
       if (location.hash) {
         hashchange();
       } else {
-        location.hash = "#dpd";
+        location.hash = "#DPD";
       }
     }
 
@@ -198,8 +146,8 @@
             console.log("selected province:", province.datum());
             if (error) return done(error);
 
-            // if we're in the DPR, provinces have candidates
-            if (context.body === "dpr") {
+            // if we're in the DPD, provinces have candidates
+            if (context.body === "DPD") {
 
               return province.call(listCandidates, context, function(error, candidates) {
                 if (error) return done(error);
@@ -240,13 +188,14 @@
     }
 
     function setView(id, callback) {
-      if (!views[id]) {
-        console.error("no such body:", body);
+      // get a reference to the view object
+      var root = d3.select("#" + id);
+
+      if (root.empty()) {
+        console.error("no such view:", id);
         return;
       }
 
-      // get a reference to the view object
-      var view = views[id];
 
       // toggle the active state of all body-specific elements
       bodies
@@ -260,13 +209,13 @@
       // abort the last active API request, if there is one
       api.abort();
 
-      if (callback) callback(null, view.root);
+      if (callback) callback(null, root);
     }
 
     function listProvinces(selection, context, callback) {
       var list = selection.select(".provinces");
       if (list.empty()) {
-        list = root.append("div")
+        list = selection.append("div")
           .attr("class", "provinces");
       }
       list
@@ -339,6 +288,39 @@
     }
 
     function listCandidates(selection, context, callback) {
+      var list = selection.select(".candidates");
+      if (list.empty()) {
+        list = selection.append("div")
+          .attr("class", "candidates");
+      }
+
+      var params = {
+        lembaga: context.body,
+        province: context.province
+      };
+      switch (context.body) {
+        case "DPD":
+          // no districts (dapil)
+          break;
+        case "DPR":
+        case "DPRDI":
+          params.provinsi = context.province;
+          params.dapil = context.dapil;
+          break;
+      }
+
+      list
+        .classed("loading", true)
+        .classed("error", false);
+      return api.get("caleg", params, function(error, res) {
+        list
+          .classed("loading", false)
+          .classed("error", !!error);
+        if (error) return callback(error);
+
+        var candidates = res.results.caleg;
+        console.log("got candidates:", candidates);
+      });
     }
 
     function selectCandidate(selection, context, callback) {
