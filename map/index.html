@@ -16,27 +16,34 @@
     <link rel="stylesheet" href="css/peta_caleg.css">
   </head>
   <body>
-    <div id="header">
-      <h1>Peta Caleg</h1>
-      <div id="nav">
-        <a href="#DPD">DPD</a>
-        <a href="#DPR">DPR</a>
-        <a href="#DPRDI">DPRDI</a>
+    <div id="page">
+      <div id="header">
+        <h1>Peta Caleg</h1>
       </div>
-    </div>
 
-    <div id="bodies" class="none">
-      <div id="DPD" class="body">
-        <h2>DPD</h2>
+      <div id="map">
       </div>
-      <div id="DPR" class="body">
-        <h2>DPR</h2>
-      </div>
-      <!--
-      <div id="DPRDI" class="body">
-        <h2>DPRDI</h2>
-      </div>
-      -->
+
+      <ul id="bodies">
+        <li id="DPD" class="body">
+          <h2 class="title">
+            <a class="text" href="#DPD">DPD</a>
+            <a class="close" href="#">&times;</a>
+          </h2>
+        </li>
+        <li id="DPR" class="body">
+          <h2 class="title">
+            <a class="text" href="#DPR">DPR</a>
+            <a class="close" href="#">&times;</a>
+          </h2>
+        </li>
+        <li id="DPRDI" class="body">
+          <h2 class="title">
+            <a class="text" href="#DPRDI">DPRDI</a>
+            <a class="close" href="#">&times;</a>
+          </h2>
+        </li>
+      </ul>
     </div>
 
     <script>
@@ -193,12 +200,12 @@
       }
 
 
-      // toggle the active state of all body-specific elements
+      // toggle the selected state of all body-specific elements
       bodies
         .attr("class", id)
         .style("display", null)
         .selectAll(".body")
-          .classed("active", function() {
+          .classed("selected", function() {
             return this.id === id;
           });
 
@@ -211,7 +218,7 @@
     function listProvinces(selection, context, callback) {
       var list = selection.select(".provinces");
       if (list.empty()) {
-        list = selection.append("div")
+        list = selection.append("ul")
           .attr("class", "provinces");
       }
       list
@@ -235,19 +242,29 @@
                 return d.id;
               }),
             enter = items.enter()
-              .append("div")
+              .append("li")
                 .attr("class", "province");
 
         items.exit().remove();
 
-        enter.append("h3")
-          .append("a")
-            .attr("href", function(d) {
-              return "#" + getProvinceId(d);
-            })
-            .text(function(d) {
-              return d.nama;
-            });
+        var title = enter.append("h3")
+          .attr("class", "title");
+
+        title.append("a")
+          .attr("class", "text")
+          .attr("href", function(d) {
+            return "#" + getProvinceId(d);
+          })
+          .text(function(d) {
+            return d.nama;
+          });
+
+        title.append("a")
+          .html("&times;")
+          .attr("class", "close")
+          .attr("href", function(d) {
+            return "#" + context.body;
+          });
 
         enter.append("div")
           .attr("class", "map");
@@ -286,23 +303,52 @@
     function listCandidates(selection, context, callback) {
       var list = selection.select(".candidates");
       if (list.empty()) {
-        list = selection.append("div")
+        list = selection.append("ul")
           .attr("class", "candidates");
       }
+
+      // this will by our id function
+      var getCandidateId;
 
       var params = {
         lembaga: context.body,
         province: context.province
       };
+
       switch (context.body) {
         case "DPD":
           // no districts (dapil)
+          getCandidateId = function(d) {
+            return [
+              context.body,
+              "provinsi",
+              context.province,
+              "caleg",
+              d.id
+            ].join("/");
+          };
           break;
+
         case "DPR":
         case "DPRDI":
           params.provinsi = context.province;
           params.dapil = context.dapil;
+          getCandidateId = function(d) {
+            return [
+              context.body,
+              "provinsi",
+              context.province,
+              "dapil",
+              context.district,
+              "caleg",
+              d.id
+            ].join("/");
+          };
           break;
+
+        default:
+          console.warn("unknown body (lembaga):", context.body);
+          return callback("unknown body: " + context.body);
       }
 
       list
@@ -316,6 +362,41 @@
 
         var candidates = res.results.caleg;
         console.log("got candidates:", candidates);
+
+        var items = list.selectAll(".candidate")
+              .data(candidates, function(d) {
+                return d.id;
+              }),
+            enter = items.enter()
+              .append("li")
+                .attr("class", "candidate");
+
+        var title = enter.append("h4")
+          .attr("class", "title");
+
+        title.append("a")
+          .attr("class", "text")
+          .attr("href", function(d) {
+            return "#" + getCandidateId(d);
+          })
+          .text(function(d) {
+            return d.nama;
+          });
+
+        title.append("a")
+          .html("&times;")
+          .attr("class", "close")
+          .attr("href", function(d) {
+            var bits = getCandidateId(d).split("/");
+            bits.pop();
+            return "#" + bits.join("/");
+          });
+
+        items
+          .attr("id", getCandidateId)
+          .classed("selected", false);
+
+        return callback(null, items);
       });
     }
 
