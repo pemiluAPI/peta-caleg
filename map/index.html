@@ -49,11 +49,13 @@
         <div class="provinces">
         </div>
       </div>
+      <!--
       <div id="dprdi" class="body">
         <h2>DPRDI</h2>
         <div class="provinces">
         </div>
       </div>
+      -->
     </div>
 
     <script>
@@ -63,48 +65,44 @@
           .on("hashchange", hashchange)
           .on("load", init),
         bodies = d3.select("#bodies"),
-        api = pc.api(),
+        api = pc.api()
+          .key("7941b0baecd128c4de3a9ae63a85fd2c"),
         route = pc.router()
           .match("dpd", function(req) {
-            console.log("DPD root", req.data);
-            setView("dpd");
-            listProvinces();
+            setContext({
+              body: "dpd"
+            });
           })
           .match("dpd/provinsi/{provinsi}", function(req) {
-            var provinceId = req.data.provinsi;
-            console.log("DPD province:", provinceId);
-            setView("dpd");
-            listProvinces(function() {
-              selectProvince(provinceId, function() {
-                listCandidates(provinceId);
-              });
+            setContext({
+              body: "dpd",
+              province: req.data.provinsi
             });
           })
           .match("dpr", function(req) {
-            console.log("DPR root", req.data);
-            setView("dpr");
+            setContext({
+              body: "dpr",
+            });
           })
           .match("dpr/provinsi/{provinsi}", function(req) {
-            var provinceId = req.data.provinsi;
-            console.log("DPR province:", provinceId);
-            setView("dpr");
-            listProvinces(function() {
-              selectProvince(provinceId, function() {
-                listDistricts(provinceId);
-              });
+            setContext({
+              body: "dpr",
+              province: req.data.provinsi
             });
           })
           .match("dpr/provinsi/{provinsi}/dapil/{dapil}", function(req) {
-            var provinceId = req.data.provinsi,
-                districtId = req.data.dapil;
-            console.log("DPR district:", provinceId, "->", districtId);
-            setView("dpr");
-            listProvinces(function() {
-              selectProvince(provinceId, function() {
-                listDistricts(provinceId, function() {
-                  selectDistrict(provinceId, districtId);
-                });
-              });
+            setContext({
+              body: "dpr",
+              province: req.data.provinsi,
+              district: req.data.dapil
+            });
+          })
+          .match("dpr/provinsi/{provinsi}/dapil/{dapil}/caleg/{caleg}", function(req) {
+            setContext({
+              body: "dpr",
+              province: req.data.provinsi,
+              district: req.data.dapil,
+              candidate: req.data.caleg
             });
           })
           /*
@@ -184,14 +182,71 @@
       route(hash);
     }
 
+    function setContext(context, callback) {
+      function done(error) {
+        if (error) console.warn("error:", error);
+        if (callback) callback.apply(null, arguments);
+      }
+
+      setView(context.body, function(error, view) {
+        if (error) return done(error);
+        view.call(listProvinces, context, function(error, provinces) {
+          if (error) return done(error);
+          else if (!context.province) return done();
+
+          provinces.call(selectProvince, context, function(error, province) {
+            console.log("selected province:", province.datum());
+            if (error) return done(error);
+
+            // if we're in the DPR, provinces have candidates
+            if (context.body === "dpr") {
+
+              return province.call(listCandidates, context, function(error, candidates) {
+                if (error) return done(error);
+
+                if (context.candidate) {
+                  candidates.call(selectCandidate, context, function(error, candidate) {
+                    return done(error);
+                  });
+                }
+              });
+
+            } else {
+
+              return province.call(listDistricts, context, function(error, districts) {
+                if (error) return done(error);
+
+                if (contex.district) {
+                  return districts.call(selectDistrict, context, function(error, district) {
+                    if (error) return done(error);
+                    district.call(listCandidates, context, function(error, candidates) {
+                      if (error) return done(error);
+                      if (!context.candidate) return done();
+
+                      return candidates.call(selectCandidate, context, function(error, candidate) {
+                        return done(error);
+                      });
+                    });
+                  });
+                } else {
+                  done();
+                }
+              });
+
+            }
+          });
+        });
+      });
+    }
+
     function setView(id, callback) {
       if (!views[id]) {
         console.error("no such body:", body);
         return;
       }
 
-      // set the global view to this one
-      view = views[id];
+      // get a reference to the view object
+      var view = views[id];
 
       // toggle the active state of all body-specific elements
       bodies
@@ -205,13 +260,24 @@
       // abort the last active API request, if there is one
       api.abort();
 
-      if (callback) callback(null, view);
+      if (callback) callback(null, view.root);
     }
 
-    function listProvinces(callback) {
-      var root = view.root,
-          list = root.select(".provinces");
-      api.get("provinsi", function(error, res) {
+    function listProvinces(selection, context, callback) {
+      var list = selection.select(".provinces");
+      if (list.empty()) {
+        list = root.append("div")
+          .attr("class", "provinces");
+      }
+      list
+        .classed("loading", true)
+        .classed("error", false);
+      return api.get("provinsi", function(error, res) {
+        list.classed("loading", false)
+          .classed("error", !!error);
+
+        if (error) return callback(error);
+
         var provinces = res.results.provinsi;
 
         if (error) {
@@ -219,15 +285,15 @@
         }
 
         console.log("provinces:", provinces);
-        var province = list.selectAll(".province")
+        var items = list.selectAll(".province")
               .data(provinces, function(d) {
                 return d.id;
               }),
-            enter = province.enter()
+            enter = items.enter()
               .append("div")
                 .attr("class", "province");
 
-        province.exit().remove();
+        items.exit().remove();
 
         enter.append("h3")
           .append("a")
@@ -241,51 +307,41 @@
         enter.append("div")
           .attr("class", "map");
 
-        province.attr("id", getProvinceId);
+        items
+          .attr("id", getProvinceId)
+          .classed("selected", false);
 
-        if (callback) callback(null, provinces);
+        if (callback) callback(null, items);
       });
+
+      function getProvinceId(d) {
+        return [context.body, "provinsi", d.id].join("/");
+      }
     }
 
-    function selectProvince(id, callback) {
-      var children = view.root.selectAll(".province")
-            .classed("active", function(d) {
-              return d.id == id;
+    function selectProvince(list, context, callback) {
+      var children = list
+            .classed("selected", function(d) {
+              return d.id == context.province;
             }),
-          selected = children.filter(".active"),
-          province = selected.datum();
-      console.log("selected:", province);
+          selected = children.filter(".selected"); // XXX
+      if (callback) {
+        return selected.empty()
+          ? callback("no such province: " + provinceId)
+          : callback(null, selected);
+      }
     }
 
-    function getProvinceId(d) {
-      return [view.id, "provinsi", d.id].join("/");
+    function listDistricts(selection, context, callback) {
     }
 
-    function getDistrictId(d) {
-      return [view.id, "provinsi", d.provinsi.id, "district", d.id].join("/");
+    function selectDistrict(selection, context, callback) {
     }
 
-    function listDistricts(provinceId, callback) {
-      var root = view.root,
-          list = root.select(getProvinceId(provinceId))
-            .select(".districts");
-      view.getDistricts(function(error, districts) {
-        if (error) {
-          return callback ? callback(error) : null;
-        }
-
-        // XXX TODO
-      });
+    function listCandidates(selection, context, callback) {
     }
 
-    function listProvinceCandidates(provinceId) {
-    }
-
-    function listDistrictCandidates(districtId) {
-    }
-
-    function nameAscending(a, b) {
-      return d3.ascending(a.nama, b.nama);
+    function selectCandidate(selection, context, callback) {
     }
 
     </script>
