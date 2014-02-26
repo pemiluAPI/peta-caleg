@@ -621,18 +621,47 @@
           .classed("error", !!error);
         if (error) return callback(error);
 
-        var candidates = res.results.caleg;
+        var candidates = res.results.caleg,
+            parties = d3.nest()
+              .key(function(d) { return d.partai.id; })
+              .sortKeys(d3.ascending)
+              .entries(candidates)
+              .map(function(d) {
+                return {
+                  id: d.key,
+                  nama: d.values[0].partai.nama,
+                  caleg: d.values
+                };
+              });
         console.log("got candidates:", candidates);
+        console.log("got parties:", parties);
 
-        var items = list.selectAll("li.candidate")
-              .data(candidates, function(d) {
+        var groups = list.selectAll("li.party")
+              .data(parties, function(d) {
                 return d.id;
+              }),
+            enter = groups.enter()
+              .append("li")
+                .attr("class", "party");
+
+        enter.append("h4")
+          .attr("class", "title")
+          .text(function(d) {
+            return d.nama;
+          });
+
+        enter.append("ul")
+          .attr("class", "candidates");
+
+        var items = groups.selectAll("li.candidate")
+              .data(function(d) {
+                return d.caleg;
               }),
             enter = items.enter()
               .append("li")
                 .attr("class", "candidate");
 
-        var title = enter.append("h4")
+        var title = enter.append("h5")
           .attr("class", "title");
 
         title.append("a")
@@ -700,9 +729,8 @@
       return added;
     }
 
-    function topojsonToGeoJSON(topology, key) {
-      if (!key) key = Object.keys(topology.objects)[0];
-      return topojson.feature(topology, topology.objects[key]);
+    function sortCandidates(a, b) {
+      return d3.ascending(a.urutan, b.urutan);
     }
 
     </script>
