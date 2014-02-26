@@ -57,6 +57,11 @@
         api = pc.api()
           .key("7941b0baecd128c4de3a9ae63a85fd2c"),
         route = pc.router()
+          .match("", function(req) {
+            setContext({
+              body: null
+            });
+          })
           .match("DPD", function(req) {
             setContext({
               body: "DPD"
@@ -66,6 +71,13 @@
             setContext({
               body: "DPD",
               province: req.data.provinsi
+            });
+          })
+          .match("DPD/provinsi/{provinsi}/caleg/{caleg}", function(req) {
+            setContext({
+              body: "DPD",
+              province: req.data.provinsi,
+              candidate: req.data.caleg
             });
           })
           .match("DPR", function(req) {
@@ -94,22 +106,8 @@
               candidate: req.data.caleg
             });
           })
-          /*
-          .match("DPRDI", function(req) {
-            console.log("DPRDI root", req.data);
-            setView("DPRDI");
-          })
-          .match("DPRDI/dapil/{dapil}", function(req) {
-            var districtId = req.data.dapil;
-            console.log("DPRDI district:", districtId);
-            setView("DPRDI");
-            listProvinces(function() {
-              selectProvince(districtId);
-            });
-          })
-          */
           .notfound(function(req) {
-            console.error("404:", req.url);
+            alert("404:", req.url);
           });
 
     function init() {
@@ -139,78 +137,87 @@
         if (callback) callback.apply(null, arguments);
       }
 
-      setView(context.body, function(error, view) {
+      // abort the last active API request, if there is one
+      api.abort();
+
+      // if there's no legislative body (lembaga) selected,
+      // deselect them all and bail
+      if (!context.body) {
+        bodies
+          .attr("class", "none")
+          .style("display", null)
+          .selectAll(".body")
+            .classed("selected", false);
+
+        return done(null, "no body selected");
+      }
+
+      // get a reference to the view object
+      var root = d3.select("#" + context.body);
+
+      if (root.empty()) {
+        console.error("no such view:", id);
+        return done("no such view: " + id);
+      }
+
+      // toggle the selected state of all body-specific elements
+      bodies
+        .attr("class", context.body)
+        .style("display", null)
+        .selectAll(".body")
+          .classed("selected", function() {
+            return this.id === context.body;
+          });
+
+      root.call(listProvinces, context, function(error, provinces) {
         if (error) return done(error);
-        view.call(listProvinces, context, function(error, provinces) {
+        else if (!context.province) return done();
+
+        provinces.call(selectProvince, context, function(error, province) {
+          console.log("selected province:", province.datum());
           if (error) return done(error);
-          else if (!context.province) return done();
 
-          provinces.call(selectProvince, context, function(error, province) {
-            console.log("selected province:", province.datum());
-            if (error) return done(error);
+          // if we're in the DPD, provinces have candidates
+          if (context.body === "DPD") {
 
-            // if we're in the DPD, provinces have candidates
-            if (context.body === "DPD") {
+            return province.call(listCandidates, context, function(error, candidates) {
+              if (error) return done(error);
 
-              return province.call(listCandidates, context, function(error, candidates) {
-                if (error) return done(error);
+              if (context.candidate) {
+                candidates.call(selectCandidate, context, function(error, candidate) {
+                  return done(error);
+                });
+              }
+            });
 
-                if (context.candidate) {
-                  candidates.call(selectCandidate, context, function(error, candidate) {
-                    return done(error);
-                  });
-                }
-              });
+          } else {
 
-            } else {
+            return province.call(listDistricts, context, function(error, districts) {
+              if (error) return done(error);
 
-              return province.call(listDistricts, context, function(error, districts) {
-                if (error) return done(error);
-
-                if (contex.district) {
-                  return districts.call(selectDistrict, context, function(error, district) {
+              if (context.district) {
+                return districts.call(selectDistrict, context, function(error, district) {
+                  if (error) return done(error);
+                  district.call(listCandidates, context, function(error, candidates) {
                     if (error) return done(error);
-                    district.call(listCandidates, context, function(error, candidates) {
-                      if (error) return done(error);
-                      if (!context.candidate) return done();
+                    if (!context.candidate) return done();
 
-                      return candidates.call(selectCandidate, context, function(error, candidate) {
-                        return done(error);
-                      });
+                    return candidates.call(selectCandidate, context, function(error, candidate) {
+                      return done(error);
                     });
                   });
-                } else {
-                  done();
-                }
-              });
+                });
+              } else {
+                done();
+              }
+            });
 
-            }
-          });
+          }
         });
       });
     }
 
     function setView(id, callback) {
-      // get a reference to the view object
-      var root = d3.select("#" + id);
-
-      if (root.empty()) {
-        console.error("no such view:", id);
-        return;
-      }
-
-
-      // toggle the selected state of all body-specific elements
-      bodies
-        .attr("class", id)
-        .style("display", null)
-        .selectAll(".body")
-          .classed("selected", function() {
-            return this.id === id;
-          });
-
-      // abort the last active API request, if there is one
-      api.abort();
 
       if (callback) callback(null, root);
     }
@@ -282,22 +289,100 @@
     }
 
     function selectProvince(list, context, callback) {
-      var children = list
+      var id = context.province,
+          children = list
             .classed("selected", function(d) {
-              return d.id == context.province;
+              return d.id == id;
             }),
           selected = children.filter(".selected"); // XXX
       if (callback) {
         return selected.empty()
-          ? callback("no such province: " + provinceId)
+          ? callback("no such province: " + id)
           : callback(null, selected);
       }
     }
 
     function listDistricts(selection, context, callback) {
+      var list = selection.select(".districts");
+      if (list.empty()) {
+        list = selection.append("ul")
+          .attr("class", "districts");
+      }
+
+      var params = {
+        lembaga: context.body,
+        provinsi: context.province
+      };
+
+      list
+        .classed("loading", true)
+        .classed("error", false);
+      return api.get("dapil", params, function(error, res) {
+        list
+          .classed("loading", false)
+          .classed("error", !!error);
+        if (error) return callback(error);
+
+        var districts = res.results.dapil;
+        console.log("got districts:", districts);
+
+        var items = list.selectAll(".district")
+              .data(districts, function(d) {
+                return d.id;
+              }),
+            enter = items.enter()
+              .append("li")
+                .attr("class", "district");
+
+        var title = enter.append("h4")
+          .attr("class", "title");
+
+        title.append("a")
+          .attr("class", "text")
+          .attr("href", function(d) {
+            return "#" + getDistrictId(d);
+          })
+          .text(function(d) {
+            return d.nama;
+          });
+
+        title.append("a")
+          .html("&times;")
+          .attr("class", "close")
+          .attr("href", "#" + [context.body, "provinsi", context.province].join("/"));
+
+        items
+          .attr("id", getDistrictId)
+          .classed("selected", false);
+
+        return callback(null, items);
+      });
+
+      // this will by our id function
+      function getDistrictId(d) {
+        return [
+          context.body,
+          "provinsi",
+          context.province,
+          "dapil",
+          context.district
+        ].join("/");
+      }
     }
 
-    function selectDistrict(selection, context, callback) {
+    function selectDistrict(list, context, callback) {
+      var id = context.district,
+          children = list
+            .classed("selected", function(d) {
+              return d.id == id;
+            }),
+          selected = children.filter(".selected") // XXX
+            .call(scrollToElement);
+      if (callback) {
+        return selected.empty()
+          ? callback("no such district: " + id)
+          : callback(null, selected);
+      }
     }
 
     function listCandidates(selection, context, callback) {
@@ -388,8 +473,7 @@
           .attr("class", "close")
           .attr("href", function(d) {
             var bits = getCandidateId(d).split("/");
-            bits.pop();
-            return "#" + bits.join("/");
+            return "#" + bits.slice(0, -2).join("/");
           });
 
         items
@@ -400,7 +484,27 @@
       });
     }
 
-    function selectCandidate(selection, context, callback) {
+    function selectCandidate(list, context, callback) {
+      var id = context.candidate,
+          children = list
+            .classed("selected", function(d) {
+              return d.id == id;
+            }),
+          selected = children.filter(".selected") // XXX
+            .call(scrollToElement);
+
+      if (callback) {
+        return selected.empty()
+          ? callback("no such candidate: " + id)
+          : callback(null, selected);
+      }
+    }
+
+    function scrollToElement(selection) {
+      if (!selection.empty()) {
+        selection.node()
+          .scrollIntoView();
+      }
     }
 
     </script>
