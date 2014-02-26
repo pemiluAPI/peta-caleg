@@ -333,7 +333,8 @@
             if (d.feature) {
               var thumb = new google.maps.Map(this, {
                     disableDefaultUI: true,
-                    draggable: false
+                    draggable: false,
+                    scrollwheel: false
                   }),
                   poly = new GeoJSON(d.feature, {
                     fillColor: "#f00",
