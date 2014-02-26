@@ -21,6 +21,7 @@
           }
           return notfound({
             url: url,
+            code: 404,
             error: "not found",
             data: null
           });
