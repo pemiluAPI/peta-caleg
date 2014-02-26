@@ -22,4 +22,32 @@
     )
   };
 
+  pc.geo.styles = {
+    basic: new gm.StyledMapType([
+      {
+        "featureType": "landscape",
+        "stylers": [{"visibility": "off"}]
+      },
+      {
+        "featureType": "poi",
+        "stylers": [{"visibility": "off"}]
+      },
+      {
+        "featureType": "administrative",
+        "elementType": "labels",
+        "stylers": [{"visibility": "off"}]
+      },
+      {
+        "featureType": "landscape",
+        "stylers": [{"visibility": "off"}]
+      },
+      {
+        "featureType": "road",
+        "stylers": [{"visibility": "off"}]
+      }
+    ], {
+      name: "Basic"
+    })
+  };
+
 })(this);
