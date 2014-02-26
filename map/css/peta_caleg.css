@@ -1,14 +1,13 @@
 body {
   font-family: "Helvetica Neue", Helvetica, arial, sans-serif;
   font-size: 14px;
+  padding: 5px;
+  margin: 0;
+  position: relative;
 }
 
 #map {
   height: 200px;
-}
-
-#bodies.none {
-  display: none;
 }
 
 #bodies,
@@ -25,6 +24,7 @@ body {
   }
 
 .provinces,
+.districts,
 .candidates,
 .candidate .detail,
 a.close {
@@ -33,6 +33,7 @@ a.close {
 
 .body.selected .provinces,
 .province.selected .candidates,
+.province.selected .districts,
 .candidate.selected .detail,
 .selected > .title > a.close {
   display: block;
