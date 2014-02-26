@@ -140,12 +140,12 @@
         .defer(d3.json, "data/dapil.topojson")
         .await(function(error, provinceTopology, districtTopology) {
 
-          pc.geo.provinces = topojson.feature(provinceTopology,
-            provinceTopology.objects["DAPIL_PROVINSI"])
-            .features;
-          console.log("provinces:", pc.geo.provinces);
+          var collection = topojson.feature(provinceTopology,
+            provinceTopology.objects["DAPIL_PROVINSI"]);
+          pc.geo.provinces = collection;
+          console.log("provinces:", collection);
 
-          var layers = new GeoJSON(pc.geo.provinces, {
+          var layers = new GeoJSON(collection, {
             fillColor: "#f00",
             fillOpacity: .8,
             strokeColor: "#000",
@@ -158,8 +158,7 @@
           ["DPD", "DPR"].forEach(function(lembaga) {
             var key = "DAPIL_NASIONAL_" + lembaga;
             pc.geo[lembaga] = topojson.feature(districtTopology,
-              districtTopology.objects[key])
-              .features;
+              districtTopology.objects[key]);
           });
 
           ready();
@@ -324,7 +323,7 @@
         var provinceById = d3.nest()
           .key(function(d) { return d.id; })
           .rollup(function(d) { return d[0]; })
-          .map(pc.geo.provinces);
+          .map(pc.geo.provinces.features);
         console.log("provinces by id:", provinceById);
 
         enter.append("div")
