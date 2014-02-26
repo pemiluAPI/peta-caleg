@@ -6,8 +6,10 @@
     <script src="js/vendor/aight.min.js"></script>
     <script src="js/vendor/d3.v3.min.js"></script>
     <script src="js/vendor/qs.min.js"></script>
+
     <!-- Google Maps - TODO: add API key -->
     <script src="http://maps.googleapis.com/maps/api/js?sensor=true&amp;v=3.14&amp;libraries=geometry,places"></script>
+
     <!-- Peta Caleg (local) scripts -->
     <script src="js/peta_caleg.js"></script>
     <script src="js/peta_caleg.api.js"></script>
@@ -114,7 +116,10 @@
       map = new google.maps.Map(document.getElementById("map"), {
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         center: pc.geo.bounds.getCenter(),
-        zoom: 5
+        zoom: 5,
+        mapTypeControl: false,
+        scrollwheel: false,
+        streetViewControl: false
       });
 
       map.fitBounds(pc.geo.bounds);
