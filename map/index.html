@@ -302,7 +302,7 @@
         });
 
         console.log("provinces:", provinces);
-        var items = list.selectAll(".province")
+        var items = list.selectAll("li.province")
               .data(provinces, function(d) {
                 return d.id;
               }),
@@ -311,6 +311,13 @@
                 .attr("class", "province");
 
         items.exit().remove();
+
+        items
+          .attr("id", getProvinceId)
+          .classed("selected", false)
+          .each(function(d) {
+            d.feature = adminCollection.lookup[d.id];
+          });
 
         var title = enter.append("h3")
           .attr("class", "title");
@@ -334,11 +341,8 @@
         var content = enter.append("div")
           .attr("class", "content");
 
-        var div = content.append("div")
-          .attr("class", "map")
-          .each(function(d) {
-            d.feature = adminCollection.lookup[d.id];
-          });
+        var thumb = content.append("div")
+          .attr("class", "map thumb");
 
         var center = map.getCenter(),
             zoom = map.getZoom(),
@@ -349,7 +353,7 @@
             padding = 1;
 
         console.time("[svg] bounds");
-        var svg = div.append("svg")
+        var svg = thumb.append("svg")
           .attr("class", "thumb")
           .attr("preserveAspectRatio", "xMidYMid")
           .attr("viewBox", function(d) {
@@ -379,10 +383,6 @@
               return path(d.feature);
             });
         console.timeEnd("[svg] foreground");
-
-        items
-          .attr("id", getProvinceId)
-          .classed("selected", false);
 
         if (callback) callback(null, items);
       });
@@ -430,7 +430,7 @@
         var districts = res.results.dapil;
         console.log("got districts:", districts);
 
-        var items = list.selectAll(".district")
+        var items = list.selectAll("li.district")
               .data(districts, function(d) {
                 return d.id;
               }),
@@ -552,7 +552,7 @@
         var candidates = res.results.caleg;
         console.log("got candidates:", candidates);
 
-        var items = list.selectAll(".candidate")
+        var items = list.selectAll("li.candidate")
               .data(candidates, function(d) {
                 return d.id;
               }),
