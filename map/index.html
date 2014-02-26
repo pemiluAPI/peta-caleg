@@ -292,9 +292,15 @@
 
         var provinces = res.results.provinsi;
 
-        if (error) {
+        if (error || !provinces.length) {
           return callback ? callback(error) : null;
         }
+
+        var adminCollection = pc.geo.ADMIN;
+        // filter out provinces without a corresponding admin feature
+        provinces = provinces.filter(function(d) {
+          return d.id in adminCollection.lookup;
+        });
 
         console.log("provinces:", provinces);
         var items = list.selectAll(".province")
@@ -329,47 +335,51 @@
         var content = enter.append("div")
           .attr("class", "content");
 
-        var adminById = d3.nest()
-          .key(function(d) { return d.id; })
-          .rollup(function(d) { return d[0]; })
-          .map(pc.geo.ADMIN.features);
-        console.log("admin provinces by id:", adminById);
-
-        content.append("div")
+        var div = content.append("div")
           .attr("class", "map")
           .each(function(d) {
-            d.feature = adminById[d.id];
-            if (d.feature) {
-              var thumb = new google.maps.Map(this, {
-                    disableDefaultUI: true,
-                    draggable: false,
-                    scrollwheel: false
-                  }),
-                  poly = new GeoJSON(d.feature, {
-                    fillColor: "#f0f",
-                    fillOpacity: .5,
-                    strokeWeight: .5,
-                    strokeColor: "#000",
-                    strokeOpacity: 1
-                  });
-
-              thumb.mapTypes.set("basic", pc.geo.styles.basic);
-              thumb.setMapTypeId("basic");
-
-              addLayerToMap(poly, thumb);
-              var bounds = d3.geo.bounds(d.feature);
-              thumb.fitBounds(new google.maps.LatLngBounds(
-                new google.maps.LatLng(bounds[0][1], bounds[0][0]),
-                new google.maps.LatLng(bounds[1][1], bounds[1][0])
-              ));
-              // Google is probably accounting for the (considerable) size
-              // of their logo and footer when they do the bounds fitting.
-              // Zooming in twice seems to do it, but this is ugly.
-              thumb.setZoom(thumb.getZoom() + 2);
-            } else {
-              console.log("no feature:", d.id);
-            }
+            d.feature = adminCollection.lookup[d.id];
           });
+
+        var center = map.getCenter(),
+            zoom = map.getZoom(),
+            proj = d3.geo.mercator()
+              .center([center.lng(), center.lat()])
+            path = d3.geo.path()
+              .projection(proj),
+            padding = 1;
+
+        console.time("[svg] bounds");
+        var svg = div.append("svg")
+          .attr("class", "thumb")
+          .attr("preserveAspectRatio", "xMidYMid")
+          .attr("viewBox", function(d) {
+            var bounds = path.bounds(d.feature);
+            return [
+              bounds[0][0] - padding,
+              bounds[0][1] - padding,
+              bounds[1][0] - bounds[0][0] + padding * 2,
+              bounds[1][1] - bounds[0][1] + padding * 2
+            ].join(" ");
+          });
+        console.timeEnd("[svg] bounds");
+
+        console.time("[svg] background");
+        svg.append("g")
+          .attr("class", "bg")
+          .append("path")
+            .attr("d", path(adminCollection));
+        console.timeEnd("[svg] background");
+
+        console.time("[svg] foreground");
+        svg.append("g")
+          .attr("class", "fg")
+          .append("path")
+            .attr("class", "province")
+            .attr("d", function(d) {
+              return path(d.feature);
+            });
+        console.timeEnd("[svg] foreground");
 
         items
           .attr("id", getProvinceId)
