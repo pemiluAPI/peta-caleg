@@ -98,6 +98,11 @@
       {
         "featureType": "road",
         "stylers": [{"visibility": "off"}]
+      },
+      {
+        "featureType": "water",
+        "elementType": "labels",
+        "stylers": [{"visibility": "off"}]
       }
     ], {
       name: "Basic"
