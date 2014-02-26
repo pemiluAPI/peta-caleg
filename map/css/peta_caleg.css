@@ -13,7 +13,7 @@ body {
 }
 
 #map {
-  height: 400px;
+  height: 250px;
 }
 
 #bodies,
@@ -111,7 +111,7 @@ svg.thumb path {
 }
 
 svg.thumb .bg path {
-  fill: #eee;
+  fill: #e5e3df;
   stroke: #ddd;
   stroke-width: .5;
 }
@@ -119,6 +119,6 @@ svg.thumb .bg path {
 svg.thumb .fg path {
   opacity: .5;
   fill: #f0f;
-  stroke: #f0f;
-  stroke-width: .5;
+  stroke: #fff;
+  stroke-width: 1;
 }

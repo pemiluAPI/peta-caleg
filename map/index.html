@@ -125,16 +125,15 @@
 
     function init() {
       map = new google.maps.Map(document.getElementById("map"), {
-        mapTypeId: google.maps.MapTypeId.ROADMAP,
         center: pc.geo.bounds.getCenter(),
-        zoom: 6,
+        zoom: 4,
         mapTypeControl: false,
         scrollwheel: false,
         streetViewControl: false
       });
 
-      map.fitBounds(pc.geo.bounds);
-      // map.setZoom(map.getZoom() + 1);
+      map.mapTypes.set("basic", pc.geo.styles.basic);
+      map.setMapTypeId("basic");
 
       queue()
         .defer(d3.json, "data/admin.topojson")
@@ -152,7 +151,7 @@
           var adminLayers = new GeoJSON(admin, {
             fillColor: "#f0f",
             fillOpacity: .4,
-            strokeColor: "#000",
+            strokeColor: "#fff",
             strokeWeight: .5,
             strokeOpacity: 1
           });
