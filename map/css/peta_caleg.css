@@ -85,14 +85,17 @@ a.close {
     display: none;
   }
 
-.province {
-  clear: left;
+.province > .content {
+  height: 100px;
+  padding-left: 120px;
+  position: relative;
 }
 
-.province .map {
-  background: #999;
-  width: 200px;
-  height: 200px;
-  margin-right: 20px;
-  float: left;
+.province > .content .map {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100px;
+  height: 100%;
+  background: #fff;
 }
