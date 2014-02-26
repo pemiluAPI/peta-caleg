@@ -320,13 +320,16 @@
             return "#" + context.body;
           });
 
+        var content = enter.append("div")
+          .attr("class", "content");
+
         var provinceById = d3.nest()
           .key(function(d) { return d.id; })
           .rollup(function(d) { return d[0]; })
           .map(pc.geo.provinces.features);
         console.log("provinces by id:", provinceById);
 
-        enter.append("div")
+        content.append("div")
           .attr("class", "map")
           .each(function(d) {
             d.feature = provinceById[d.id];
@@ -338,15 +341,23 @@
                   }),
                   poly = new GeoJSON(d.feature, {
                     fillColor: "#f00",
-                    fillOpacity: 1,
+                    fillOpacity: .5,
                     strokeWeight: 0
                   });
+
+              thumb.mapTypes.set("basic", pc.geo.styles.basic);
+              thumb.setMapTypeId("basic");
+
               addLayerToMap(poly, thumb);
               var bounds = d3.geo.bounds(d.feature);
               thumb.fitBounds(new google.maps.LatLngBounds(
                 new google.maps.LatLng(bounds[0][1], bounds[0][0]),
                 new google.maps.LatLng(bounds[1][1], bounds[1][0])
               ));
+              // Google is probably accounting for the (considerable) size
+              // of their logo and footer when they do the bounds fitting.
+              // Zooming in twice seems to do it, but this is ugly.
+              thumb.setZoom(thumb.getZoom() + 2);
             } else {
               console.log("no feature:", d.id);
             }
