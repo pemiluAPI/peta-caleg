@@ -127,39 +127,45 @@
       map = new google.maps.Map(document.getElementById("map"), {
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         center: pc.geo.bounds.getCenter(),
-        zoom: 5,
+        zoom: 6,
         mapTypeControl: false,
         scrollwheel: false,
         streetViewControl: false
       });
 
       map.fitBounds(pc.geo.bounds);
+      // map.setZoom(map.getZoom() + 1);
 
       queue()
-        .defer(d3.json, "data/provinsi.topojson")
+        .defer(d3.json, "data/admin.topojson")
         .defer(d3.json, "data/dapil.topojson")
-        .await(function(error, provinceTopology, districtTopology) {
+        .await(function(error, adminTopology, dapilTopology) {
 
-          var collection = topojson.feature(provinceTopology,
-            provinceTopology.objects["DAPIL_PROVINSI"]);
-          pc.geo.provinces = collection;
-          console.log("provinces:", collection);
+          console.time("geo");
 
-          var layers = new GeoJSON(collection, {
-            fillColor: "#f00",
-            fillOpacity: .8,
+          console.log("admin bbox:", adminTopology.bbox);
+
+          var admin = pc.geo.collection(adminTopology);
+          pc.geo.ADMIN = admin;
+          console.log("admin provinces:", admin.features);
+
+          var adminLayers = new GeoJSON(admin, {
+            fillColor: "#f0f",
+            fillOpacity: .4,
             strokeColor: "#000",
             strokeWeight: .5,
             strokeOpacity: 1
           });
 
-          addLayerToMap(layers, map);
+          addLayerToMap(adminLayers, map)
+            .forEach(function(layer) {
+              // TODO add click handlers
+            });
 
-          ["DPD", "DPR"].forEach(function(lembaga) {
-            var key = "DAPIL_NASIONAL_" + lembaga;
-            pc.geo[lembaga] = topojson.feature(districtTopology,
-              districtTopology.objects[key]);
-          });
+          pc.geo.DPR = pc.geo.collection(dapilTopology, "DAPIL_NASIONAL_DPR");
+          pc.geo.DPRDI = pc.geo.collection(dapilTopology, "DAPIL_PROVINSI");
+
+          console.timeEnd("geo");
 
           ready();
         });
@@ -310,7 +316,7 @@
             return "#" + getProvinceId(d);
           })
           .text(function(d) {
-            return d.nama;
+            return d.nama || "(no name)";
           });
 
         title.append("a")
@@ -323,16 +329,16 @@
         var content = enter.append("div")
           .attr("class", "content");
 
-        var provinceById = d3.nest()
+        var adminById = d3.nest()
           .key(function(d) { return d.id; })
           .rollup(function(d) { return d[0]; })
-          .map(pc.geo.provinces.features);
-        console.log("provinces by id:", provinceById);
+          .map(pc.geo.ADMIN.features);
+        console.log("admin provinces by id:", adminById);
 
         content.append("div")
           .attr("class", "map")
           .each(function(d) {
-            d.feature = provinceById[d.id];
+            d.feature = adminById[d.id];
             if (d.feature) {
               var thumb = new google.maps.Map(this, {
                     disableDefaultUI: true,
@@ -340,9 +346,11 @@
                     scrollwheel: false
                   }),
                   poly = new GeoJSON(d.feature, {
-                    fillColor: "#f00",
+                    fillColor: "#f0f",
                     fillOpacity: .5,
-                    strokeWeight: 0
+                    strokeWeight: .5,
+                    strokeColor: "#000",
+                    strokeOpacity: 1
                   });
 
               thumb.mapTypes.set("basic", pc.geo.styles.basic);
@@ -430,7 +438,7 @@
             return "#" + getDistrictId(d);
           })
           .text(function(d) {
-            return d.nama;
+            return d.nama || "(no name)";
           });
 
         title.append("a")
@@ -595,17 +603,25 @@
     }
 
     function addLayerToMap(layer, map) {
+      var added = [];
       if (Array.isArray(layer)) {
         layer.forEach(function(child) {
-          addLayerToMap(child, map);
+          added = added.concat(addLayerToMap(child, map));
         });
       } else {
         try {
           layer.setMap(map);
+          added.push(layer);
         } catch (err) {
           console.warn("unable to add layer:", layer);
         }
       }
+      return added;
+    }
+
+    function topojsonToGeoJSON(topology, key) {
+      if (!key) key = Object.keys(topology.objects)[0];
+      return topojson.feature(topology, topology.objects[key]);
     }
 
     </script>
