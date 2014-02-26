@@ -84,3 +84,15 @@ a.close {
   .loading > * {
     display: none;
   }
+
+.province {
+  clear: left;
+}
+
+.province .map {
+  background: #999;
+  width: 200px;
+  height: 200px;
+  margin-right: 20px;
+  float: left;
+}
