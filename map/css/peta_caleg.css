@@ -85,13 +85,13 @@ a.close {
     display: none;
   }
 
-.province > .content {
+.content {
   height: 100px;
   padding-left: 120px;
   position: relative;
 }
 
-.province > .content .map {
+.content .map {
   position: absolute;
   top: 0;
   left: 0;

@@ -59,11 +59,6 @@
           .on("load", init),
         map,
         bodies = d3.select("#bodies"),
-        featuresByType = {
-          DPD: [],
-          DPR: [],
-          DPRDI: []
-        },
         api = pc.api()
           .key("7941b0baecd128c4de3a9ae63a85fd2c"),
         route = pc.router()
@@ -116,9 +111,32 @@
               candidate: req.data.caleg
             });
           })
-          /*
-          TODO DPRDI
-          */
+          .match("DPRDI", function(req) {
+            setContext({
+              body: "DPRDI",
+            });
+          })
+          .match("DPRDI/provinsi/{provinsi}", function(req) {
+            setContext({
+              body: "DPRDI",
+              province: req.data.provinsi
+            });
+          })
+          .match("DPRDI/provinsi/{provinsi}/dapil/{dapil}", function(req) {
+            setContext({
+              body: "DPRDI",
+              province: req.data.provinsi,
+              district: req.data.dapil
+            });
+          })
+          .match("DPRDI/provinsi/{provinsi}/dapil/{dapil}/caleg/{caleg}", function(req) {
+            setContext({
+              body: "DPRDI",
+              province: req.data.provinsi,
+              district: req.data.dapil,
+              candidate: req.data.caleg
+            });
+          })
           .notfound(function(req) {
             alert("404:", req.url);
           });
@@ -430,6 +448,11 @@
         var districts = res.results.dapil;
         console.log("got districts:", districts);
 
+        var boundaries = pc.geo[context.body];
+        if (!boundaries) {
+          throw "No boundaries for " + context.body;
+        }
+
         var items = list.selectAll("li.district")
               .data(districts, function(d) {
                 return d.id;
@@ -457,7 +480,56 @@
 
         items
           .attr("id", getDistrictId)
-          .classed("selected", false);
+          .classed("selected", false)
+          .each(function(d) {
+            d.feature = boundaries.lookup[d.id];
+          });
+
+        var content = enter.append("div")
+          .attr("class", "content");
+
+        var thumb = content.append("div")
+          .attr("class", "map thumb");
+
+        var center = map.getCenter(),
+            zoom = map.getZoom(),
+            proj = d3.geo.mercator()
+              .center([center.lng(), center.lat()])
+            path = d3.geo.path()
+              .projection(proj),
+            padding = 1;
+
+        console.time("[svg] bounds");
+        var svg = thumb.append("svg")
+          .attr("class", "thumb")
+          .attr("preserveAspectRatio", "xMidYMid")
+          .attr("viewBox", function(d) {
+            var bounds = path.bounds(d.feature);
+            return [
+              bounds[0][0] - padding,
+              bounds[0][1] - padding,
+              bounds[1][0] - bounds[0][0] + padding * 2,
+              bounds[1][1] - bounds[0][1] + padding * 2
+            ].join(" ");
+          });
+        console.timeEnd("[svg] bounds");
+
+        console.time("[svg] background");
+        svg.append("g")
+          .attr("class", "bg")
+          .append("path")
+            .attr("d", path(boundaries));
+        console.timeEnd("[svg] background");
+
+        console.time("[svg] foreground");
+        svg.append("g")
+          .attr("class", "fg")
+          .append("path")
+            .attr("class", "province")
+            .attr("d", function(d) {
+              return path(d.feature);
+            });
+        console.timeEnd("[svg] foreground");
 
         return callback(null, items);
       });
