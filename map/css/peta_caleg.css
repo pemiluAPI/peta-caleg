@@ -120,5 +120,5 @@ svg.thumb .fg path {
   opacity: .5;
   fill: #f0f;
   stroke: #fff;
-  stroke-width: 1;
+  stroke-width: .5;
 }
