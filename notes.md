@@ -1,7 +1,7 @@
 - interactive region maps
   * three levels:
     1. DPD (33 provincial districts, 946 candidates)
-    2. DPR (77 regions, 6,606 candidates, by party)
+    2. DPR (77 provincial districts, 6606 candidates, by party)
     3. DPRDI (258 electoral districts, up to 25-30k candidates, ~2500 per district)
   * select a region to see the candidates
     - get these from the API
