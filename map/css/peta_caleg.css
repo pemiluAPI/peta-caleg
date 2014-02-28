@@ -61,6 +61,16 @@ a.close {
     background: #ddd;
   }
 
+  .candidate > .title a.text {
+    padding-left: 0;
+  }
+
+  .candidate .title img.photo {
+    display: inline-block;
+    height: 30px;
+    margin-right: 8px;
+  }
+
 a.close {
   position: absolute;
   top: 0;
