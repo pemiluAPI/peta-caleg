@@ -76,6 +76,18 @@
     return collection;
   };
 
+  pc.geo.collapseTopology = function(topology) {
+    var features = [];
+    for (var key in topology.objects) {
+      var f = topojson.feature(topology, topology.objects[key]).features;
+      features = features.concat(f);
+    }
+    return {
+      type: "FeatureCollection",
+      features: features
+    };
+  };
+
   pc.geo.styles = {
     basic: new gm.StyledMapType([
       {
