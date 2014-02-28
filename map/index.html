@@ -141,6 +141,11 @@
             alert("404:", req.url);
           });
 
+    var proj = d3.geo.mercator(),
+        path = d3.geo.path()
+          .projection(proj),
+        padding = 1;
+
     function init() {
       map = new google.maps.Map(document.getElementById("map"), {
         center: pc.geo.bounds.getCenter(),
@@ -150,15 +155,21 @@
         streetViewControl: false
       });
 
+      var center = map.getCenter();
+      proj.center([center.lng(), center.lat()]);
+
       map.mapTypes.set("basic", pc.geo.styles.basic);
       map.setMapTypeId("basic");
 
       queue()
         .defer(d3.json, "data/admin.topojson")
         .defer(d3.json, "data/dapil.topojson")
-        .await(function(error, adminTopology, dapilTopology) {
+        .defer(d3.json, "data/nearby_countries.topojson")
+        .await(function(error, adminTopology, dapilTopology, nearbyTopology) {
 
           console.time("geo");
+
+          pc.geo.NEARBY = pc.geo.collapseTopology(nearbyTopology);
 
           console.log("admin bbox:", adminTopology.bbox);
 
@@ -181,6 +192,22 @@
 
           pc.geo.DPR = pc.geo.collection(dapilTopology, "DAPIL_NASIONAL_DPR");
           pc.geo.DPRDI = pc.geo.collection(dapilTopology, "DAPIL_PROVINSI_DPRDI");
+
+          var shared = d3.select("body")
+                .append("svg")
+                  .attr("id", "shared")
+                  .attr("class", "map")
+                  .append("defs"),
+              bg = shared.append("g")
+                .attr("id", "map-bg");
+
+          bg.append("path")
+            .attr("class", "countries bg")
+            .attr("d", path(pc.geo.NEARBY));
+
+          bg.append("path")
+            .attr("class", "admin bg")
+            .attr("d", path(pc.geo.ADMIN));
 
           console.timeEnd("geo");
 
@@ -362,16 +389,8 @@
         var thumb = content.append("div")
           .attr("class", "map thumb");
 
-        var center = map.getCenter(),
-            zoom = map.getZoom(),
-            proj = d3.geo.mercator()
-              .center([center.lng(), center.lat()])
-            path = d3.geo.path()
-              .projection(proj),
-            padding = 1;
-
         var svg = thumb.append("svg")
-          .attr("class", "thumb")
+          .attr("class", "map")
           .attr("viewBox", function(d) {
             var bounds = path.bounds(d.feature);
             return [
@@ -382,10 +401,8 @@
             ].join(" ");
           });
 
-        svg.append("g")
-          .attr("class", "bg")
-          .append("path")
-            .attr("d", path(adminCollection));
+        svg.append("use")
+          .attr("xlink:href", "#map-bg");
 
         svg.append("g")
           .attr("class", "fg")
@@ -484,17 +501,8 @@
         var thumb = content.append("div")
           .attr("class", "map thumb");
 
-        var center = map.getCenter(),
-            zoom = map.getZoom(),
-            proj = d3.geo.mercator()
-              .center([center.lng(), center.lat()])
-            path = d3.geo.path()
-              .projection(proj),
-            padding = 1;
-
         var svg = thumb.append("svg")
-          .attr("class", "thumb")
-          .attr("preserveAspectRatio", "xMidYMid")
+          .attr("class", "map")
           .attr("viewBox", function(d) {
             var bounds = path.bounds(d.feature);
             return [
@@ -507,8 +515,8 @@
 
         svg.append("g")
           .attr("class", "bg")
-          .append("path")
-            .attr("d", path(boundaries));
+          .append("use")
+            .attr("xlink:href", "#map-bg");
 
         svg.append("g")
           .attr("class", "fg")
@@ -607,20 +615,31 @@
           .classed("error", !!error);
         if (error) return callback(error);
 
-        var candidates = res.results.caleg,
-            parties = d3.nest()
-              .key(function(d) { return d.partai.id; })
-              .sortKeys(d3.ascending)
-              .entries(candidates)
-              .map(function(d) {
-                return {
-                  id: d.key,
-                  nama: d.values[0].partai.nama,
-                  caleg: d.values
-                };
-              });
+        var candidates = res.results.caleg;
         console.log("got candidates:", candidates);
-        console.log("got parties:", parties);
+
+        if (context.body === "DPD") {
+          var parties = [
+            {
+              id: null,
+              nama: "",
+              caleg: candidates
+            }
+          ];
+        } else {
+          var parties = d3.nest()
+            .key(function(d) { return d.partai.id; })
+            .sortKeys(d3.ascending)
+            .entries(candidates)
+            .map(function(d) {
+              return {
+                id: d.key,
+                nama: d.values[0].partai.nama,
+                caleg: d.values
+              };
+            });
+          console.log("got parties:", parties);
+        }
 
         var groups = list.selectAll("li.party")
               .data(parties, function(d) {
@@ -630,11 +649,16 @@
               .append("li")
                 .attr("class", "party");
 
-        enter.append("h4")
-          .attr("class", "title")
-          .text(function(d) {
-            return d.nama;
-          });
+        // only create titles for parties with ids
+        // (b/c DPD doesn't do parties)
+        enter.filter(function(d) {
+            return d.id;
+          })
+          .append("h4")
+            .attr("class", "title")
+            .text(function(d) {
+              return d.nama;
+            });
 
         enter.append("ul")
           .attr("class", "candidates");
