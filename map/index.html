@@ -370,10 +370,8 @@
               .projection(proj),
             padding = 1;
 
-        console.time("[svg] bounds");
         var svg = thumb.append("svg")
           .attr("class", "thumb")
-          .attr("preserveAspectRatio", "xMidYMid")
           .attr("viewBox", function(d) {
             var bounds = path.bounds(d.feature);
             return [
@@ -383,16 +381,12 @@
               bounds[1][1] - bounds[0][1] + padding * 2
             ].join(" ");
           });
-        console.timeEnd("[svg] bounds");
 
-        console.time("[svg] background");
         svg.append("g")
           .attr("class", "bg")
           .append("path")
             .attr("d", path(adminCollection));
-        console.timeEnd("[svg] background");
 
-        console.time("[svg] foreground");
         svg.append("g")
           .attr("class", "fg")
           .append("path")
@@ -400,7 +394,6 @@
             .attr("d", function(d) {
               return path(d.feature);
             });
-        console.timeEnd("[svg] foreground");
 
         if (callback) callback(null, items);
       });
@@ -499,7 +492,6 @@
               .projection(proj),
             padding = 1;
 
-        console.time("[svg] bounds");
         var svg = thumb.append("svg")
           .attr("class", "thumb")
           .attr("preserveAspectRatio", "xMidYMid")
@@ -512,16 +504,12 @@
               bounds[1][1] - bounds[0][1] + padding * 2
             ].join(" ");
           });
-        console.timeEnd("[svg] bounds");
 
-        console.time("[svg] background");
         svg.append("g")
           .attr("class", "bg")
           .append("path")
             .attr("d", path(boundaries));
-        console.timeEnd("[svg] background");
 
-        console.time("[svg] foreground");
         svg.append("g")
           .attr("class", "fg")
           .append("path")
@@ -529,7 +517,6 @@
             .attr("d", function(d) {
               return path(d.feature);
             });
-        console.timeEnd("[svg] foreground");
 
         return callback(null, items);
       });
@@ -573,7 +560,7 @@
 
       var params = {
         lembaga: context.body,
-        province: context.province
+        provinsi: context.province
       };
 
       switch (context.body) {
@@ -592,8 +579,7 @@
 
         case "DPR":
         case "DPRDI":
-          params.provinsi = context.province;
-          params.dapil = context.dapil;
+          params.dapil = context.district;
           getCandidateId = function(d) {
             return [
               context.body,
@@ -662,13 +648,20 @@
                 .attr("class", "candidate");
 
         var title = enter.append("h5")
-          .attr("class", "title");
+              .attr("class", "title"),
+            link = title.append("a")
+              .attr("href", function(d) {
+                return "#" + getCandidateId(d);
+              });
 
-        title.append("a")
+        link.append("img")
+          .attr("class", "photo")
+          .attr("src", function(d) {
+            return d.foto_url;
+          });
+
+        link.append("span")
           .attr("class", "text")
-          .attr("href", function(d) {
-            return "#" + getCandidateId(d);
-          })
           .text(function(d) {
             return d.nama;
           });
