@@ -103,11 +103,20 @@
               district: req.data.dapil
             });
           })
-          .match("DPR/provinsi/{provinsi}/dapil/{dapil}/caleg/{caleg}", function(req) {
+          .match("DPR/provinsi/{provinsi}/dapil/{dapil}/partai/{partai}", function(req) {
             setContext({
               body: "DPR",
               province: req.data.provinsi,
               district: req.data.dapil,
+              party: req.data.partai
+            });
+          })
+          .match("DPR/provinsi/{provinsi}/dapil/{dapil}/partai/{partai}/caleg/{caleg}", function(req) {
+            setContext({
+              body: "DPR",
+              province: req.data.provinsi,
+              district: req.data.dapil,
+              party: req.data.partai,
               candidate: req.data.caleg
             });
           })
@@ -129,12 +138,21 @@
               district: req.data.dapil
             });
           })
-          .match("DPRDI/provinsi/{provinsi}/dapil/{dapil}/caleg/{caleg}", function(req) {
+          .match("DPRDI/provinsi/{provinsi}/dapil/{dapil}/partai/{partai}", function(req) {
             setContext({
               body: "DPRDI",
               province: req.data.provinsi,
-              district: req.data.dapil,
-              candidate: req.data.caleg
+              district: req.data.dapil
+              party:    req.data.partai
+            });
+          })
+          .match("DPRDI/provinsi/{provinsi}/dapil/{dapil}/partai/{partai}/caleg/{caleg}", function(req) {
+            setContext({
+              body: "DPRDI",
+              province:   req.data.provinsi,
+              district:   req.data.dapil,
+              party:      req.data.partai,
+              candidate:  req.data.caleg
             });
           })
           .notfound(function(req) {
@@ -279,34 +297,34 @@
 
             return province.call(listCandidates, context, function(error, candidates) {
               if (error) return done(error);
-
-              if (context.candidate) {
-                candidates.call(selectCandidate, context, function(error, candidate) {
-                  return done(error);
-                });
-              }
+              if (!context.candidate) return done(null, candidates);
+              return candidates.call(selectCandidate, context, function(error, candidate) {
+                return done(error);
+              });
             });
 
           } else {
 
             return province.call(listDistricts, context, function(error, districts) {
               if (error) return done(error);
-
-              if (context.district) {
-                return districts.call(selectDistrict, context, function(error, district) {
+              if (!context.district) return done(null, districts);
+              return districts.call(selectDistrict, context, function(error, district) {
+                if (error) return done(error);
+                return district.call(listParties, context, function(error, parties) {
                   if (error) return done(error);
-                  district.call(listCandidates, context, function(error, candidates) {
+                  if (!context.party) return done(null, parties);
+                  return parties.call(selectParty, context, function(error, party) {
                     if (error) return done(error);
-                    if (!context.candidate) return done();
-
-                    return candidates.call(selectCandidate, context, function(error, candidate) {
-                      return done(error);
+                    return party.call(listCandidates, context, function(error, candidates) {
+                      if (error) return done(error);
+                      if (!context.candidate) return done(null, candidates);
+                      return candidates.call(selectCandidate, context, function(error, candidate) {
+                        return done(error);
+                      });
                     });
                   });
                 });
-              } else {
-                done();
-              }
+              });
             });
 
           }
@@ -315,7 +333,6 @@
     }
 
     function setView(id, callback) {
-
       if (callback) callback(null, root);
     }
 
@@ -556,16 +573,7 @@
       }
     }
 
-    function listCandidates(selection, context, callback) {
-      var list = selection.select(".candidates");
-      if (list.empty()) {
-        list = selection.append("ul")
-          .attr("class", "candidates");
-      }
-
-      // this will by our id function
-      var getCandidateId;
-
+    function getCandidates(context, callback) {
       var params = {
         lembaga: context.body,
         provinsi: context.province
@@ -573,32 +581,11 @@
 
       switch (context.body) {
         case "DPD":
-          // no districts (dapil)
-          getCandidateId = function(d) {
-            return [
-              context.body,
-              "provinsi",
-              context.province,
-              "caleg",
-              d.id
-            ].join("/");
-          };
           break;
 
         case "DPR":
         case "DPRDI":
           params.dapil = context.district;
-          getCandidateId = function(d) {
-            return [
-              context.body,
-              "provinsi",
-              context.province,
-              "dapil",
-              context.district,
-              "caleg",
-              d.id
-            ].join("/");
-          };
           break;
 
         default:
@@ -606,40 +593,50 @@
           return callback("unknown body: " + context.body);
       }
 
+      return api.get("caleg", params, function(error, res) {
+        var candidates = res.results.caleg;
+        console.log("got candidates:", candidates);
+        return callback(null, candidates);
+      });
+    }
+
+    function getParties(context, callback) {
+      return getCandidates(context, function(error, candidates) {
+        if (error) return callback(error);
+
+        var parties = d3.nest()
+          .key(function(d) { return d.partai.id; })
+          .sortKeys(d3.ascending)
+          .entries(candidates)
+          .map(function(d) {
+            return {
+              id: d.key,
+              nama: d.values[0].partai.nama,
+              caleg: d.values
+            };
+          });
+        console.log("got parties:", parties);
+
+        return callback(null, parties);
+      });
+    }
+
+    function listParties(selection, context, callback) {
+      var list = selection.select(".parties");
+      if (list.empty()) {
+        list = selection.append("ul")
+          .attr("class", "parties");
+      }
+
       list
         .classed("loading", true)
         .classed("error", false);
-      return api.get("caleg", params, function(error, res) {
+      return getParties(context, function(error, parties) {
         list
           .classed("loading", false)
           .classed("error", !!error);
+
         if (error) return callback(error);
-
-        var candidates = res.results.caleg;
-        console.log("got candidates:", candidates);
-
-        if (context.body === "DPD") {
-          var parties = [
-            {
-              id: null,
-              nama: "",
-              caleg: candidates
-            }
-          ];
-        } else {
-          var parties = d3.nest()
-            .key(function(d) { return d.partai.id; })
-            .sortKeys(d3.ascending)
-            .entries(candidates)
-            .map(function(d) {
-              return {
-                id: d.key,
-                nama: d.values[0].partai.nama,
-                caleg: d.values
-              };
-            });
-          console.log("got parties:", parties);
-        }
 
         var groups = list.selectAll("li.party")
               .data(parties, function(d) {
@@ -649,21 +646,85 @@
               .append("li")
                 .attr("class", "party");
 
+        var idPrefix = [
+          context.body,
+          "provinsi",
+          context.province
+        ];
+
+        switch (context.body) {
+          case "DPD":
+            break;
+          default:
+            idPrefix.push(
+              "dapil",
+              context.district
+            );
+        }
+
+        idPrefix.push("partai", "");
+
+        function getPartyId(d) {
+          return idPrefix.join("/") + d.id;
+        }
+
         // only create titles for parties with ids
         // (b/c DPD doesn't do parties)
-        enter.filter(function(d) {
-            return d.id;
-          })
-          .append("h4")
-            .attr("class", "title")
-            .text(function(d) {
-              return d.nama;
-            });
+        var title = enter.append("h4")
+              .attr("class", "title"),
+            link = title.append("a")
+              .attr("href", function(d) {
+                return "#" + getPartyId(d);
+              });
 
-        enter.append("ul")
+        link.append("span")
+          .attr("class", "name")
+          .text(function(d) {
+            return d.nama;
+          });
+
+        groups
+          .attr("id", getPartyId)
+          .classed("selected", false);
+
+        return callback(null, groups);
+      });
+    }
+
+    function selectParty(selection, context, callback) {
+      var id = context.party,
+          children = selection
+            .classed("selected", function(d) {
+              return d.id == id;
+            }),
+          selected = children.filter(".selected") // XXX
+            .call(scrollToElement);
+
+      if (callback) {
+        return selected.empty()
+          ? callback("no such party: " + id)
+          : callback(null, selected);
+      }
+    }
+
+    function listCandidates(selection, context, callback) {
+      var list = selection.select(".candidates");
+      if (list.empty()) {
+        list = selection.append("ul")
           .attr("class", "candidates");
+      }
 
-        var items = groups.selectAll("li.candidate")
+      list
+        .classed("loading", true)
+        .classed("error", false);
+      return getCandidates(context, function(error, candidates) {
+        list
+          .classed("loading", false)
+          .classed("error", !!error);
+
+        if (error) return callback(error);
+
+        var items = selection.selectAll("li.candidate")
               .data(function(d) {
                 return d.caleg;
               }),
@@ -748,6 +809,31 @@
 
     function sortCandidates(a, b) {
       return d3.ascending(a.urutan, b.urutan);
+    }
+
+    function getCandidateId(d) {
+      switch (d.lembaga) {
+        case "DPD":
+          return [
+            d.lembaga,
+            "provinsi",
+            d.provinsi.id,
+            "caleg",
+            d.id
+          ].join("/");
+        default:
+          return [
+            d.lembaga,
+            "provinsi",
+            d.provinsi.id,
+            "dapil",
+            d.dapil.id,
+            "partai",
+            d.partai.id,
+            "caleg",
+            d.id
+          ].join("/");
+      }
     }
 
     </script>
