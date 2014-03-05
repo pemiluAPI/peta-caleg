@@ -65,6 +65,8 @@
           var points = [],
               bbox = [];
           admin.features.forEach(function(d, i) {
+            var centroid = d3.geo.centroid(d);
+            points.push([centroid[0], centroid[1], Infinity, i]);
             var first = true,
                 stream = d3.geo.stream(d, {
                   polygonStart: function() { },
@@ -165,32 +167,35 @@
           };
 
           var hoverRegions = new GeoJSON(voronoiCollection, {
-            fillOpacity: 0,
+            fillColor: "#fff",
+            fillOpacity: .1,
             strokeColor: "#000",
-            strokeOpacity: 0,
+            strokeOpacity: .1,
             strokeWeight: .5
           });
 
-          var adminLayers = new GeoJSON(admin, styles.off);
-
-          var layers = addLayerToMap(adminLayers, map),
+          var adminLayers = new GeoJSON(admin, styles.off),
+              layers = [],
               layersById = {};
-          layers.forEach(function(layer) {
-            google.maps.event.addListener(layer, "mouseover", mouseover);
-            google.maps.event.addListener(layer, "click", click);
-            google.maps.event.addListener(layer, "mouseout", mouseout);
 
-            var provinceId = layer.geojsonProperties.id_provinsi;
-            if (provinceId in layersById) {
-              layersById[provinceId].push(layer);
-            } else{
-              layersById[provinceId] = [layer];
-            }
-          });
+          setTimeout(function() {
+            layers = addLayerToMap(adminLayers, map);
+            layers.forEach(function(layer) {
+              google.maps.event.addListener(layer, "mouseover", mouseover);
+              google.maps.event.addListener(layer, "click", click);
+              google.maps.event.addListener(layer, "mouseout", mouseout);
+
+              var provinceId = layer.geojsonProperties.id_provinsi;
+              if (provinceId in layersById) {
+                layersById[provinceId].push(layer);
+              } else{
+                layersById[provinceId] = [layer];
+              }
+            });
+          }, 1000);
 
           addLayerToMap(hoverRegions, map)
             .forEach(function(layer) {
-              // TODO add click handlers
               google.maps.event.addListener(layer, "mouseover", mouseover);
               google.maps.event.addListener(layer, "click", click);
               google.maps.event.addListener(layer, "mouseout", mouseout);
