@@ -1,161 +1,78 @@
 body {
-  font-family: "Helvetica Neue", Helvetica, arial, sans-serif;
-  padding: 0;
-  margin: 0;
-}
-
-#header {
-  color: #fff;
-  background: #000;
-}
-
-#header h1 {
-  text-align: center;
-  padding: 8px;
-  margin: 0;
+  padding-top: 70px;
 }
 
 #peta {
-  height: 200px;
+  height: 250px;
+}
+
+#nav-provinsi a {
+  font-size: 2em;
+  font-weight: bold;
+}
+
+a.pull-left {
+  /* so that the element doesn't disappear when there's no content */
+  min-height: 1px;
+}
+
+svg.media-object {
+  width: 80px;
+  height: 80px;
   background: #eee;
 }
 
-ul.h-selector,
-ul.h-selector > li {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  position: relative;
-  width: 100%;
+img.media-object {
+  width: 80px;
+  height: auto;
 }
 
-ul.h-selector {
-  display: table;
+.media,
+.media .media {
+  margin-top: 4px;
 }
 
-  ul.h-selector > li {
-    display: table-cell;
-    width: 33.3%;
-  }
-
-  ul.h-selector > li > a {
-    display: block;
-    text-align: center;
-    padding: 8px;
-    color: #fff;
-    font-weight: bold;
-    font-size: 2em;
-    line-height: 1em;
-    text-decoration: none;
-  }
-
-  ul.h-selector > li + li > a {
-    border-left: 1px solid #fff;
-  }
-
-  ul.h-selector > li.selected {
-    background: #fff;
-  }
-
-    ul.h-selector > li.selected > a {
-      color: #000;
-    }
-
-#lembaga ul.h-selector {
-  background: #333;
+.media-body h3 {
+  color: #999;
+  margin-top: 0;
 }
 
-ul.v-selector,
-ul.v-selector > li {
-  margin: 1px 0 0 0;
-  padding: 0;
-  list-style: none;
+.media-heading {
+  overflow: hidden;
+  zoom: 1;
 }
 
-ul.v-selector > li,
-ul.v-selector > li > .content {
-  position: relative;
+.media.active > .media-heading {
+  border-bottom: 2px solid;
 }
 
-ul.v-selector {
-  border-left: 16px solid #fff;
+.media.active > .media-heading a {
+  color: #000;
+  text-decoration: none !important;
 }
 
-  ul.v-selector div.details {
-    padding: 8px;
-  }
-
-  ul.v-selector div.details > p {
-    margin: 0;
-  }
-
-.item {
-  background: #000;
+.media.provinsi > .media-heading,
+.media.dapil > .media-heading {
+  /* to align the province name with its map */
+  margin-top: 22px;
 }
 
-.item > .title {
-  margin: 0;
+table.caleg {
+  width: auto !important;
+  border-collapse: collapse;
 }
 
-  .item > .title a {
-    display: block;
-    margin: 0;
-    padding: 8px;
-    text-decoration: none;
-    color: #fff;
-  }
-
-.item.selected {
-  background: #fff;
+table.caleg td,
+table.caleg th {
+  border: none !important;
+  padding: 0 8px 0 0 !important;
 }
 
-  .item.selected > .title a {
-    color: #000;
-  }
-
-.item > .details {
-  display: none;
+table.caleg td:first-child {
+  font-weight: bold;
 }
 
-.item.selected > .details {
-  display: block;
+table.caleg th:last-child {
+  color: #666;
+  font-weight: normal;
 }
-
-.item.selected > .title {
-  background: #fff;
-}
-
-
-li.provinsi > .title {
-  height: 100px;
-  padding-left: 100px;
-}
-
-li.provinsi > .peta {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100px;
-  height: 100px;
-  background: #999;
-}
-
-li.caleg > .title {
-  height: 100px;
-  padding-left: 100px;
-}
-
-li.caleg > .foto {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100px;
-  height: 100px;
-  text-align: left;
-}
-
-  li.caleg > .foto > img {
-    position: relative;
-    height: 100%;
-    width: auto;
-  }
