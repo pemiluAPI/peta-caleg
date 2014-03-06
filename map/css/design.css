@@ -1,0 +1,161 @@
+body {
+  font-family: "Helvetica Neue", Helvetica, arial, sans-serif;
+  padding: 0;
+  margin: 0;
+}
+
+#header {
+  color: #fff;
+  background: #000;
+}
+
+#header h1 {
+  text-align: center;
+  padding: 8px;
+  margin: 0;
+}
+
+#peta {
+  height: 200px;
+  background: #eee;
+}
+
+ul.h-selector,
+ul.h-selector > li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  width: 100%;
+}
+
+ul.h-selector {
+  display: table;
+}
+
+  ul.h-selector > li {
+    display: table-cell;
+    width: 33.3%;
+  }
+
+  ul.h-selector > li > a {
+    display: block;
+    text-align: center;
+    padding: 8px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 2em;
+    line-height: 1em;
+    text-decoration: none;
+  }
+
+  ul.h-selector > li + li > a {
+    border-left: 1px solid #fff;
+  }
+
+  ul.h-selector > li.selected {
+    background: #fff;
+  }
+
+    ul.h-selector > li.selected > a {
+      color: #000;
+    }
+
+#lembaga ul.h-selector {
+  background: #333;
+}
+
+ul.v-selector,
+ul.v-selector > li {
+  margin: 1px 0 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+ul.v-selector > li,
+ul.v-selector > li > .content {
+  position: relative;
+}
+
+ul.v-selector {
+  border-left: 16px solid #fff;
+}
+
+  ul.v-selector div.details {
+    padding: 8px;
+  }
+
+  ul.v-selector div.details > p {
+    margin: 0;
+  }
+
+.item {
+  background: #000;
+}
+
+.item > .title {
+  margin: 0;
+}
+
+  .item > .title a {
+    display: block;
+    margin: 0;
+    padding: 8px;
+    text-decoration: none;
+    color: #fff;
+  }
+
+.item.selected {
+  background: #fff;
+}
+
+  .item.selected > .title a {
+    color: #000;
+  }
+
+.item > .details {
+  display: none;
+}
+
+.item.selected > .details {
+  display: block;
+}
+
+.item.selected > .title {
+  background: #fff;
+}
+
+
+li.provinsi > .title {
+  height: 100px;
+  padding-left: 100px;
+}
+
+li.provinsi > .peta {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100px;
+  height: 100px;
+  background: #999;
+}
+
+li.caleg > .title {
+  height: 100px;
+  padding-left: 100px;
+}
+
+li.caleg > .foto {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100px;
+  height: 100px;
+  text-align: left;
+}
+
+  li.caleg > .foto > img {
+    position: relative;
+    height: 100%;
+    width: auto;
+  }
