@@ -11,6 +11,14 @@ body {
   font-weight: bold;
 }
 
+#lembaga .lembaga {
+  display: none;
+}
+
+#lembaga .lembaga.active {
+  display: block;
+}
+
 a.pull-left {
   /* so that the element doesn't disappear when there's no content */
   min-height: 1px;
@@ -30,6 +38,14 @@ img.media-object {
 .media,
 .media .media {
   margin-top: 4px;
+}
+
+.media-body {
+  display: none;
+}
+
+.media.active > .media-body {
+  display: block;
 }
 
 .media-body h3 {
