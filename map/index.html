@@ -345,7 +345,7 @@
       list
         .classed("loading", true)
         .classed("error", false);
-      return api.get("provinsi", function(error, res) {
+      return api.get("candidate/api/provinsi", function(error, res) {
         list.classed("loading", false)
           .classed("error", !!error);
 
@@ -466,7 +466,7 @@
       list
         .classed("loading", true)
         .classed("error", false);
-      return api.get("dapil", params, function(error, res) {
+      return api.get("candidate/api/dapil", params, function(error, res) {
         list
           .classed("loading", false)
           .classed("error", !!error);
@@ -593,7 +593,7 @@
           return callback("unknown body: " + context.body);
       }
 
-      return api.get("caleg", params, function(error, res) {
+      return api.get("candidate/api/caleg", params, function(error, res) {
         var candidates = res.results.caleg;
         console.log("got candidates:", candidates);
         return callback(null, candidates);
