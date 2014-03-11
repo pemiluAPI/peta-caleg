@@ -46,6 +46,11 @@
   2. Replace list with caleg for that dapil + partai
   3. Map minifies?
 
+* Select a DPR or DPRDI caleg:
+  1. URL: `#{lembaga}/dapil/{dapil}/partai/{partai}/caleg/{caleg}`
+  2. Replace list with caleg info
+  3. Map minifies?
+
 ## Mobile considerations
 The map should play a much bigger role on desktop than mobile, but it would be
 nice to make it available on mobile. Tomas and I discussed having it take up a
