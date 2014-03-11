@@ -87,13 +87,8 @@ table.caleg th {
   padding: 0 8px 0 0 !important;
 }
 
-table.caleg td:first-child {
-  font-weight: bold;
-}
-
-table.caleg th:last-child {
-  color: #666;
-  font-weight: normal;
+table.caleg tr > *:first-child {
+  text-align: right;
 }
 
 svg.media-object {
