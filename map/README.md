@@ -14,7 +14,7 @@
 
 * Select a lembaga:
   1. URL: `#{lembaga}`
-  2. Map updates to show lembaga-specific regions
+  2. Map and list update to show lembaga-specific regions
     * load these from the geographic API
     * figure out how to do fat finger regions later
   3. Update breadcrumb nav:
@@ -30,8 +30,9 @@
   2. Map zooms to the selected region
   3. Update breadcrumb nav:
     * `DPD > provinsi > {provinsi}`
-    * `DPR > dapil > {dapil}`
-    * `DPRDI > dapil > {dapil}`
+    * `DPR > provinsi > {provinsi} > dapil > {dapil}`
+    * `DPRDI > provinsi > {provinsi} > dapil > {dapil}`
+    * *Note: not 100% sure we want to include provinsi layer in DPR & DPRDI*
   4. Replace list with region-specific data
     * DPD provinsi list the *caleg* for that provinsi
     * DPR & DPRDI: list the *partai* for that dapil
@@ -55,7 +56,9 @@
 The map should play a much bigger role on desktop than mobile, but it would be
 nice to make it available on mobile. Tomas and I discussed having it take up a
 fairly narrow strip of vertical space in the layout (between the lembaga nav
-and the breadcrumb), and making it possible to hide it by scrolling down.
+and the breadcrumb), and making it possible to hide it by scrolling down. We
+also discussed providing the option of maximizing it - making it take up more
+of the screen and become the primary interface.
 
 ## Other ideas
 On desktop, listings could flow horizontally to fill the area below the map,
