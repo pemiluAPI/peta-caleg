@@ -199,6 +199,10 @@
   ui.mediaList.caleg = function() {
     var df = d3.time.format("%Y-%m-%d"),
         now = new Date(),
+        jenisMap = {
+          "L": "laki-laki",
+          "P": "perempuan"
+        },
         tinggalFields = [
           "provinsi",
           "kab_kota",
@@ -207,7 +211,11 @@
         ],
         fields = [
           // gender
-          {label: "jenis kelamin", key: "jenis_kelamin"},
+          {label: "jenis kelamin", key: function(d) {
+            return (d.jenis_kelamin in jenisMap)
+              ? jenisMap[d.jenis_kelamin]
+              : d.jenis_kelamin;
+          }},
           // age
           {label: "usia", key: function(d) {
             var date = df.parse(d.tanggal_lahir);
@@ -249,7 +257,7 @@
           })
           .body(function(selection) {
             var tbody = selection.append("table")
-              .attr("class", "table fields")
+              .attr("class", "caleg fields")
               .append("tbody");
 
             var tr = tbody.selectAll("tr")
@@ -271,15 +279,16 @@
               .enter()
                 .append("tr");
 
+            tr.append("th")
+              .text(function(d) {
+                return d.label;
+              });
+
             tr.append("td")
               .text(function(d) {
                 return d.value;
               });
 
-            tr.append("th")
-              .text(function(d) {
-                return d.label;
-              });
           });
 
     return list;
@@ -294,7 +303,7 @@
       .icon(function(selection) {
         selection.append("img")
           .attr("src", function(d) {
-            return d.foto_url;
+            return d.foto_url; // FIXME logo_small?
           });
       });
 
@@ -313,7 +322,7 @@
           return d.id === context;
         },
         fetch = function(context, callback) {
-          callback(null, "no fetch() specified", context);
+          callback("no fetch() specified", context);
         },
         view = function(selection, context, callback) {
           console.log("view:", selection, context, callback);
@@ -453,7 +462,8 @@
         return this.get("candidate/api/caleg", {
             lembaga: context.lembaga,
             provinsi: context.provinsi,
-            partai: context.partai
+            partai: context.partai,
+            dapil: context.dapil
             // TODO: other params
           }, function(error, res) {
             return error
