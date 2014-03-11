@@ -4,7 +4,11 @@
 2. Lembaga navigation
 3. Map with selectable regions
 4. Breadcrumb nav
-5. Data listing / detail view
+5. Data listing / detail views:
+  * Provinsi
+  * Dapil
+  * Partai
+  * Caleg
 
 ## Interactions
 
