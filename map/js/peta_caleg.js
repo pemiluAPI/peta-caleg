@@ -7,19 +7,15 @@
   // export this to window.peta_caleg
   exports.peta_caleg = pc;
 
+  var gm;
   try {
-    var gm = google.maps;
+    gm = google.maps;
   } catch (err) {
-    console.error("the Google Maps JS API is required");
-    return;
+    console.warn("the Google Maps JS API is not loaded");
   }
 
   // Indonesia-specific constants
   pc.geo = {
-    bounds: new gm.LatLngBounds(
-      new gm.LatLng(-11.0, 95.0),
-      new gm.LatLng(6.07, 141.01)
-    )
   };
 
   pc.geo.collection = function(topology, key) {
@@ -88,37 +84,39 @@
     };
   };
 
-  pc.geo.styles = {
-    basic: new gm.StyledMapType([
-      {
-        "featureType": "landscape",
-        "stylers": [{"visibility": "off"}]
-      },
-      {
-        "featureType": "poi",
-        "stylers": [{"visibility": "off"}]
-      },
-      {
-        "featureType": "administrative",
-        "elementType": "labels",
-        "stylers": [{"visibility": "off"}]
-      },
-      {
-        "featureType": "landscape",
-        "stylers": [{"visibility": "off"}]
-      },
-      {
-        "featureType": "road",
-        "stylers": [{"visibility": "off"}]
-      },
-      {
-        "featureType": "water",
-        "elementType": "labels",
-        "stylers": [{"visibility": "off"}]
-      }
-    ], {
-      name: "Basic"
-    })
-  };
+  if (gm) {
+    pc.geo.styles = {
+      basic: new gm.StyledMapType([
+        {
+          "featureType": "landscape",
+          "stylers": [{"visibility": "off"}]
+        },
+        {
+          "featureType": "poi",
+          "stylers": [{"visibility": "off"}]
+        },
+        {
+          "featureType": "administrative",
+          "elementType": "labels",
+          "stylers": [{"visibility": "off"}]
+        },
+        {
+          "featureType": "landscape",
+          "stylers": [{"visibility": "off"}]
+        },
+        {
+          "featureType": "road",
+          "stylers": [{"visibility": "off"}]
+        },
+        {
+          "featureType": "water",
+          "elementType": "labels",
+          "stylers": [{"visibility": "off"}]
+        }
+      ], {
+        name: "Basic"
+      })
+    };
+  }
 
 })(this);
