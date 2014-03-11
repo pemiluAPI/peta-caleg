@@ -32,18 +32,18 @@
     * `DPD > provinsi > {provinsi}`
     * `DPR > dapil > {dapil}`
     * `DPRDI > dapil > {dapil}`
-  4. List is replaced with region-specific data
+  4. Replace list with region-specific data
     * DPD provinsi list the *caleg* for that provinsi
     * DPR & DPRDI: list the *partai* for that dapil
 
 * Select a DPD caleg:
   1. URL: `#DPD/provinsi/{provinsi}/caleg/{caleg}`
-  2. List is replaced with caleg info
+  2. Replace list with caleg info
   3. Map minifies?
 
 * Select a DPR or DPRDI partai:
   1. URL: `#{lembaga}/dapil/{dapil}/partai/{partai}`
-  2. List is replaced with caleg for that dapil + partai
+  2. Replace list with caleg for that dapil + partai
   3. Map minifies?
 
 ## Mobile considerations
