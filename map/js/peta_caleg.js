@@ -14,7 +14,30 @@
     console.warn("the Google Maps JS API is not loaded");
   }
 
-  // Indonesia-specific constants
+  /*
+   * shallow copy the keys of an object into a new object
+   */
+  pc.copy = function(obj) {
+    var copied = {};
+    for (var key in obj) {
+      copied[key] = obj[key];
+    }
+    return copied;
+  };
+
+  /*
+   * merge two or more objects' keys into the first object
+   */
+  pc.merge = function(obj, other) {
+    [].slice.call(arguments, 1).forEach(function(o) {
+      if (!o) return;
+      for (var key in o) {
+        obj[key] = o[key];
+      }
+    });
+    return obj;
+  };
+
   pc.geo = {
   };
 
