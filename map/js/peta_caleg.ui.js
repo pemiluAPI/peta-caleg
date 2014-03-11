@@ -197,20 +197,49 @@
   };
 
   ui.mediaList.caleg = function() {
-    var fields = [
-          {label: "jenis kelamin",    key: "jenis_kelamin"},
-          {label: "tanggal lahir",    key: "tanggal_lahir"},
-          {label: "tempat lahir",     key: "tempat_lahir"},
-          {label: "agama",            key: "agama"},
-          {label: "kab/kota tinggal", key: "kab_kota_tinggal"},
-          {label: "partai",           key: function(d) {
+    var df = d3.time.format("%Y-%m-%d"),
+        now = new Date(),
+        tinggalFields = [
+          "provinsi",
+          "kab_kota",
+          "kecamatan",
+          "kelurahan"
+        ],
+        fields = [
+          // gender
+          {label: "jenis kelamin", key: "jenis_kelamin"},
+          // age
+          {label: "usia", key: function(d) {
+            var date = df.parse(d.tanggal_lahir);
+            if (date) {
+              var years = now.getFullYear() - date.getFullYear();
+              return years + " thn";
+            }
+            return null;
+          }},
+          // place of birth
+          {label: "tempat lahir", key: "tempat_lahir"},
+          // religion
+          {label: "agama", key: "agama"},
+          // place of residence
+          {label: "tempat tinggal", key: function(d) {
+            var bits = tinggalFields.map(function(f) {
+                  return d[f + "_tinggal"];
+                })
+                .filter(function(d) {
+                  return d;
+                });
+            return bits.join(", ");
+          }},
+          // party
+          {label: "partai", key: function(d) {
              return d.partai ? d.partai.nama : null;
           }}
         ],
         list = ui.mediaList()
           .type("caleg")
           .itemName(function(d) {
-            return d.nama;
+            return [d.urutan + ".", d.nama].join(" ");
           })
           .icon(function(selection) {
             selection.append("img")
@@ -234,6 +263,9 @@
                     label: field.label,
                     value: value
                   };
+                })
+                .filter(function(d) {
+                  return d.value;
                 });
               })
               .enter()
