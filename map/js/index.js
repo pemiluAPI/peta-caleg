@@ -263,17 +263,6 @@ function getId(d) {
 }
 
 /*
- * shallow copy the keys of an object into a new object
- */
-function copy(obj) {
-  var copied = {};
-  for (var key in obj) {
-    copied[key] = obj[key];
-  }
-  return copied;
-}
-
-/*
  * merge two or more objects' keys into the first object
  */
 function merge(obj, other) {
