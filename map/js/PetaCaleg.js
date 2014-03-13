@@ -797,4 +797,7 @@
     });
   }
 
+  function noop() {
+  }
+
 })(this);
