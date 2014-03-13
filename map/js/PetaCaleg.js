@@ -9,7 +9,7 @@
   /*
    * merge two or more objects' keys into the first object
    */
-  utils.extend = function merge(obj, other) {
+  utils.extend = function extend(obj, other) {
     [].slice.call(arguments, 1).forEach(function(o) {
       if (!o) return;
       for (var key in o) {
@@ -245,6 +245,7 @@
     },
 
     listCandidates: function(candidates, context) {
+      // FIXME we shouldn't have to clear the whole thing out
       this.content.html("");
 
       var href = (function(d) {
@@ -283,11 +284,16 @@
                 .attr("href", href),
           body = items.append("div")
             .attr("class", "media-body")
-            .text("description here");
+            .text("TODO description here");
     },
 
     selectCandidate: function(candidate) {
+      this.content.selectAll("li.caleg")
+        .classed("active", function(d) {
+          return d.id == candidate.id;
+        });
     }
+
   });
 
   PetaCaleg.Resolver = new PetaCaleg.Class({
@@ -400,12 +406,27 @@
         return callback(null, this._cache[url]);
       }
       var that = this;
-      return d3.json(url, function(error, res) {
+      return this._req = d3.json(url, function(error, res) {
         if (error) return callback(error);
         if (that._cache) that._cache[url] = res.data || res;
         last = null;
+        that._req = null;
         return callback(null, res.data || res);
       });
+    },
+
+    abort: function() {
+      if (this._req) {
+        var req = this._req;
+        req.abort();
+        this._req = null;
+        return req;
+      }
+    },
+
+    getOnly: function(uri, params, callback) {
+      this.abort();
+      return this.get(uri, params, callback);
     }
   });
 
@@ -434,6 +455,8 @@
         minZoom: 3,
         maxZoom: 10,
         bounds: bounds,
+        scrollwheel: false,
+        disableDefaultUI: true,
         featureStyles: {
           off: {
             fillColor: "#fff",
@@ -470,7 +493,8 @@
         options = utils.extend({}, PetaCaleg.Map.defaults, options);
         google.maps.Map.call(this, document.querySelector(options.root), options);
 
-        // TODO add custom zoom controls
+        this.zoomControl = new PetaCaleg.Map.ZoomControl();
+        this.zoomControl.setMap(this);
 
         if (options.bounds) {
           this.fitBounds(options.bounds);
@@ -592,6 +616,42 @@
       }
     ], {
       name: "Basic"
+    });
+
+    PetaCaleg.Map.ZoomControl = new PetaCaleg.Class({
+      defaults: {
+        position: google.maps.ControlPosition.TOP_LEFT
+      },
+
+      initialize: function(options) {
+        this.options = utils.extend({}, PetaCaleg.Map.ZoomControl.defaults, options);
+
+        this.div = document.createElement("div");
+        this.div.className = "zoom-control";
+        this.div.index = 1;
+
+        var that = this;
+        d3.select(this.div)
+          .selectAll("button")
+          .data([
+            {label: "+", delta: 1, dir: "in"},
+            {label: "-", delta: -1, dir: "out"},
+          ])
+          .enter()
+          .append("button")
+            .attr("class", function(d) {
+              return [d.dir, "btn"].join(" ");
+            })
+            .on("click", function(d) {
+              if (!that.map) return;
+              that.map.setZoom(that.map.getZoom() + d.delta);
+            });
+      },
+
+      setMap: function(map) {
+        this.map = map;
+        this.map.controls[this.options.position].push(this.div);
+      }
     });
   }
 
