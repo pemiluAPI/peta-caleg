@@ -142,6 +142,7 @@
                   return d.feature;
                 });
                 that.map.setDisplayFeatures(features, "provinsi");
+                that.map.selectFeatureById(context.provinsi);
                 that.map.on("select", function(props) {
                   console.log("select:", props);
                   location.hash = that.resolver.getUrlForData({
@@ -153,9 +154,6 @@
 
               if (context.provinsi) {
                 var province = utils.first(provinces, context.provinsi);
-                if (that.map) {
-                  that.map.selectFeatureById(context.provinsi);
-                }
 
                 if (province) {
                   breadcrumbs.push({
