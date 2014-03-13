@@ -263,6 +263,7 @@
     },
 
     listProvinces: function(provinces, context) {
+      // XXX this isn't the right thing to do
       this.content.html("");
 
       var href = (function(d) {
