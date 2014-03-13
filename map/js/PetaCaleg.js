@@ -339,7 +339,7 @@
         this.mapTypes.set(basic.name, basic);
         this.setMapTypeId(basic.name);
 
-        this.featureStyles = this.options.featureStyles;
+        this.featureStyles = options.featureStyles;
       },
 
       setDisplayFeatures: function(features) {
@@ -422,7 +422,7 @@
       }
     });
 
-    PetaCaleg.Map.BasicMapType = new gm.StyledMapType([
+    PetaCaleg.Map.BasicMapType = new google.maps.StyledMapType([
       {
         "featureType": "landscape",
         "stylers": [{"visibility": "off"}]
