@@ -159,7 +159,7 @@
                 that.map.setDisplayFeatures(features, "provinsi");
                 that.map.selectFeatureById(context.provinsi);
                 that.map.on("select", function(props) {
-                  console.log("select:", props);
+                  console.log("select province:", props.id, props);
                   location.hash = that.resolver.getUrlForData({
                     lembaga: context.lembaga,
                     provinsi: props.id
@@ -687,14 +687,16 @@
         var that = this,
             addListener = google.maps.event.addListener;
         addListener(layer, "mouseover", function() {
-          this.hover = true;
+          this.geojsonProperties._hover = true;
+          // FIXME: make this apply to all layers with this id
           that.updateLayerStyle(this);
         });
         addListener(layer, "click", function() {
           that.selectFeatureById(this.geojsonProperties.id);
         });
         addListener(layer, "mouseout", function() {
-          this.hover = false;
+          this.geojsonProperties._hover = false;
+          // FIXME: make this apply to all layers with this id
           that.updateLayerStyle(this);
         });
       },
@@ -725,7 +727,7 @@
 
       updateLayerStyle: function(layer) {
         var key = layer.selected ? "on" : "off";
-        if (layer.hover) key += "Hover";
+        if (layer.geojsonProperties._hover) key += "Hover";
         return layer.setOptions(this.featureStyles[key]);
       }
     });
