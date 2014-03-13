@@ -157,6 +157,7 @@
                   return d.feature;
                 });
                 that.map.setDisplayFeatures(features, "provinsi");
+                that.map.on("select", null);
                 that.map.selectFeatureById(context.provinsi);
                 that.map.on("select", function(props) {
                   console.log("select province:", props.id, props);
@@ -652,13 +653,7 @@
         });
 
         // remove the old layers
-        if (this.displayLayers) {
-          var layers = this.displayLayers;
-          while (layers.length) {
-            var layer = layers.shift();
-            layer.setMap(null);
-          }
-        }
+        this.removeDisplayLayers();
 
         var layer = new GeoJSON({
           type: "FeatureCollection",
@@ -666,6 +661,16 @@
         }, this.featureStyles.off);
 
         this.displayLayers = this.addLayer(layer);
+      },
+
+      removeDisplayLayers: function() {
+        if (this.displayLayers) {
+          var layers = this.displayLayers;
+          while (layers.length) {
+            var layer = layers.shift();
+            layer.setMap(null);
+          }
+        }
       },
 
       addLayer: function(layer) {
