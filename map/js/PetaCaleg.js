@@ -268,6 +268,43 @@
     }
   });
 
+  PetaCaleg.API = new PetaCaleg.Class({
+    defaults: {
+      key: "you must provide a key",
+      baseUrl: "http://api.pemiluapi.org/",
+      cache: true
+    },
+
+    initialize: function(options) {
+      this.options = utils.extend({}, PetaCaleg.API.defaults, options);
+      if (this.options.cache) {
+        this._cache = {};
+      }
+    },
+
+    get: function(uri, params, callback) {
+      if (arguments.length === 2) {
+        callback = params;
+        params = {};
+      }
+      params.apiKey = this.options.key;
+      var url = this.options.baseUrl + uri;
+      if (params) {
+        url += "?" + qs.format(params);
+      }
+      if (this._cache && this._cache[url]) {
+        return callback(null, this._cache[url]);
+      }
+      var that = this;
+      return d3.json(url, function(error, res) {
+        if (error) return callback(error);
+        if (that._cache) that._cache[url] = res.data || res;
+        last = null;
+        return callback(null, res.data || res);
+      });
+    }
+  });
+
   if (typeof google === "object" && google.maps) {
 
     // technique lifted from:
