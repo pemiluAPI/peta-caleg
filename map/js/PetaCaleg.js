@@ -72,22 +72,22 @@
 
       this.resolver = new PetaCaleg.Resolver();
       if (this.options.routes) {
-        var that = this;
+        var that = this,
+            resolved = this.resolved.bind(this);
         this.options.routes.forEach(function(url) {
-          that.resolver.add(url, that.resolved.bind(this));
+          that.resolver.add(url, resolved);
         });
       }
     },
 
     init: function() {
-      var that = this;
+      window.addEventListener("hashchange", this._route.bind(this));
+      this._route();
+    },
 
-      window.addEventListener("hashchange", function route() {
-        var url = this.location.hash.substr(1);
-        that.resolver.resolve(url);
-      });
-
-      route();
+    _route: function() {
+      var url = location.hash.substr(1);
+      this.resolver.resolve(url);
     },
 
     getContext: function() {
