@@ -256,6 +256,7 @@
               collection = new PetaCaleg.GeoCollection(topology);
           provinces.forEach(function(d) {
             d.feature = collection.getFeatureById(d.id);
+            if (!d.feature) console.warn("no feature for:", d.id, d);
           });
           return callback(null, provinces);
         });
