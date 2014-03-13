@@ -186,7 +186,8 @@
     },
 
     getProvinces: function(context, callback) {
-      return this.api.get("candidate/api/provinsi", function(error, res) {
+      var params = utils.copy(context, {}, ["lembaga"]);
+      return this.api.get("candidate/api/provinsi", params, function(error, res) {
         return error
           ? callback(error)
           : callback(null, res.results.provinsi);
@@ -194,9 +195,94 @@
     },
 
     listProvinces: function(provinces, context) {
+      this.content.html("");
+
+      var href = (function(d) {
+        return "#" + this.resolver.getUrlForData({
+          lembaga: context.lembaga,
+          provinsi: d.id
+        });
+      }).bind(this);
+
+      var title = this.content.append("h3")
+            .text("Provinsi"),
+          list = this.content.append("ul")
+            .attr("class", "provinsi media-list"),
+          items = list.selectAll("li")
+            .data(provinces)
+            .enter()
+            .append("li")
+              .attr("class", "provinsi media"),
+          icon = items.append("a")
+            .attr("class", "pull-left")
+            .append("svg")
+              .attr("class", "media-object"),
+          head = items.append("div")
+            .attr("class", "media-header")
+            .append("h4")
+              .append("a")
+                .text(function(d) {
+                  return d.nama;
+                })
+                .attr("href", href),
+          body = items.append("div")
+            .attr("class", "media-body");
+    },
+
+    getCandidates: function(context, callback) {
+      var params = utils.copy(context, {}, [
+        "lembaga",
+        "provinsi",
+        "dapil",
+        "partai"
+      ]);
+      return this.api.get("candidate/api/caleg", params, function(error, res) {
+        return error
+          ? callback(error)
+          : callback(null, res.results.caleg);
+      });
     },
 
     listCandidates: function(candidates, context) {
+      this.content.html("");
+
+      var href = (function(d) {
+        return "#" + this.resolver.getUrlForData({
+          lembaga:  context.lembaga,
+          provinsi: context.provinsi,
+          dapil:    context.dapil,
+          partai:   context.partai,
+          caleg:    d.id
+        });
+      }).bind(this);
+
+      var title = this.content.append("h3")
+            .text("Caleg"),
+          list = this.content.append("ul")
+            .attr("class", "caleg media-list"),
+          items = list.selectAll("li")
+            .data(candidates)
+            .enter()
+            .append("li")
+              .attr("class", "caleg media"),
+          icon = items.append("a")
+            .attr("class", "pull-left")
+            .append("img")
+              .attr("class", "media-object photo")
+              .attr("src", function(d) {
+                return d.foto_url;
+              }),
+          head = items.append("div")
+            .attr("class", "media-header")
+            .append("h4")
+              .append("a")
+                .text(function(d) {
+                  return d.nama;
+                })
+                .attr("href", href),
+          body = items.append("div")
+            .attr("class", "media-body")
+            .text("description here");
     },
 
     selectCandidate: function(candidate) {
