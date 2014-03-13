@@ -123,21 +123,7 @@
           that = this,
           breadcrumbs = [],
           done = function(error) {
-            var bc = that.breadcrumb.selectAll("li")
-              .data(breadcrumbs);
-            bc.exit().remove();
-            bc.enter().append("li")
-              .append("a");
-            bc.classed("active", function(d, i) {
-                return i === breadcrumbs.length - 1;
-              })
-              .select("a")
-                .text(function(d) {
-                  return d.text;
-                })
-                .attr("href", function(d) {
-                  return "#" + that.resolver.getUrlForData(d.context);
-                });
+            that.setBreadcrumbs(breadcrumbs);
           };
 
       if (context.lembaga) {
@@ -191,6 +177,27 @@
             });
         }
       }
+    },
+
+    setBreadcrumbs: function(breadcrumbs) {
+      var bc = this.breadcrumb.selectAll("li")
+        .data(breadcrumbs);
+
+      bc.exit().remove();
+      bc.enter().append("li")
+        .append("a");
+
+      var that = this;
+      bc.classed("active", function(d, i) {
+          return i === breadcrumbs.length - 1;
+        })
+        .select("a")
+          .text(function(d) {
+            return d.text;
+          })
+          .attr("href", function(d) {
+            return "#" + that.resolver.getUrlForData(d.context);
+          });
     },
 
     getProvinces: function(context, callback) {
