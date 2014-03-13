@@ -107,22 +107,24 @@
     update: function(callback) {
       var context = this.getContext(),
           that = this,
-          breadcrumbs = [];
-
-      function done() {
-        var bc = that.breadcrumb.selectAll("li")
-          .data(breadcrumbs);
-        bc.exit().remove();
-        bc.enter().append("li")
-          .append("a");
-        bc.select("a")
-          .text(function(d) {
-            return d.text;
-          })
-          .attr("href", function(d) {
-            return that.resolver.getUrlForData(d);
-          });
-      }
+          breadcrumbs = [],
+          done = function(error) {
+            var bc = that.breadcrumb.selectAll("li")
+              .data(breadcrumbs);
+            bc.exit().remove();
+            bc.enter().append("li")
+              .append("a");
+            bc.classed("active", function(d, i) {
+                return i === breadcrumbs.length - 1;
+              })
+              .select("a")
+                .text(function(d) {
+                  return d.text;
+                })
+                .attr("href", function(d) {
+                  return "#" + that.resolver.getUrlForData(d.context);
+                });
+          };
 
       if (context.lembaga) {
         breadcrumbs.push({
@@ -151,22 +153,28 @@
                       var candidate = candidates.filter(function(d) {
                         return d.id == context.caleg;
                       })[0];
+
                       if (candidate) {
                         breadcrumbs.push({
                           text: candidate.nama,
                           context: utils.copy(context, {}, ["lembaga", "provinsi", "caleg"])
                         });
                         that.selectCandidate(candidate);
+                        return done();
                       } else {
                         console.warn("no such caleg:", context.caleg, "in", candidates);
+                        return done("no such caleg: " + context.caleg);
                       }
                     }
+                    return done();
                   });
                 } else {
                   console.warn("no such province:", context.provinsi, "in", provinces);
+                  return done("no such province: " + context.provinsi);
                 }
               } else {
                 that.listProvinces(provinces, context);
+                return done();
               }
             });
         }
