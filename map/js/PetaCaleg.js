@@ -201,12 +201,22 @@
     },
 
     getProvinces: function(context, callback) {
-      var params = utils.copy(context, {}, ["lembaga"]);
-      return this.api.get("candidate/api/provinsi", params, function(error, res) {
-        return error
-          ? callback(error)
-          : callback(null, res.results.provinsi);
-      });
+      var params = utils.copy(context, {}, ["lembaga"]),
+          getBound = this.api.get.bind(this.api);
+      return queue()
+        .defer(getBound, "candidate/api/provinsi", params)
+        .defer(getBound, "geographic/api/getmap", {
+          filename: "admin-simple.topojson"
+        })
+        .await(function(error, res, topology) {
+          if (error) return callback(error);
+          var provinces = res.results.provinsi,
+              collection = new PetaCaleg.GeoCollection(topology);
+          provinces.forEach(function(d) {
+            d.feature = collection.getFeatureById(d.id);
+          });
+          return callback(null, provinces);
+        });
     },
 
     listProvinces: function(provinces, context) {
@@ -308,6 +318,51 @@
         });
     }
 
+  });
+
+  PetaCaleg.GeoCollection = new PetaCaleg.Class({
+    defaults: {
+      idProperty: "id",
+      topologyKey: null
+    },
+
+    initialize: function(data, options) {
+      options = this.options = utils.extend({}, PetaCaleg.GeoCollection.defaults, options);
+
+      var collection,
+          topologyKey = options.topologyKey;
+      switch (data.type) {
+        case "Topology":
+          if (!topologyKey) topologyKey = Object.keys(data.objects)[0];
+          collection = topojson.feature(data, data.objects[topologyKey]);
+          break;
+        case "FeatureCollection":
+          collection = data;
+          break;
+        default:
+          collection = {
+            type: "FeatureCollection",
+            features: [data]
+          };
+      }
+
+      this.collection = collection;
+      this.features = collection.features.slice();
+
+      var id = options.idProperty;
+      this.lookup = d3.nest()
+        .key(function(d) {
+          return d.properties[id] || d[id];
+        })
+        .rollup(function(d) {
+          return d[0];
+        })
+        .map(collection.features);
+    },
+
+    getFeatureById: function(id) {
+      return this.lookup[id];
+    }
   });
 
   PetaCaleg.Resolver = new PetaCaleg.Class({
