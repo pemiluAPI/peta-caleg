@@ -137,8 +137,25 @@
             this.getProvinces(context, function(error, provinces) {
               console.log("provinces:", provinces);
 
+              if (that.map) {
+                var features = provinces.map(function(d) {
+                  return d.feature;
+                });
+                that.map.setDisplayFeatures(features, "provinsi");
+                that.map.on("select", function(props) {
+                  console.log("select:", props);
+                  location.hash = that.resolver.getUrlForData({
+                    lembaga: context.lembaga,
+                    provinsi: props.id
+                  });
+                });
+              }
+
               if (context.provinsi) {
                 var province = utils.first(provinces, context.provinsi);
+                if (that.map) {
+                  that.map.selectFeatureById(context.provinsi);
+                }
 
                 if (province) {
                   breadcrumbs.push({
@@ -574,9 +591,14 @@
         this.setMapTypeId(basic.name);
 
         this.featureStyles = options.featureStyles;
+        this.dispatch = d3.dispatch("select");
+        d3.rebind(this, this.dispatch, "on");
       },
 
-      setDisplayFeatures: function(features) {
+      setDisplayFeatures: function(features, id) {
+        if (this._displayId === id) return;
+        this._displayId = id;
+
         // copy the id down to the properties, because this is the part that
         // gets passed down to GeoJSON layers
         features.forEach(function(feature) {
@@ -601,15 +623,16 @@
       },
 
       addLayer: function(layer) {
-        var added = [];
+        var added = [],
+            that = this;
         if (Array.isArray(layer)) {
           layer.forEach(function(d) {
-            added = added.concat(this.addLayers(d));
+            added = added.concat(that.addLayer(d));
           });
         } else {
           layer.setMap(this);
           this.addLayerListeners(layer);
-          added.push(layers);
+          added.push(layer);
         }
         return added;
       },
@@ -646,6 +669,11 @@
           }
           that.updateLayerStyle(layer);
         });
+
+        if (selected.length) {
+          this.dispatch.select(selected[0].geojsonProperties);
+        }
+
         return selected;
       },
 
