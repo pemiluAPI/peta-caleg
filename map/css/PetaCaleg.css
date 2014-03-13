@@ -1,3 +1,17 @@
 #peta {
   height: 300px;
 }
+
+svg.media-object {
+  width: 100px;
+  height: 100px;
+  background: #ccc;
+}
+
+.caleg.media .media-body {
+  display: none;
+}
+
+.caleg.media.active .media-body {
+  display: block;
+}
