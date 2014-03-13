@@ -31,6 +31,16 @@
     return dest;
   };
 
+  utils.first = function first(list, test) {
+    if (typeof test !== "function") {
+      var id = test;
+      test = function(d) {
+        return d.id == id;
+      };
+    }
+    return list.filter(test)[0];
+  };
+
   // Class constructor
   PetaCaleg.Class = function(parent, proto) {
     if (arguments.length === 1) {
@@ -138,12 +148,11 @@
 
         switch (context.lembaga) {
           case "DPD":
-            that.getProvinces(context, function(error, provinces) {
+            this.getProvinces(context, function(error, provinces) {
               console.log("provinces:", provinces);
+
               if (context.provinsi) {
-                var province = provinces.filter(function(d) {
-                  return d.id == context.provinsi;
-                })[0];
+                var province = utils.first(provinces, context.provinsi);
 
                 if (province) {
                   breadcrumbs.push({
@@ -155,9 +164,7 @@
                     that.listCandidates(candidates, context);
 
                     if (context.caleg) {
-                      var candidate = candidates.filter(function(d) {
-                        return d.id == context.caleg;
-                      })[0];
+                      var candidate = utils.first(candidates, context.caleg);
 
                       if (candidate) {
                         breadcrumbs.push({
