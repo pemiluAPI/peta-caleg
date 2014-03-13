@@ -347,7 +347,12 @@
     },
 
     getUrlForData: function(data, keys) {
-      if (!keys) keys = Object.keys(data);
+      if (!keys) {
+        keys = Object.keys(data)
+          .filter(function(key) {
+            return data[key];
+          });
+      }
       keys.sort(d3.ascending);
       var str = String(keys);
       for (var i = 0, len = this.routes.length; i < len; i++) {
