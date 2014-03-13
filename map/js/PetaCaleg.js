@@ -687,17 +687,23 @@
         var that = this,
             addListener = google.maps.event.addListener;
         addListener(layer, "mouseover", function() {
-          this.geojsonProperties._hover = true;
-          // FIXME: make this apply to all layers with this id
-          that.updateLayerStyle(this);
+          that.setHoverFlag(this.geojsonProperties, true);
         });
         addListener(layer, "click", function() {
           that.selectFeatureById(this.geojsonProperties.id);
         });
         addListener(layer, "mouseout", function() {
-          this.geojsonProperties._hover = false;
-          // FIXME: make this apply to all layers with this id
-          that.updateLayerStyle(this);
+          that.setHoverFlag(this.geojsonProperties, false);
+        });
+      },
+
+      setHoverFlag: function(props, flag) {
+        var that = this;
+        this.displayLayers.forEach(function(layer) {
+          if (layer.geojsonProperties === props) {
+            layer.hover = flag;
+          }
+          that.updateLayerStyle(layer);
         });
       },
 
@@ -727,7 +733,7 @@
 
       updateLayerStyle: function(layer) {
         var key = layer.selected ? "on" : "off";
-        if (layer.geojsonProperties._hover) key += "Hover";
+        if (layer.hover) key += "Hover";
         return layer.setOptions(this.featureStyles[key]);
       }
     });
