@@ -41,6 +41,17 @@
     return list.filter(test)[0];
   };
 
+  utils.classify = function(selection, prefix, value) {
+    selection.attr("class", function() {
+      var klass = [].slice.call(this.classList)
+        .filter(function(c) {
+          return c.indexOf(prefix) !== 0;
+        });
+      klass.push(prefix + value);
+      return klass.join(" ");
+    });
+  };
+
   // Class constructor
   PetaCaleg.Class = function(parent, proto) {
     if (arguments.length === 1) {
@@ -132,6 +143,10 @@
           context: utils.copy(context, {}, ["lembaga"])
         });
 
+        this.content
+          .call(utils.classify, "lembaga-", context.lembaga)
+          .call(utils.classify, "list-", "none");
+
         switch (context.lembaga) {
           case "DPD":
             this.getProvinces(context, function(error, provinces) {
@@ -161,6 +176,7 @@
                     context: utils.copy(context, {}, ["lembaga", "provinsi"])
                   });
 
+                  that.content.call(utils.classify, "list-", "caleg");
                   that.getCandidates(context, function(error, candidates) {
                     that.listCandidates(candidates, context);
 
@@ -186,10 +202,16 @@
                   return done("no such province: " + context.provinsi);
                 }
               } else {
+                that.content.call(utils.classify, "list-", "provinsi");
                 that.listProvinces(provinces, context);
                 return done();
               }
             });
+
+          case "DPR":
+          case "DPRDI":
+            // TODO
+            break;
         }
       }
     },
