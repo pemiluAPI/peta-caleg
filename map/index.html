@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="in">
+  <head>
+    <title>Peta Caleg</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="">
+
+    <!-- third-party (vendor) scripts -->
+    <script src="js/vendor/d3.v3.min.js"></script>
+    <script src="js/vendor/qs.min.js"></script>
+
+    <script src="http://maps.googleapis.com/maps/api/js?sensor=true&amp;v=3.14&amp;libraries=geometry,places"></script>
+    <script src="js/vendor/GeoJSON.min.js"></script>
+    <script src="js/vendor/topojson.v1.min.js"></script>
+
+    <script src="js/PetaCaleg.js"></script>
+
+    <link rel="stylesheet" href="css/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="css/PetaCaleg.css">
+  </head>
+  <body>
+    <div class="container">
+
+      <div id="header">
+        <div id="navbar" class="navbar navbar-inverse">
+          <div class="container">
+            <div class="navbar-header">
+              <a class="navbar-brand" href="#">Peta Caleg</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <ul id="nav-lembaga" class="nav nav-pills nav-justified">
+        <li><a href="#DPD">DPD</a></li>
+        <li><a href="#DPR">DPR</a></li>
+        <li><a href="#DPRDI">DPRDI</a></li>
+      </ul>
+
+      <div id="peta">
+      </div>
+
+      <ol id="breadcrumb" class="breadcrumb">
+      </ol>
+
+      <div id="content">
+      </div>
+    </div>
+    <script>
+
+      var app,
+          resolver = new PetaCaleg.Resolver(),
+          nav = d3.select("#nav-lembaga")
+            .selectAll("li")
+            .datum(function() {
+              return d3.select(this).select("a")
+                .attr("href")
+                .substr(1);
+            });
+
+      window.addEventListener("load", function init() {
+        app = new PetaCaleg.App({
+          // the API instance
+          api: new PetaCaleg.API({
+            key: "7941b0baecd128c4de3a9ae63a85fd2c" // XXX
+          }),
+          // the map instance
+          map: new PetaCaleg.Map({
+            root: "#peta"
+          }),
+          // where the breadcrumb nav lives
+          breadcrumb: "#breadcrumb",
+          // where to render content (listings + detail views)
+          content:    "#content",
+          // valid URLs
+          routes: [
+            "{lembaga}",
+            "{lembaga}/provinsi/{provinsi}",
+            "{lembaga}/provinsi/{provinsi}/caleg/{caleg}",
+            "{lembaga}",
+            "{lembaga}/dapil/{dapil}",
+            "{lembaga}/dapil/{dapil}/partai/{partai}",
+            "{lembaga}/dapil/{dapil}/partai/{partai}/caleg/{caleg}",
+          ]
+        });
+
+        // whenever the app switches contexts...
+        app.on("context", function(context) {
+          // update the nav
+          nav.classed("active", function(d) {
+            return d === context.lembaga;
+          });
+        });
+
+        // kick it all off
+        app.init();
+      });
+
+    </script>
+  </body>
+</html>
