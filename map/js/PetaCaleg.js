@@ -78,6 +78,9 @@
           that.resolver.add(url, resolved);
         });
       }
+
+      this.dispatch = d3.dispatch("context", "route", "404");
+      d3.rebind(this, this.dispatch, "on");
     },
 
     init: function() {
@@ -96,6 +99,7 @@
 
     setContext: function(context, callback) {
       this.context = utils.copy(context, {});
+      this.dispatch.context(this.context);
       return this.update(callback);
     },
 
