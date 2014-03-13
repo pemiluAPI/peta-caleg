@@ -3,6 +3,7 @@
     version: "0.0.0"
   };
 
+  // utility functions
   var utils = PetaCaleg.utils = {};
 
   /*
@@ -55,7 +56,8 @@
 
   PetaCaleg.App = new PetaCaleg.Class({
     defaults: {
-      routes: {}
+      routes: [
+      ]
     },
 
     initialize: function(options) {
@@ -66,12 +68,15 @@
       this.content = d3.select(this.options.content);
       this.breadcrumb = d3.select(this.options.breadcrumb);
 
-      this.resolver = new PetaCaleg.Resolver();
-      for (var url in this.options.routes) {
-        this.resolver.add(url, this.resolved.bind(this));
-      }
-
       this.context = {};
+
+      this.resolver = new PetaCaleg.Resolver();
+      if (this.options.routes) {
+        var that = this;
+        this.options.routes.forEach(function(url) {
+          that.resolver.add(url, that.resolved.bind(this));
+        });
+      }
     },
 
     init: function() {
