@@ -176,6 +176,10 @@
                     context: utils.copy(context, {}, ["lembaga", "provinsi"])
                   });
 
+                  if (that.map) {
+                    that.map.zoomToFeature(province.feature);
+                  }
+
                   that.content.call(utils.classify, "list-", "caleg");
                   that.getCandidates(context, function(error, candidates) {
                     that.listCandidates(candidates, context);
@@ -203,6 +207,7 @@
                 }
               } else {
                 that.content.call(utils.classify, "list-", "provinsi");
+                that.map.zoomToInitialBounds();
                 that.listProvinces(provinces, context);
                 return done();
               }
@@ -596,7 +601,7 @@
       },
 
       initialize: function(options) {
-        options = utils.extend({}, PetaCaleg.Map.defaults, options);
+        options = this.options = utils.extend({}, PetaCaleg.Map.defaults, options);
         google.maps.Map.call(this, document.querySelector(options.root), options);
 
         this.zoomControl = new PetaCaleg.Map.ZoomControl();
@@ -613,6 +618,25 @@
         this.featureStyles = options.featureStyles;
         this.dispatch = d3.dispatch("select");
         d3.rebind(this, this.dispatch, "on");
+      },
+
+      zoomToFeature: function(feature) {
+        var bounds = d3.geo.bounds(feature); // [[W, N], [E, S]]
+        this.fitBounds(new google.maps.LatLngBounds(
+          // SW
+          new google.maps.LatLng(bounds[1][1], bounds[0][0]),
+          // NE
+          new google.maps.LatLng(bounds[0][1], bounds[1][0])
+        ));
+      },
+
+      zoomToInitialBounds: function() {
+        if (this.options.bounds) {
+          this.fitBounds(this.options.bounds);
+        } else {
+          this.setZoom(this.options.zoom);
+          this.setCenter(this.options.center);
+        }
       },
 
       setDisplayFeatures: function(features, id) {
