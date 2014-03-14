@@ -270,7 +270,6 @@
           that.content.call(utils.classify, "list-", "provinsi");
           that.listProvinces(provinces, context);
           that.map.zoomToInitialBounds();
-          console.log("calling:", callback);
           return callback();
         }
       });
@@ -388,7 +387,6 @@
           that.content.call(utils.classify, "list-", "dapil");
           that.listDapil(dapil, context);
           // that.map.zoomToInitialBounds();
-          console.log("calling:", callback);
           return callback();
         }
       });
@@ -612,9 +610,14 @@
       this.features = collection.features.slice();
 
       var id = options.idProperty;
+      collection.features.forEach(function(d) {
+        d.id = d.properties[id] || d[id];
+        console.log(d.id, ":", d);
+      });
+
       this.lookup = d3.nest()
         .key(function(d) {
-          return d.properties[id] || d[id];
+          return d.id;
         })
         .rollup(function(d) {
           return d[0];
