@@ -132,8 +132,9 @@
     update: function(callback) {
       var context = this.getContext(),
           that = this,
-          breadcrumbs = [],
+          breadcrumbs = context.breadcrumbs = [],
           done = function(error) {
+            console.log("done!");
             that.setBreadcrumbs(breadcrumbs);
           };
 
@@ -149,74 +150,43 @@
 
         switch (context.lembaga) {
           case "DPD":
-            this.getProvinces(context, function(error, provinces) {
-              console.log("provinces:", provinces);
-
-              if (that.map) {
-                var features = provinces.map(function(d) {
-                  return d.feature;
+            this.doProvinces(context, function(error, province) {
+              if (error) return done(error);
+              if (province) {
+                that.doCandidates(context, function(error, candidate) {
+                  return done(error);
                 });
-                that.map.setDisplayFeatures(features, "provinsi");
-                that.map.on("select", null);
-                that.map.selectFeatureById(context.provinsi);
-                that.map.on("select", function(props) {
-                  console.log("select province:", props.id, props);
-                  location.hash = that.resolver.getUrlForData({
-                    lembaga: context.lembaga,
-                    provinsi: props.id
-                  });
-                });
-              }
-
-              if (context.provinsi) {
-                var province = utils.first(provinces, context.provinsi);
-
-                if (province) {
-                  breadcrumbs.push({
-                    text: province.nama,
-                    context: utils.copy(context, {}, ["lembaga", "provinsi"])
-                  });
-
-                  if (that.map) {
-                    that.map.zoomToFeature(province.feature);
-                  }
-
-                  that.content.call(utils.classify, "list-", "caleg");
-                  that.getCandidates(context, function(error, candidates) {
-                    that.listCandidates(candidates, context);
-
-                    if (context.caleg) {
-                      var candidate = utils.first(candidates, context.caleg);
-
-                      if (candidate) {
-                        breadcrumbs.push({
-                          text: candidate.nama,
-                          context: utils.copy(context, {}, ["lembaga", "provinsi", "caleg"])
-                        });
-                        that.selectCandidate(candidate);
-                        return done();
-                      } else {
-                        console.warn("no such caleg:", context.caleg, "in", candidates);
-                        return done("no such caleg: " + context.caleg);
-                      }
-                    }
-                    return done();
-                  });
-                } else {
-                  console.warn("no such province:", context.provinsi, "in", provinces);
-                  return done("no such province: " + context.provinsi);
-                }
               } else {
-                that.content.call(utils.classify, "list-", "provinsi");
-                that.listProvinces(provinces, context);
-                that.map.zoomToInitialBounds();
-                return done();
+                done();
               }
             });
+            break;
 
           case "DPR":
           case "DPRDI":
-            // TODO
+            this.doProvinces(context, function(error, province) {
+              if (error) return done(error);
+              if (province) {
+                that.doDapil(context, function(error, dapil) {
+                  if (error) return done(error);
+                  if (dapil) {
+                    that.doPartai(context, function(error, party) {
+                      if (error) return done(error);
+                      if (party) {
+                        return that.doCandidates(context, function(error, candidate) {
+                          if (error) return done(error);
+                          return done();
+                        });
+                      }
+                    });
+                  } else {
+                    done();
+                  }
+                });
+              } else {
+                done();
+              }
+            });
             break;
         }
       }
@@ -239,8 +209,106 @@
             return d.text;
           })
           .attr("href", function(d) {
-            return "#" + that.resolver.getUrlForData(d.context);
+            return d.context
+              ? "#" + that.resolver.getUrlForData(d.context)
+              : null;
           });
+    },
+
+    doProvinces: function(context, callback) {
+      var that = this,
+          crumb = {
+            text: "Provinsi (loading...)",
+            context: utils.copy(context, {}, ["lembaga"]),
+            loading: true
+          };
+      context.breadcrumbs.push(crumb);
+      this.setBreadcrumbs(context.breadcrumbs);
+      return this.getProvinces(context, function(error, provinces) {
+        crumb.text = "Provinsi";
+        crumb.loading = false;
+
+        that.setBreadcrumbs(context.breadcrumbs);
+        if (error) return callback(error);
+
+        console.log("provinces:", provinces);
+
+        if (that.map) {
+          var features = provinces.map(function(d) {
+            return d.feature;
+          });
+          that.map.setDisplayFeatures(features, "provinsi");
+          that.map.on("select", null);
+          that.map.selectFeatureById(context.provinsi);
+          that.map.on("select", function(props) {
+            console.log("select province:", props.id, props);
+            location.hash = that.resolver.getUrlForData({
+              lembaga: context.lembaga,
+              provinsi: props.id
+            });
+          });
+        }
+
+        if (context.provinsi) {
+          var province = utils.first(provinces, context.provinsi);
+
+          if (province) {
+            context.breadcrumbs.push({
+              text: province.nama,
+              context: utils.copy(context, {}, ["lembaga", "provinsi"])
+            });
+
+            if (that.map) {
+              that.map.zoomToFeature(province.feature);
+            }
+            return callback(null, province);
+          } else {
+            console.warn("no such province:", context.provinsi, "in", provinces);
+            return callback("no such province: " + context.provinsi);
+          }
+        } else {
+          that.content.call(utils.classify, "list-", "provinsi");
+          that.listProvinces(provinces, context);
+          that.map.zoomToInitialBounds();
+          console.log("calling:", callback);
+          return callback();
+        }
+      });
+    },
+
+    doCandidates: function(context, callback) {
+      var that = this,
+          crumb = {
+            text: "Caleg (loading...)",
+            context: utils.copy(context, {}, ["lembaga", "provinsi", "dapil", "partai"]),
+            loading: true
+          };
+      context.breadcrumbs.push(crumb);
+      this.setBreadcrumbs(context.breadcrumbs);
+      this.content.call(utils.classify, "list-", "caleg");
+      this.getCandidates(context, function(error, candidates) {
+        crumb.text = "Caleg";
+        crumb.loading = false;
+        that.setBreadcrumbs(context.breadcrumbs);
+        that.listCandidates(candidates, context);
+
+        if (context.caleg) {
+          var candidate = utils.first(candidates, context.caleg);
+
+          if (candidate) {
+            context.breadcrumbs.push({
+              text: candidate.nama,
+              context: utils.copy(context, {}, ["lembaga", "provinsi", "caleg"])
+            });
+            that.selectCandidate(candidate);
+            return callback(null, candidate);
+          } else {
+            console.warn("no such caleg:", context.caleg, "in", candidates);
+            return callback("no such caleg: " + context.caleg);
+          }
+        }
+        return callback();
+      });
     },
 
     getProvinces: function(context, callback) {
@@ -261,6 +329,14 @@
           });
           return callback(null, provinces);
         });
+    },
+
+    doDapil: function(context, callback) {
+      return callback("not implemented");
+    },
+
+    doPartai: function(context, callback) {
+      return callback("not implemented");
     },
 
     listProvinces: function(provinces, context) {
@@ -521,11 +597,14 @@
       }
       var that = this;
       return this._req = d3.json(url, function(error, res) {
-        if (error) return callback(error);
+        if (error) {
+          console.warn("API error:", error, error.getAllResponseHeaders());
+          return callback.call(this, error);
+        }
         if (that._cache) that._cache[url] = res.data || res;
         last = null;
         that._req = null;
-        return callback(null, res.data || res);
+        return callback.call(this, null, res.data || res);
       });
     },
 
