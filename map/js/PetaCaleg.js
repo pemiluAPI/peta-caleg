@@ -428,7 +428,11 @@
                 })
                 .attr("href", href),
           body = items.append("div")
-            .attr("class", "media-body");
+            .attr("class", "media-body"),
+          including = body.append("p")
+            .text(function(d) {
+              return "Including: XXX, YYY, ZZZ...";
+            });
     },
 
     getDapil: function(context, callback) {
