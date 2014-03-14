@@ -8,6 +8,10 @@ svg.media-object {
   background: #ccc;
 }
 
+.caleg .media-object {
+  width: 100px;
+}
+
 .caleg.media .media-body {
   display: none;
 }
