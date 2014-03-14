@@ -840,6 +840,7 @@
           that.setHoverFlag(this.geojsonProperties, true);
         });
         addListener(layer, "click", function() {
+          that.setHoverFlag(this.geojsonProperties, false);
           that.selectFeatureById(this.geojsonProperties.id);
         });
         addListener(layer, "mouseout", function() {
