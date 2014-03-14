@@ -227,8 +227,8 @@
       return this.getProvinces(context, function(error, provinces) {
         crumb.text = "Provinsi";
         crumb.loading = false;
-
         that.setBreadcrumbs(context.breadcrumbs);
+
         if (error) return callback(error);
 
         console.log("provinces:", provinces);
@@ -290,6 +290,7 @@
         crumb.text = "Caleg";
         crumb.loading = false;
         that.setBreadcrumbs(context.breadcrumbs);
+
         that.listCandidates(candidates, context);
 
         if (context.caleg) {
