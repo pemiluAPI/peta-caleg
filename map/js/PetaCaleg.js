@@ -333,7 +333,135 @@
     },
 
     doDapil: function(context, callback) {
-      return callback("not implemented");
+      var that = this,
+          crumb = {
+            text: "Dapil (loading...)",
+            context: utils.copy(context, {}, ["lembaga", "provinsi"]),
+            loading: true
+          };
+      context.breadcrumbs.push(crumb);
+      this.setBreadcrumbs(context.breadcrumbs);
+      return this.getDapil(context, function(error, dapil) {
+        crumb.text = "Dapil";
+        crumb.loading = false;
+        that.setBreadcrumbs(context.breadcrumbs);
+
+        if (error) return callback(error);
+
+        console.log("dapil:", dapil);
+
+        if (that.map) {
+          var features = dapil.map(function(d) {
+            return d.feature;
+          });
+          that.map.setDisplayFeatures(features, "dapil");
+          that.map.on("select", null);
+          that.map.selectFeatureById(context.dapil);
+          that.map.on("select", function(props) {
+            console.log("select dapil:", props.id, props);
+            location.hash = that.resolver.getUrlForData({
+              lembaga: context.lembaga,
+              provinsi: context.provinsi,
+              dapil: props.id
+            });
+          });
+        }
+
+        if (context.dapil) {
+          var selected = utils.first(dapil, context.dapil);
+
+          if (selected) {
+            context.breadcrumbs.push({
+              text: selected.nama,
+              context: utils.copy(context, {}, ["lembaga", "provinsi", "dapil"])
+            });
+
+            if (that.map) {
+              that.map.zoomToFeature(selected.feature);
+            }
+            return callback(null, selected);
+          } else {
+            console.warn("no such dapil:", context.dapil, "in", dapil);
+            return callback("no such dapil: " + context.dapil);
+          }
+        } else {
+          that.content.call(utils.classify, "list-", "dapil");
+          that.listDapil(dapil, context);
+          // that.map.zoomToInitialBounds();
+          console.log("calling:", callback);
+          return callback();
+        }
+      });
+    },
+
+    listDapil: function(dapil, context) {
+      this.clearContent();
+
+      var href = (function(d) {
+        return "#" + this.resolver.getUrlForData({
+          lembaga: context.lembaga,
+          provinsi: context.provinsi,
+          dapil: d.id
+        });
+      }).bind(this);
+
+      var title = this.content.append("h3")
+            .text("Dapil"),
+          list = this.content.append("ul")
+            .attr("class", "dapil media-list"),
+          items = list.selectAll("li")
+            .data(dapil)
+            .enter()
+            .append("li")
+              .attr("class", "dapil media"),
+          icon = items.append("a")
+            .attr("class", "pull-left")
+            .attr("href", href)
+            .append("svg")
+              .attr("class", "media-object")
+              .call(this.makeMapIcon.bind(this), context),
+          head = items.append("div")
+            .attr("class", "media-header")
+            .append("h4")
+              .append("a")
+                .text(function(d) {
+                  return d.nama;
+                })
+                .attr("href", href),
+          body = items.append("div")
+            .attr("class", "media-body");
+    },
+
+    getDapil: function(context, callback) {
+      var params = utils.copy(context, {}, ["lembaga", "provinsi"]),
+          getBound = this.api.get.bind(this.api),
+          filename;
+
+      switch (context.lembaga) {
+        case "DPR":
+          filename = "dapil_nasional_dpr-simplified.topojson";
+          break;
+        case "DPRDI":
+          filename = "dapil_provinsi_dprdi-simplified.topojson";
+          break;
+      }
+
+      return queue()
+        .defer(getBound, "candidate/api/dapil", params)
+        .defer(getBound, "geographic/api/getmap", {filename: filename})
+        .await(function(error, res, topology) {
+          if (error) return callback(error);
+          var dapil = res.results.dapil,
+              collection = new PetaCaleg.GeoCollection(topology, {
+                idProperty: "id_dapil"
+              });
+          console.log("dapil collection:", collection);
+          dapil.forEach(function(d) {
+            d.feature = collection.getFeatureById(d.id);
+            if (!d.feature) console.warn("no feature for:", d.id, d);
+          });
+          return callback(null, dapil);
+        });
     },
 
     doPartai: function(context, callback) {
@@ -791,6 +919,7 @@
         if (this._displayId === id) return;
         this._displayId = id;
 
+        console.log("features:", features);
         // copy the id down to the properties, because this is the part that
         // gets passed down to GeoJSON layers
         features.forEach(function(feature) {
