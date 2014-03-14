@@ -366,8 +366,10 @@
               .attr("class", "provinsi media"),
           icon = items.append("a")
             .attr("class", "pull-left")
+            .attr("href", href)
             .append("svg")
-              .attr("class", "media-object"),
+              .attr("class", "media-object")
+              .call(this.makeMapIcon.bind(this), context),
           head = items.append("div")
             .attr("class", "media-header")
             .append("h4")
@@ -378,6 +380,13 @@
                 .attr("href", href),
           body = items.append("div")
             .attr("class", "media-body");
+    },
+
+    makeMapIcon: function(selection, context) {
+      var icon = this.options.mapIcon
+      if (icon) {
+        selection.call(icon.render.bind(icon), context);
+      }
     },
 
     getCandidates: function(context, callback) {
@@ -624,6 +633,59 @@
     getOnly: function(uri, params, callback) {
       this.abort();
       return this.get(uri, params, callback);
+    }
+  });
+
+  PetaCaleg.MapIcon = new PetaCaleg.Class({
+    defaults: {
+      margin: 5,
+      getFeature: function(d) {
+        return d.feature;
+      }
+    },
+
+    initialize: function(options) {
+      this.options = options = utils.extend({}, PetaCaleg.MapIcon.defaults, options);
+      this.proj = d3.geo.mercator();
+      this.path = d3.geo.path()
+        .projection(this.proj);
+    },
+
+    render: function(selection) {
+      selection.classed("map", true);
+
+      if (this.options.background) {
+        selection.append("g")
+          .attr("class", "bg")
+          .append("use")
+            .attr("xlink:href", this.options.background);
+      }
+
+      var getFeature = this.options.getFeature,
+          path = this.path,
+          margin = this.options.margin;
+
+      selection.append("g")
+        .attr("class", "fg")
+        .append("path")
+          .datum(getFeature)
+          .attr("d", path);
+
+      selection.attr("viewBox", function(d) {
+        var feature = getFeature.apply(this, arguments);
+        if (!feature) return;
+
+        var bounds = path.bounds(feature),
+            x = bounds[0][0],
+            y = bounds[0][1],
+            w = bounds[1][0] - x,
+            h = bounds[1][1] - y,
+            ew = this.offsetWidth,
+            eh = this.offsetHeight,
+            scale = Math.max(w, h) / Math.min(ew, eh),
+            m = margin * scale;
+        return [x - m, y - m, w + m * 2, h + m * 2].join(" ");
+      });
     }
   });
 

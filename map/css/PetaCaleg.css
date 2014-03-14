@@ -55,3 +55,29 @@ svg.media-object {
   .zoom-control button.out:after {
     content: "\2212";
   }
+
+/* don't scale strokes */
+svg path {
+  vector-effect: non-scaling-stroke !important;
+}
+
+svg.map {
+  background: #b3d1ff;
+}
+
+svg.map .bg {
+  fill: #e5e3df;
+  stroke: #ccc;
+  stroke-width: .5;
+}
+
+svg.map .fg path {
+  fill: #f0f;
+  fill-opacity: .5;
+  stroke: #ccc;
+  stroke-width: .5;
+}
+
+svg.shared {
+  display: none;
+}

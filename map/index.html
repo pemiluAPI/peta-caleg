@@ -46,29 +46,40 @@
 
       <div id="content">
       </div>
+
+      <svg class="shared">
+        <defs>
+          <g id="map-bg"></g>
+        </defs>
+      </svg>
     </div>
     <script>
 
       var app,
           resolver = new PetaCaleg.Resolver(),
+          api = new PetaCaleg.API({
+            key: "7941b0baecd128c4de3a9ae63a85fd2c" // XXX
+          }),
           nav = d3.select("#nav-lembaga")
             .selectAll("li")
             .datum(function() {
               return d3.select(this).select("a")
                 .attr("href")
                 .substr(1);
-            });
+            }),
+          mapBg = "#map-bg",
+          mapIcon = new PetaCaleg.MapIcon({
+            background: mapBg
+          });
 
       window.addEventListener("load", function init() {
         app = new PetaCaleg.App({
-          // the API instance
-          api: new PetaCaleg.API({
-            key: "7941b0baecd128c4de3a9ae63a85fd2c" // XXX
-          }),
+          api: api,
           // the map instance
           map: new PetaCaleg.Map({
             root: "#peta"
           }),
+          mapIcon: mapIcon,
           // where the breadcrumb nav lives
           breadcrumb: "#breadcrumb",
           // where to render content (listings + detail views)
@@ -95,6 +106,49 @@
 
         // kick it all off
         app.init();
+
+        var get = api.get.bind(api);
+        queue()
+          .defer(get, "geographic/api/getmap", {
+            filename: "nearby_countries.topojson"
+          })
+          .defer(get, "geographic/api/getmap", {
+            filename: "admin-simple.topojson"
+          })
+          .await(function(error, nearby, admin) {
+            if (error) {
+              console.warn("unablet to load map background:", error);
+              return;
+            }
+
+            var bg = d3.select(mapBg);
+            bg.append("path")
+              .attr("class", "nearby")
+              .datum(makeCollection(nearby))
+              .attr("d", mapIcon.path);
+            bg.append("path")
+              .attr("class", "admin")
+              .datum(makeCollection(admin))
+              .attr("d", mapIcon.path);
+
+            console.info("done drawing map background");
+
+            function makeCollection(topology, key) {
+              if (key) {
+                return topojson.feature(topology, topology.objects[key]);
+              } else {
+                var collection = {
+                  type: "FeatureCollection",
+                  features: []
+                };
+                for (var key in topology.objects) {
+                  var features = topojson.feature(topology, topology.objects[key]).features;
+                  collection.features = collection.features.concat(features);
+                }
+                return collection;
+              }
+            }
+          });
       });
 
     </script>
