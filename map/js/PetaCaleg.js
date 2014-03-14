@@ -505,11 +505,24 @@
     },
 
     getPartai: function(context, callback) {
-      var params = utils.copy(context, {}, ["lembaga", "provinsi", "dapil"]);
-      return this.api.get("candidate/api/partai", params, function(error, res) {
-        if (error) return callback(error);
-        return callback(null, res.results.partai);
-      });
+      var params = utils.copy(context, {}, ["lembaga", "provinsi", "dapil"]),
+          getBound = this.api.get.bind(this.api);
+      queue()
+        .defer(getBound, "candidate/api/caleg", params)
+        .defer(getBound, "candidate/api/partai")
+        .await(function(error, caleg, partai) {
+          if (error) return callback(error);
+          var candidates = caleg.results.caleg,
+              parties = partai.results.partai,
+              candidatesByParty = d3.nest()
+                .key(function(d) { return d.partai.id; })
+                .map(candidates),
+              matching = parties.filter(function(d) {
+                return candidatesByParty[d.id];
+              });
+          // console.log("candidates by party:", candidatesByParty, "+", parties, "->", matching);
+          return callback(null, matching);
+        });
     },
 
     listPartai: function(partai, context) {
@@ -612,17 +625,23 @@
     },
 
     getCandidates: function(context, callback) {
-      var params = utils.copy(context, {}, [
-        "lembaga",
-        "provinsi",
-        "dapil",
-        "partai"
-      ]);
-      return this.api.get("candidate/api/caleg", params, function(error, res) {
-        return error
-          ? callback(error)
-          : callback(null, res.results.caleg);
-      });
+      var params = utils.copy(context, {}, ["lembaga", "provinsi", "dapil"]),
+          getBound = this.api.get.bind(this.api);
+      queue()
+        .defer(getBound, "candidate/api/caleg", params)
+        .defer(getBound, "candidate/api/partai")
+        .await(function(error, caleg, partai) {
+          if (error) return callback(error);
+          var candidates = caleg.results.caleg,
+              partiesById = d3.nest()
+                .key(function(d) { return d.id; })
+                .rollup(function(d) { return d[0]; })
+                .map(partai.results.partai);
+          candidates.forEach(function(d) {
+            d.partai = partiesById[d.partai.id];
+          });
+          return callback(null, candidates);
+        });
     },
 
     listCandidates: function(candidates, context) {
