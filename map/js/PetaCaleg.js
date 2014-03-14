@@ -340,9 +340,13 @@
       return callback("not implemented");
     },
 
-    listProvinces: function(provinces, context) {
+    clearContent: function() {
       // XXX this isn't the right thing to do
       this.content.html("");
+    },
+
+    listProvinces: function(provinces, context) {
+      this.clearContent();
 
       var href = (function(d) {
         return "#" + this.resolver.getUrlForData({
@@ -391,8 +395,7 @@
     },
 
     listCandidates: function(candidates, context) {
-      // FIXME we shouldn't have to clear the whole thing out
-      this.content.html("");
+      this.clearContent();
 
       var href = (function(d) {
         return "#" + this.resolver.getUrlForData({
