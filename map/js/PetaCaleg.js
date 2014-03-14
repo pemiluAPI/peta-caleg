@@ -463,7 +463,98 @@
     },
 
     doPartai: function(context, callback) {
-      return callback("not implemented");
+      var that = this,
+          crumb = {
+            text: "Partai (loading...)",
+            context: utils.copy(context, {}, ["lembaga", "provinsi", "dapil"])
+          };
+      context.breadcrumbs.push(crumb);
+      this.setBreadcrumbs(context.breadcrumbs);
+      return this.getPartai(context, function(error, partai) {
+        if (error) return callback(error);
+
+        crumb.text = "Partai";
+        crumb.loading = false;
+        that.setBreadcrumbs(context.breadcrumbs);
+
+        if (context.partai) {
+          var selected = utils.first(partai, context.partai);
+
+          if (selected) {
+            context.breadcrumbs.push({
+              text: selected.nama,
+              context: utils.copy(context, {}, ["lembaga", "provinsi", "dapil", "caleg"])
+            });
+
+            return callback(null, selected);
+          } else {
+            console.warn("no such partai:", context.partai, "in", partai);
+            return callback("no such partai: " + context.partai);
+          }
+        } else {
+          that.content.call(utils.classify, "list-", "partai");
+          that.listPartai(partai, context);
+          return callback();
+        }
+      });
+    },
+
+    getPartai: function(context, callback) {
+      var params = utils.copy(context, {}, ["lembaga", "provinsi", "dapil"]);
+      return this.api.get("candidate/api/partai", params, function(error, res) {
+        if (error) return callback(error);
+        return callback(null, res.results.partai);
+      });
+    },
+
+    listPartai: function(partai, context) {
+      this.clearContent();
+
+      var href = (function(d) {
+        return "#" + this.resolver.getUrlForData({
+          lembaga: context.lembaga,
+          provinsi: context.provinsi,
+          dapil: context.dapil,
+          partai: d.id
+        });
+      }).bind(this);
+
+      var title = this.content.append("h3")
+            .text("Partai"),
+          list = this.content.append("ul")
+            .attr("class", "partai media-list"),
+          items = list.selectAll("li")
+            .data(partai)
+            .enter()
+            .append("li")
+              .attr("class", "partai media"),
+          icon = items.append("a")
+            .attr("class", "pull-left")
+            .attr("href", href)
+            .append("img")
+              .attr("class", "media-object")
+              .attr("src", function(d) {
+                return d.url_logo_medium;
+              }),
+          head = items.append("div")
+            .attr("class", "media-header"),
+          title = head.append("h4")
+            .attr("class", "nama")
+            .append("a")
+              .text(function(d) {
+                return d.nama;
+              })
+              .attr("href", href),
+          subtitle = head.filter(function(d) {
+              return d.nama != d.nama_lengkap;
+            })
+            .append("h5")
+              .attr("class", "nama-lengkap")
+              .text(function(d) {
+                return d.nama_lengkap;
+              }),
+          body = items.append("div")
+            .attr("class", "media-body");
     },
 
     clearContent: function() {
