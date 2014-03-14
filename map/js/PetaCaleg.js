@@ -231,7 +231,7 @@
 
         if (error) return callback(error);
 
-        console.log("provinces:", provinces);
+        // console.log("provinces:", provinces);
 
         if (that.map) {
           var features = provinces.map(function(d) {
@@ -290,6 +290,7 @@
         crumb.loading = false;
         that.setBreadcrumbs(context.breadcrumbs);
 
+        // console.log("candidates:", candidates);
         that.listCandidates(candidates, context);
 
         if (context.caleg) {
@@ -347,7 +348,7 @@
 
         if (error) return callback(error);
 
-        console.log("dapil:", dapil);
+        // console.log("dapil:", dapil);
 
         if (that.map) {
           var features = dapil.map(function(d) {
@@ -357,7 +358,7 @@
           that.map.on("select", null);
           that.map.selectFeatureById(context.dapil);
           that.map.on("select", function(props) {
-            console.log("select dapil:", props.id, props);
+            // console.log("select dapil:", props.id, props);
             location.hash = that.resolver.getUrlForData({
               lembaga: context.lembaga,
               provinsi: context.provinsi,
@@ -453,7 +454,7 @@
               collection = new PetaCaleg.GeoCollection(topology, {
                 idProperty: "id_dapil"
               });
-          console.log("dapil collection:", collection);
+          // console.log("dapil collection:", collection);
           dapil.forEach(function(d) {
             d.feature = collection.getFeatureById(d.id);
             if (!d.feature) console.warn("no feature for:", d.id, d);
@@ -703,7 +704,7 @@
       var id = options.idProperty;
       collection.features.forEach(function(d) {
         d.id = d.properties[id] || d[id];
-        console.log(d.id, ":", d);
+        // console.log(d.id, ":", d);
       });
 
       this.lookup = d3.nest()
@@ -1013,7 +1014,8 @@
         if (this._displayId === id) return;
         this._displayId = id;
 
-        console.log("features:", features);
+        // console.log("features:", features);
+
         // copy the id down to the properties, because this is the part that
         // gets passed down to GeoJSON layers
         features.forEach(function(feature) {
