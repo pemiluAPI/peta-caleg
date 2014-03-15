@@ -1018,30 +1018,30 @@
         disableDefaultUI: true,
         featureStyles: {
           off: {
-            fillColor: "#fff",
-            fillOpacity: 1,
-            strokeColor: "#000",
+            fillColor: "#555555",
+            fillOpacity: .5,
+            strokeColor: "#cccccc",
             strokeWeight: .5,
             strokeOpacity: 1
           },
           offHover: {
-            fillColor: "#fee",
-            fillOpacity: 1,
-            strokeColor: "#000",
+            fillColor: "#555555",
+            fillOpacity: .75,
+            strokeColor: "#cccccc",
             strokeWeight: .5,
             strokeOpacity: 1
           },
           on: {
-            fillColor: "#f33",
-            fillOpacity: 1,
-            strokeColor: "#000",
+            fillColor: "#ff00ff",
+            fillOpacity: .5,
+            strokeColor: "#cccccc",
             strokeWeight: .5,
             strokeOpacity: 1
           },
           onHover: {
-            fillColor: "#f33",
-            fillOpacity: 1,
-            strokeColor: "#000",
+            fillColor: "#ff00ff",
+            fillOpacity: .75,
+            strokeColor: "#cccccc",
             strokeWeight: .5,
             strokeOpacity: 1
           }
