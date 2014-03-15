@@ -690,8 +690,54 @@
                 })
                 .attr("href", href),
           body = items.append("div")
-            .attr("class", "media-body")
-            .text("TODO description here");
+            .attr("class", "media-body");
+
+      var dl = body.append("dl")
+        .attr("class", "dl-horizontal");
+
+      var df = d3.time.format("%Y-%m-%d"),
+          now = new Date(),
+          jenisMap = {
+            "L": "laki-laki",
+            "P": "perempuan"
+          },
+          tinggalFields = [
+            "provinsi",
+            "kab_kota",
+            "kecamatan",
+            "kelurahan"
+          ];
+
+      dl.append("h5")
+        .attr("class", "gender-age")
+        .text(function(d) {
+          var bits = [jenisMap[d.jenis_kelamin], age(d)]
+          return bits
+            .filter(notEmpty)
+            .join(", ");
+        });
+
+      dl.append("dt")
+        .text("tempat tinggal")
+      dl.append("dd")
+        .text(function(d) {
+          var bits = tinggalFields.map(function(f) {
+                return d[f + "_tinggal"];
+              })
+              .filter(function(d) {
+                return d;
+              });
+          return bits.join(", ");
+        });
+
+      function age(d) {
+        var date = df.parse(d.tanggal_lahir);
+        if (date) {
+          var years = now.getFullYear() - date.getFullYear();
+          return years + " thn";
+        }
+        return null;
+      }
     },
 
     selectCandidate: function(candidate) {
@@ -1214,6 +1260,14 @@
   }
 
   function noop() {
+  }
+
+  function empty(d) {
+    return !d;
+  }
+
+  function notEmpty(d) {
+    return d && d.length;
   }
 
 })(this);
