@@ -711,7 +711,7 @@
       dl.append("h5")
         .attr("class", "gender-age")
         .text(function(d) {
-          var bits = [jenisMap[d.jenis_kelamin], age(d)]
+          var bits = [age(d), jenisMap[d.jenis_kelamin]]
           return bits
             .filter(notEmpty)
             .join(", ");
@@ -744,7 +744,11 @@
       this.content.selectAll("li.caleg")
         .classed("active", function(d) {
           return d.id == candidate.id;
-        });
+        })
+        .filter(".active")
+          .each(function(d) {
+            this.scrollIntoView();
+          });
     }
 
   });
