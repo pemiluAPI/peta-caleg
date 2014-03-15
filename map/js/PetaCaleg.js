@@ -164,6 +164,7 @@
 
           case "DPR":
           case "DPRDI":
+            // ah, nested callbacks...
             this.doProvinces(context, function(error, province) {
               if (error) return done(error);
               if (province) {
@@ -627,7 +628,14 @@
     getCandidates: function(context, callback) {
       var params = utils.copy(context, {}, ["lembaga", "provinsi", "dapil"]),
           getBound = this.api.get.bind(this.api);
-      queue()
+      if (params.lembaga === "DPD") {
+        return getBound("candidate/api/caleg", params, function(error, res) {
+          return error
+            ? callback(error)
+            : callback(null, res.results.caleg);
+        });
+      }
+      return queue()
         .defer(getBound, "candidate/api/caleg", params)
         .defer(getBound, "candidate/api/partai")
         .await(function(error, caleg, partai) {
