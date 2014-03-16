@@ -20,6 +20,10 @@ svg.media-object {
   display: block;
 }
 
+.partai .media-object {
+  width: 100px;
+}
+
 .breadcrumb li.active a {
   color: inherit !important;
 }
