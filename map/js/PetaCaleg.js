@@ -626,7 +626,7 @@
     },
 
     getCandidates: function(context, callback) {
-      var params = utils.copy(context, {}, ["lembaga", "provinsi", "dapil"]),
+      var params = utils.copy(context, {}, ["lembaga", "provinsi", "dapil", "partai"]),
           getBound = this.api.get.bind(this.api);
       if (params.lembaga === "DPD") {
         return getBound("candidate/api/caleg", params, function(error, res) {
