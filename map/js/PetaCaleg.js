@@ -489,7 +489,7 @@
           if (selected) {
             context.breadcrumbs.push({
               text: selected.nama,
-              context: utils.copy(context, {}, ["lembaga", "provinsi", "dapil", "caleg"])
+              context: utils.copy(context, {}, ["lembaga", "provinsi", "dapil", "partai"])
             });
 
             return callback(null, selected);
