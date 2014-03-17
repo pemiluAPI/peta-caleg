@@ -12,6 +12,14 @@ body {
   }
 }
 
+h3 {
+  margin-top: 13px;
+}
+
+.breadcrumb {
+  margin-bottom: 0;
+}
+
 #navbar .navbar-header:after {
   clear: none !important;
 }
