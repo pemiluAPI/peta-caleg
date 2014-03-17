@@ -747,7 +747,7 @@
         })
         .filter(".active")
           .each(function(d) {
-            this.scrollIntoView();
+            // this.scrollIntoView();
           });
     }
 
