@@ -6,11 +6,6 @@ body {
   height: 280px;
 }
 
-#top {
-  margin-left: -15px;
-  margin-right: -15px;
-}
-
 @media (max-width: 768px) {
   #peta {
     height: 200px;
