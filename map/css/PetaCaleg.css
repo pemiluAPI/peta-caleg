@@ -41,9 +41,12 @@ body {
     margin: 5px 0;
   }
 
+  .navbar-right {
+    float: right !important;
+  }
+
   .navbar-text {
     float: left;
-    margin: 0 15px;
   }
 }
 
@@ -76,6 +79,7 @@ h3 {
   #top .navbar .navbar-text {
     margin-top: 8px;
     margin-bottom: 8px;
+    margin-left: 0;
   }
 
 #nav-lembaga {
