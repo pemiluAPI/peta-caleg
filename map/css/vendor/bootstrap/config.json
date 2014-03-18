@@ -385,6 +385,11 @@
     "panels.less",
     "wells.less",
     "close.less",
+    "component-animations.less",
+    "dropdowns.less",
+    "tooltip.less",
+    "popovers.less",
+    "modals.less",
     "utilities.less",
     "responsive-utilities.less"
   ],
