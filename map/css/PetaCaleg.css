@@ -25,6 +25,26 @@ body {
   #peta {
     height: 200px;
   }
+
+  .navbar-header:before,
+  .navbar-header:after,
+  .navbar-nav:before,
+  .navbar-nav:after,
+  .navbar-text:before,
+  .navbar-text:after {
+    display: none !important;
+    clear: none !important;
+  }
+
+  ul.navbar-nav {
+    float: left;
+    margin: 5px 0;
+  }
+
+  .navbar-text {
+    float: left;
+    margin: 0 15px;
+  }
 }
 
 h3 {
