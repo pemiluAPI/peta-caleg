@@ -35,13 +35,28 @@ h3 {
   margin-bottom: 0;
 }
 
-#navbar .navbar-header:after {
-  clear: none !important;
+.navbar {
+  min-height: 0px !important;
+          border-radius: 0;
+  -webkit-border-radius: 0;
+     -moz-border-radius: 0;
+      -ms-border-radius: 0;
 }
 
-#navbar .navbar-brand {
-  padding-right: 10px !important;
+.modal {
+  background-color: rgba(0,0,0,.1);
 }
+
+#top .navbar {
+  background: #333;
+  border: none;
+  margin: 0;
+}
+
+  #top .navbar .navbar-text {
+    margin-top: 8px;
+    margin-bottom: 8px;
+  }
 
 #nav-lembaga {
   float: left !important;
@@ -60,8 +75,8 @@ h3 {
   }
 
   #nav-lembaga > li > a {
-    padding-top: 15px !important;
-    padding-bottom: 15px !important;
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
   }
 
 svg.media-object {
