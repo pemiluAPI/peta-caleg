@@ -325,6 +325,10 @@
           if (error) return callback(error);
           var provinces = res.results.provinsi,
               collection = new PetaCaleg.GeoCollection(topology);
+          // sort provinces by name ascending
+          provinces.sort(function(a, b) {
+            return d3.ascending(a.nama, b.nama);
+          });
           provinces.forEach(function(d) {
             d.feature = collection.getFeatureById(d.id);
             if (!d.feature) console.warn("no feature for:", d.id, d);
