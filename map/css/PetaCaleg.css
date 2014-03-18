@@ -9,6 +9,18 @@ body {
   height: 280px;
 }
 
+#content {
+  min-height: 200px;
+}
+
+#footer {
+  margin-top: 30px;
+  background: #eee;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  text-align: center;
+}
+
 @media (max-width: 768px) {
   #peta {
     height: 200px;
