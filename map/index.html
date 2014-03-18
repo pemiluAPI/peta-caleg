@@ -62,6 +62,27 @@
       </div>
     </div>
 
+    <div id="about" class="modal fade" tabindex="-1" role="dialog"
+      aria-labelledby="about-label" aria-hidden="false"
+      style="display: none">
+      <div class="modal-dialog">
+        <div class="modal-content">
+
+          <div class="modal-header">
+            <button type="button" class="close" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="about-label">Modal Heading</h4>
+          </div>
+          <div class="modal-body">
+            <h4>About</h4>
+            <p>This is the about text.</p>
+
+            <h4>Popover in a modal</h4>
+            <p>Blah blah blah.</p>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div>
+
     <svg class="shared">
       <defs>
         <g id="map-bg"></g>
@@ -110,6 +131,39 @@
             "{lembaga}/provinsi/{provinsi}/dapil/{dapil}/partai/{partai}/caleg/{caleg}",
           ]
         });
+
+        var aboutDialog = d3.select("#about");
+        aboutDialog
+          .on("click.background", function() {
+            if (d3.event.target === this) {
+              aboutDialog.call(closeDialog);
+              history.back();
+            } else {
+              console.log("(click elsewhere)");
+            }
+          })
+          .selectAll(".close")
+            .on("click.close", function() {
+              aboutDialog.call(closeDialog);
+              history.back();
+            });
+
+        app.resolver.add("about", function(context) {
+          console.log("about!", context);
+          aboutDialog.call(openDialog);
+        });
+
+        function openDialog(selection) {
+          selection
+            .style("display", "block")
+            .classed("in", true);
+        }
+
+        function closeDialog(selection) {
+          selection
+            .style("display", "none")
+            .classed("in", false);
+        }
 
         // whenever the app switches contexts...
         app.on("context", function(context) {
