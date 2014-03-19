@@ -160,12 +160,23 @@ ul.candidate-info {
   padding-left: 0px;
 }
 
+ul.candidate-info,
 ul.candidate-info li {
   list-style-type: none;
 }
 
-ul.candidate-info span.header {
-  font-weight: bold;
+ul.candidate-info .header {
+}
+
+ul.candidate-info li + li {
+  margin-top: 5px;
+}
+
+ul.candidate-info .header {
+  display: block;
+  font-size: 75%;
+  line-height: 1em;
+  color: #999;
 }
 
 .breadcrumb li.active a {
