@@ -846,25 +846,45 @@
             "kelurahan"
           ];
 
-      ul.append("li")
+      var ttlli = ul.append("li");
+      ttlli.append("span")
+        .attr("class", "header")
+        .text("TTL: ");
+      ttlli.append("span")
+        .attr("class", "content")
         .text(function(d) {
           var bits = [prettyttl(d), age(d)]
-          return "TTL: " + bits
+          return bits
             .filter(notEmpty)
             .join(" ");
         });
 
-      ul.append("li")
+      var spli = ul.append("li");
+      spli.append("span")
+        .attr("class", "header")
+        .text("Status Perkawinan: ");
+      spli.append("span")
+        .attr("class", "content")
         .text(function(d) {
-          return "Status Perkawinan: " + d.status_perkawinan;
+          return d.status_perkawinan;
         });
 
-      ul.append("li")
+      var agamali = ul.append("li");
+      agamali.append("span")
+        .attr("class", "header")
+        .text("Agama: ");
+      agamali.append("span")
+        .attr("class", "content")
         .text(function(d) {
-          return "Agama: " + d.agama;
+          return d.agama;
         });
 
-      ul.append("li")
+      var tinggalli = ul.append("li");
+      tinggalli.append("span")
+        .attr("class", "header")
+        .text("Tempat Tinggal: ");
+      tinggalli.append("span")
+        .attr("class", "content")
         .text(function(d) {
           var bits = tinggalFields.map(function(f) {
                 return d[f + "_tinggal"];
@@ -872,9 +892,8 @@
               .filter(function(d) {
                 return d;
               });
-          return "Tempat Tinggal: " + bits.join(", ");
+          return bits.join(", ");
         });
-
 
       function prettyttl(d) {
         var bits = [d.tempat_lahir, prettydate(d)]
