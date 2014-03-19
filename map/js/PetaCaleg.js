@@ -929,11 +929,7 @@
       function newage(d) {
         var date = df.parse(d.tanggal_lahir);
         if (date) {
-          var years = now.getFullYear() - date.getFullYear();
-          var months = now.getMonth() - date.getMonth();
-          if (months < 0 || (months === 0 && now.getDate() < date.getDate())) {
-            years--;
-          }
+          var years = d3.time.year.range(date, now).length;
           return "(" + years + " thn)";
         }
         return null;
