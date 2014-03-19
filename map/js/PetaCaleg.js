@@ -52,6 +52,75 @@
     });
   };
 
+  utils.progressQueue = function() {
+    var q = queue(),
+        dispatch = d3.dispatch("load", "error", "progress"),
+        defer = q.defer,
+        await = q.await,
+        requests = [];
+
+    q.defer = function(load) {
+      var args = [].slice.call(arguments, 1);
+      return defer(function(callback) {
+        var req;
+        args.push(function(error, data) {
+          if (error) return;
+          req.loaded = req.total;
+          req.progress = 1;
+          return callback(error, data);
+        });
+        req = load.apply(null, args);
+        req.on("progress", function() {
+          var e = d3.event;
+          if (e.total) {
+            req.loaded = e.loaded;
+            req.total = e.total;
+            progress();
+          }
+        });
+        req.total = req.loaded = req.progress = 0;
+        requests.push(req);
+      });
+    };
+
+    q.await = function(callback) {
+      return await(function() {
+        dispatch.progress({progress: 1});
+        callback.apply(this, arguments);
+      });
+    };
+
+    function progress() {
+      var total = 0,
+          loaded = 0;
+      requests.forEach(function(req) {
+        if (req.total) {
+          total += req.total;
+          loaded += req.loaded;
+        }
+      });
+
+      if (total > 0) {
+        var progress = loaded / total;
+        dispatch.progress({
+          total: total,
+          loaded: loaded,
+          progress: progress
+        });
+
+        if (progress >= 1) {
+          dispatch.load({
+            total: total,
+            loaded: loaded,
+            requests: requests
+          });
+        }
+      }
+    }
+
+    return q;
+  };
+
   // Class constructor
   PetaCaleg.Class = function(parent, proto) {
     if (arguments.length === 1) {
@@ -316,7 +385,7 @@
     getProvinces: function(context, callback) {
       var params = utils.copy(context, {}, ["lembaga"]),
           getBound = this.api.get.bind(this.api);
-      return queue()
+      return utils.progressQueue()
         .defer(getBound, "candidate/api/provinsi", params)
         .defer(getBound, "geographic/api/getmap", {
           filename: "admin-simple.topojson"
@@ -462,7 +531,7 @@
           break;
       }
 
-      return queue()
+      return utils.progressQueue()
         .defer(getBound, "candidate/api/dapil", params)
         .defer(getBound, "geographic/api/getmap", {filename: filename})
         .await(function(error, res, topology) {
@@ -520,7 +589,7 @@
     getPartai: function(context, callback) {
       var params = utils.copy(context, {}, ["lembaga", "provinsi", "dapil"]),
           getBound = this.api.get.bind(this.api);
-      queue()
+      return utils.progressQueue()
         .defer(getBound, "candidate/api/caleg", params)
         .defer(getBound, "candidate/api/partai")
         .await(function(error, caleg, partai) {
@@ -647,7 +716,7 @@
             : callback(null, res.results.caleg);
         });
       }
-      return queue()
+      return utils.progressQueue()
         .defer(getBound, "candidate/api/caleg", params)
         .defer(getBound, "candidate/api/partai")
         .await(function(error, caleg, partai) {

@@ -188,7 +188,7 @@
         app.init();
 
         var get = api.get.bind(api);
-        queue()
+        PetaCaleg.utils.progressQueue()
           .defer(get, "geographic/api/getmap", {
             filename: "nearby_countries.topojson"
           })
