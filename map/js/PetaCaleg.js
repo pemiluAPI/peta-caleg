@@ -217,8 +217,12 @@
           };
 
       if (context.lembaga) {
+        lembagadisplay = context.lembaga;
+        if (lembagadisplay == "DPRDI") {
+          lembagadisplay = "DPRD I";
+        }
         breadcrumbs.push({
-          text: context.lembaga,
+          text: lembagadisplay,
           context: utils.copy(context, {}, ["lembaga"])
         });
 
