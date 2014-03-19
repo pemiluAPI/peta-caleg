@@ -844,13 +844,7 @@
             "10": "Oktober",
             "11": "November",
             "12": "Desember"
-          },
-          tinggalFields = [
-            "provinsi",
-            "kab_kota",
-            "kecamatan",
-            "kelurahan"
-          ];
+          };
 
       var fields = [
         {name: "TTL",               key: function getTTL(d) {
@@ -868,7 +862,12 @@
           return d.agama;
         }},
         {name: "Tempat Tinggal",    key: function getResidence(d) {
-          return tinggalFields.map(function(f) {
+          return [
+                "provinsi",
+                "kab_kota",
+                "kecamatan",
+                "kelurahan"
+              ].map(function(f) {
                 return d[f + "_tinggal"];
               })
               .filter(notEmpty)
