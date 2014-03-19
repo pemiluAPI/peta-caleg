@@ -804,20 +804,26 @@
                 return d.foto_url;
               }),
           head = items.append("div")
-            .attr("class", "media-header")
-            .append("h4")
-              .text(function(d) {
-                return d.urutan + ". ";
-              })
-              .append("a")
-                .text(function(d) {
-                  return d.nama;
-                })
-                .attr("href", href),
+            .attr("class", "media-header"),
           body = items.append("div")
             .attr("class", "media-body");
 
-      var ul = body.append("ul");
+
+      head.append("span")
+        .attr("class", 'no-urut')
+        .text(function(d) {
+          return d.urutan;
+        });
+
+      head.append("a")
+        .attr("class", "candidate-name")
+        .attr("href", href)
+        .text(function(d) {
+          return d.nama;
+        });
+
+      var ul = body.append("ul")
+        .attr("class", "candidate-info");
 
       var df = d3.time.format("%Y-%m-%d"),
           now = new Date(),
