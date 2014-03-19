@@ -852,73 +852,66 @@
             "kelurahan"
           ];
 
-      var ttlli = ul.append("li");
-      ttlli.append("span")
-        .attr("class", "header")
-        .text("TTL");
-      ttlli.append("span")
-        .attr("class", "content")
-        .text(function(d) {
-          var bits = [prettyttl(d), age(d)]
-          return bits
+      var fields = [
+        {name: "TTL",               key: function getTTL(d) {
+          return [prettyTTL(d), age(d)]
             .filter(notEmpty)
-            .join(" ");
-        });
-
-      var jkli = ul.append("li");
-      jkli.append("span")
-        .attr("class", "header")
-        .text("Jenis Kelamin");
-      jkli.append("span")
-        .attr("class", "content")
-        .text(function(d) {
+            .join(", ");
+        }},
+        {name: "Jenis Kelamin",     key: function getGender(d) {
           return jenisMap[d.jenis_kelamin];
-        });
-
-      var spli = ul.append("li");
-      spli.append("span")
-        .attr("class", "header")
-        .text("Status Perkawinan");
-      spli.append("span")
-        .attr("class", "content")
-        .text(function(d) {
+        }},
+        {name: "Status Perkawinan", key: function getMaritalStatus(d) {
           return d.status_perkawinan;
-        });
-
-      var agamali = ul.append("li");
-      agamali.append("span")
-        .attr("class", "header")
-        .text("Agama");
-      agamali.append("span")
-        .attr("class", "content")
-        .text(function(d) {
+        }},
+        {name: "Agama",             key: function getReligion(d) {
           return d.agama;
-        });
-
-      var tinggalli = ul.append("li");
-      tinggalli.append("span")
-        .attr("class", "header")
-        .text("Tempat Tinggal");
-      tinggalli.append("span")
-        .attr("class", "content")
-        .text(function(d) {
-          var bits = tinggalFields.map(function(f) {
+        }},
+        {name: "Tempat Tinggal",    key: function getResidence(d) {
+          return tinggalFields.map(function(f) {
                 return d[f + "_tinggal"];
               })
-              .filter(function(d) {
-                return d;
-              });
-          return bits.join(", ");
+              .filter(notEmpty)
+              .join(", ");
+        }}
+      ];
+
+      var li = ul.selectAll("li")
+        .data(function(d) {
+          return fields.map(function(field) {
+            return {
+              caleg: d,
+              field: field,
+              value: field.key(d)
+            };
+          })
+          .filter(function(d) {
+            return d.value;
+          });
+        })
+        .enter()
+        .append("li");
+
+      li.append("span")
+        .attr("class", "header")
+        .text(function(d) {
+          return d.field.name;
         });
 
-      function prettyttl(d) {
-        var bits = [d.tempat_lahir, prettydate(d)]
+      li.append("span")
+        .attr("class", "content")
+        .html(function(d) {
+          return d.value;
+        });
+
+      function prettyTTL(d) {
+        var bits = [d.tempat_lahir, prettyDate(d)]
         return bits
           .filter(notEmpty)
-          .join(", ");
+          .join("<br>");
       }
 
-      function prettydate(d) {
+      function prettyDate(d) {
         var parts = d.tanggal_lahir.split("-");
         if (parts.length === 3) {
           return [+parts[2], monthMap[[parts[1]]], + parts[0]].join(" ");
