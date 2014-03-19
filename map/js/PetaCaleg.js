@@ -424,7 +424,7 @@
       return utils.progressQueue()
         .defer(getBound, "candidate/api/provinsi", params)
         .defer(getBound, "geographic/api/getmap", {
-          filename: "admin-simple.topojson"
+          filename: "admin-provinsi-md.topojson"
         })
         .await(function(error, res, topology) {
           if (error) return callback(error);
@@ -560,10 +560,10 @@
 
       switch (context.lembaga) {
         case "DPR":
-          filename = "dapil_nasional_dpr-simplified.topojson";
+          filename = "dapil-dpr-md.topojson";
           break;
         case "DPRDI":
-          filename = "dapil_provinsi_dprdi-simplified.topojson";
+          filename = "dapil-dprdi-md.topojson";
           break;
       }
 
