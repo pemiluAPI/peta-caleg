@@ -797,6 +797,7 @@
               .attr("class", "caleg media"),
           icon = items.append("a")
             .attr("class", "pull-left")
+            .attr("href", href)
             .append("img")
               .attr("class", "media-object photo")
               .attr("src", function(d) {
