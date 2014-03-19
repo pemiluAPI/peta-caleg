@@ -549,7 +549,7 @@
             .attr("class", "media-body"),
           including = body.append("p")
             .text(function(d) {
-              return "Including: XXX, YYY, ZZZ...";
+              return ""; // :TODO: list contained kab/kota, kecamatan, kelurahan here
             });
     },
 
