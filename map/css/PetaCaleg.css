@@ -179,6 +179,10 @@ ul.candidate-info .header {
   color: #999;
 }
 
+ul.candidate-info .content {
+  font-weight: bold;
+}
+
 .breadcrumb li.active a {
   color: inherit !important;
 }
