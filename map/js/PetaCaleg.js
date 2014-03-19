@@ -53,10 +53,13 @@
   };
 
   utils.progressQueue = function() {
+    return queue();
+    // FIXME
     var q = queue(),
         dispatch = d3.dispatch("load", "error", "progress"),
         defer = q.defer,
         await = q.await,
+        UNKNOWN_LENGTH = 100 * 1024,
         requests = [];
 
     q.defer = function(load) {
@@ -64,31 +67,31 @@
       return defer(function(callback) {
         var req;
         args.push(function(error, data) {
-          if (error) return;
+          if (error) return callback.call(this, error);
+          else if (!req) return;
           req.loaded = req.total;
           req.progress = 1;
-          return callback(error, data);
-        });
-        req = load.apply(null, args);
-        req.on("progress", function() {
-          var e = d3.event;
-          if (e.total) {
-            req.loaded = e.loaded;
-            req.total = e.total;
+          var index = requests.indexOf(req);
+          if (index > -1) {
+            requests.splice(index, 1);
             progress();
           }
+          return callback.call(this, error, data);
         });
-        req.total = req.loaded = req.progress = 0;
-        requests.push(req);
-      });
-    };
-
-    q.await = function(callback) {
-      return await(function() {
-        dispatch.progress({
-          progress: 1
-        });
-        callback.apply(this, arguments);
+        console.log("defer(", load, args, ")");
+        req = load.apply(null, args);
+        if (req) {
+          req.on("progress", function() {
+            var e = d3.event;
+            if (e.lengthComputable) {
+              req.loaded = e.loaded;
+              req.total = e.total;
+              progress();
+            }
+          });
+          req.total = req.loaded = req.progress = 0;
+          requests.push(req);
+        }
       });
     };
 
@@ -99,8 +102,12 @@
         if (req.total) {
           total += req.total;
           loaded += req.loaded;
+        } else {
+          total += UNKNOWN_LENGTH;
         }
       });
+
+      console.log("progress:", loaded, total);
 
       if (total > 0) {
         var progress = loaded / total;
@@ -264,6 +271,33 @@
       }
     },
 
+    showProgress: function(req) {
+      return req;
+      // FIXME
+      var content = this.content
+            .classed("loading", true),
+          loader = content.select(".progress");
+      if (loader.empty()) {
+        loader = content.append("div")
+          .attr("class", "progress")
+          .append("div")
+            .attr("class", "progress-bar")
+            .attr("role", "progressbar");
+      }
+      var bar = loader.select(".progress-bar")
+        .style("width", "0%");
+      req.on("progress", function(e) {
+        var pct = (e.progress * 100).toFixed(1);
+        bar.style("width", pct + "%");
+        console.log("->", pct, bar.node());
+      });
+      req.on("load", function(e) {
+        // loader.remove();
+        content.classed("loading", false);
+      });
+      return req;
+    },
+
     setBreadcrumbs: function(breadcrumbs) {
       var bc = this.breadcrumb.selectAll("li")
         .data(breadcrumbs);
@@ -357,7 +391,7 @@
       context.breadcrumbs.push(crumb);
       this.setBreadcrumbs(context.breadcrumbs);
       this.content.call(utils.classify, "list-", "caleg");
-      this.getCandidates(context, function(error, candidates) {
+      return this.getCandidates(context, function(error, candidates) {
         crumb.text = "Caleg";
         crumb.loading = false;
         that.setBreadcrumbs(context.breadcrumbs);
