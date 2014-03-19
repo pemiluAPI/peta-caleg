@@ -855,11 +855,11 @@
       var ttlli = ul.append("li");
       ttlli.append("span")
         .attr("class", "header")
-        .text("TTL: ");
+        .text("TTL");
       ttlli.append("span")
         .attr("class", "content")
         .text(function(d) {
-          var bits = [prettyttl(d), newage(d)]
+          var bits = [prettyttl(d), age(d)]
           return bits
             .filter(notEmpty)
             .join(" ");
@@ -868,7 +868,7 @@
       var jkli = ul.append("li");
       jkli.append("span")
         .attr("class", "header")
-        .text("Jenis Kelamin: ");
+        .text("Jenis Kelamin");
       jkli.append("span")
         .attr("class", "content")
         .text(function(d) {
@@ -878,7 +878,7 @@
       var spli = ul.append("li");
       spli.append("span")
         .attr("class", "header")
-        .text("Status Perkawinan: ");
+        .text("Status Perkawinan");
       spli.append("span")
         .attr("class", "content")
         .text(function(d) {
@@ -888,7 +888,7 @@
       var agamali = ul.append("li");
       agamali.append("span")
         .attr("class", "header")
-        .text("Agama: ");
+        .text("Agama");
       agamali.append("span")
         .attr("class", "content")
         .text(function(d) {
@@ -898,7 +898,7 @@
       var tinggalli = ul.append("li");
       tinggalli.append("span")
         .attr("class", "header")
-        .text("Tempat Tinggal: ");
+        .text("Tempat Tinggal");
       tinggalli.append("span")
         .attr("class", "content")
         .text(function(d) {
@@ -926,7 +926,7 @@
         return null;
       }
 
-      function newage(d) {
+      function age(d) {
         var date = df.parse(d.tanggal_lahir);
         if (date) {
           var years = d3.time.year.range(date, now).length;
