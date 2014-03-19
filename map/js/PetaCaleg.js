@@ -831,26 +831,26 @@
             "L": "Laki-laki",
             "P": "Perempuan"
           },
-          monthMap = {
-            "01": "Januari",
-            "02": "Februari",
-            "03": "Maret",
-            "04": "April",
-            "05": "Mei",
-            "06": "Juni",
-            "07": "Juli",
-            "08": "Agustus",
-            "09": "September",
-            "10": "Oktober",
-            "11": "November",
-            "12": "Desember"
-          };
+          indonesianMonths = [
+            "Januari",
+            "Februari",
+            "Maret",
+            "April",
+            "Mei",
+            "Juni",
+            "Juli",
+            "Agustus",
+            "September",
+            "Oktober",
+            "November",
+            "Desember"
+          ];
 
       var fields = [
         {name: "TTL",               key: function getTTL(d) {
           return [prettyTTL(d), age(d)]
             .filter(notEmpty)
-            .join(", ");
+            .join(" ");
         }},
         {name: "Jenis Kelamin",     key: function getGender(d) {
           return jenisMap[d.jenis_kelamin];
@@ -911,9 +911,13 @@
       }
 
       function prettyDate(d) {
-        var parts = d.tanggal_lahir.split("-");
-        if (parts.length === 3) {
-          return [+parts[2], monthMap[[parts[1]]], + parts[0]].join(" ");
+        var date = df.parse(d.tanggal_lahir);
+        if (date) {
+          return [
+            date.getDate(),
+            indonesianMonths[date.getMonth()],
+            date.getFullYear()
+          ].join(" ");
         }
         return null;
       }
