@@ -85,7 +85,9 @@
 
     q.await = function(callback) {
       return await(function() {
-        dispatch.progress({progress: 1});
+        dispatch.progress({
+          progress: 1
+        });
         callback.apply(this, arguments);
       });
     };
@@ -118,7 +120,7 @@
       }
     }
 
-    return q;
+    return d3.rebind(q, dispatch, "on");
   };
 
   // Class constructor
