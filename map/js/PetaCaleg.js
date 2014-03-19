@@ -806,6 +806,9 @@
           head = items.append("div")
             .attr("class", "media-header")
             .append("h4")
+              .text(function(d) {
+                return d.urutan + ". ";
+              })
               .append("a")
                 .text(function(d) {
                   return d.nama;
@@ -814,14 +817,27 @@
           body = items.append("div")
             .attr("class", "media-body");
 
-      var dl = body.append("dl")
-        .attr("class", "dl-horizontal");
+      var ul = body.append("ul");
 
       var df = d3.time.format("%Y-%m-%d"),
           now = new Date(),
           jenisMap = {
             "L": "laki-laki",
             "P": "perempuan"
+          },
+          monthMap = {
+            "01": "Januari",
+            "02": "Februari",
+            "03": "Maret",
+            "04": "April",
+            "05": "Mei",
+            "06": "Juni",
+            "07": "Juli",
+            "08": "Agustus",
+            "09": "September",
+            "10": "Oktober",
+            "11": "November",
+            "12": "Desember"
           },
           tinggalFields = [
             "provinsi",
@@ -830,18 +846,25 @@
             "kelurahan"
           ];
 
-      dl.append("h5")
-        .attr("class", "gender-age")
+      ul.append("li")
         .text(function(d) {
-          var bits = [age(d), jenisMap[d.jenis_kelamin]]
-          return bits
+          var bits = [prettyttl(d), age(d)]
+          return "TTL: " + bits
             .filter(notEmpty)
-            .join(", ");
+            .join(" ");
         });
 
-      dl.append("dt")
-        .text("tempat tinggal")
-      dl.append("dd")
+      ul.append("li")
+        .text(function(d) {
+          return "Status Perkawinan: " + d.status_perkawinan;
+        });
+
+      ul.append("li")
+        .text(function(d) {
+          return "Agama: " + d.agama;
+        });
+
+      ul.append("li")
         .text(function(d) {
           var bits = tinggalFields.map(function(f) {
                 return d[f + "_tinggal"];
@@ -849,14 +872,30 @@
               .filter(function(d) {
                 return d;
               });
-          return bits.join(", ");
+          return "Tempat Tinggal: " + bits.join(", ");
         });
+
+
+      function prettyttl(d) {
+        var bits = [d.tempat_lahir, prettydate(d)]
+        return bits
+          .filter(notEmpty)
+          .join(", ");
+      }
+
+      function prettydate(d) {
+        var parts = d.tanggal_lahir.split("-");
+        if (parts.length == 3) {
+          return parseInt(parts[2]) + " " + monthMap[[parts[1]]] + " " + parts[0];
+        }
+        return null;
+      }
 
       function age(d) {
         var date = df.parse(d.tanggal_lahir);
         if (date) {
           var years = now.getFullYear() - date.getFullYear();
-          return years + " thn";
+          return "(" + years + " thn)";
         }
         return null;
       }
