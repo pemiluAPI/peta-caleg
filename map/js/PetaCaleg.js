@@ -1040,6 +1040,10 @@
       params.apiKey = this.options.key;
       var url = this.options.baseUrl + uri;
       if (params) {
+        // :TODO: temporary hack to get Kaltim results for Kaltara
+        if (params.provinsi == 65) {
+          params.provinsi = 64;
+        }
         url += "?" + qs.format(params);
       }
       if (this._cache && this._cache[url]) {
