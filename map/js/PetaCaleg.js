@@ -920,8 +920,8 @@
 
       function prettydate(d) {
         var parts = d.tanggal_lahir.split("-");
-        if (parts.length == 3) {
-          return parseInt(parts[2]) + " " + monthMap[[parts[1]]] + " " + parts[0];
+        if (parts.length === 3) {
+          return [+parts[2], monthMap[[parts[1]]], + parts[0]].join(" ");
         }
         return null;
       }
