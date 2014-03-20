@@ -388,7 +388,7 @@
             return callback(null, province);
           } else {
             console.warn("no such province:", context.provinsi, "in", provinces);
-            return callback("no such province: " + context.provinsi);
+            return callback("Tidak ada provinsi: " + context.provinsi);
           }
         } else {
           that.content.call(utils.classify, "list-", "provinsi");
@@ -430,8 +430,8 @@
             that.selectCandidate(candidate);
             return callback(null, candidate);
           } else {
-            console.warn("no such caleg:", context.caleg, "in", candidates);
-            return callback("no such caleg: " + context.caleg);
+            console.warn("no such candidate:", context.caleg, "in", candidates);
+            return callback("Tidak ada calon: " + context.caleg);
           }
         }
         return callback();
@@ -451,7 +451,7 @@
 
           var provinces = res.results.provinsi;
           if (!provinces.length) {
-            return callback("No provinces found.");
+            return callback("Tidak ada provinsi.");
           }
 
           var collection = new PetaCaleg.GeoCollection(topology);
@@ -522,7 +522,7 @@
             return callback(null, selected);
           } else {
             console.warn("no such dapil:", context.dapil, "in", dapil);
-            return callback("no such dapil: " + context.dapil);
+            return callback("Tidak ada dapil: " + context.dapil);
           }
         } else {
 
@@ -605,7 +605,7 @@
 
           var dapil = res.results.dapil;
           if (!dapil.length) {
-            return callback("No dapil found.");
+            return callback("Tidak ada dapil.");
           }
 
           var collection = new PetaCaleg.GeoCollection(topology, {
@@ -646,7 +646,7 @@
             return callback(null, selected);
           } else {
             console.warn("no such partai:", context.partai, "in", partai);
-            return callback("no such partai: " + context.partai);
+            return callback("Tidak ada partai: " + context.partai);
           }
         } else {
           that.content.call(utils.classify, "list-", "partai");
@@ -668,9 +668,9 @@
               parties = partai.results.partai;
 
           if (!candidates.length) {
-            return callback("No parties found (no candidates).");
+            return callback("Tidak ada data calon yang tersedia untuk daerah ini.");
           } else if (!parties.length) {
-            return callback("No parties found.");
+            return callback("Tidak ada data partai yang tersedia untuk daerah ini.");
           }
           var candidatesByParty = d3.nest()
                 .key(function(d) { return d.partai.id; })
@@ -801,7 +801,7 @@
 
           var candidates = caleg.results.caleg;
           if (!candidates.length) {
-            return callback("No candidates found.");
+            return callback("Tidak ada caleg.");
           }
 
           var partiesById = d3.nest()
