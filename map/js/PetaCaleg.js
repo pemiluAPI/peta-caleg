@@ -769,7 +769,6 @@
     },
 
     clearContent: function() {
-      // XXX this isn't the right thing to do
       this.content.html("");
     },
 
@@ -915,27 +914,6 @@
       var ul = body.append("ul")
         .attr("class", "candidate-info");
 
-      var df = d3.time.format("%Y-%m-%d"),
-          now = new Date(),
-          jenisMap = {
-            "L": "Laki-laki",
-            "P": "Perempuan"
-          },
-          indonesianMonths = [
-            "Januari",
-            "Februari",
-            "Maret",
-            "April",
-            "Mei",
-            "Juni",
-            "Juli",
-            "Agustus",
-            "September",
-            "Oktober",
-            "November",
-            "Desember"
-          ];
-
       var fields = [
         {name: "Tempat dan Tanggal Lahir", key: function getTTL(d) {
           return [prettyTTL(d), age(d)]
@@ -992,34 +970,6 @@
         .html(function(d) {
           return d.value;
         });
-
-      function prettyTTL(d) {
-        var bits = [d.tempat_lahir, prettyDate(d)]
-        return bits
-          .filter(notEmpty)
-          .join("<br>");
-      }
-
-      function prettyDate(d) {
-        var date = df.parse(d.tanggal_lahir);
-        if (date) {
-          return [
-            date.getDate(),
-            indonesianMonths[date.getMonth()],
-            date.getFullYear()
-          ].join(" ");
-        }
-        return null;
-      }
-
-      function age(d) {
-        var date = df.parse(d.tanggal_lahir);
-        if (date) {
-          var years = d3.time.year.range(date, now).length;
-          return "(" + years + " thn)";
-        }
-        return null;
-      }
     },
 
     selectCandidate: function(candidate) {
@@ -1564,6 +1514,55 @@
 
   function notEmpty(d) {
     return d && d.length;
+  }
+
+  var df = d3.time.format("%Y-%m-%d"),
+      now = new Date(),
+      jenisMap = {
+        "L": "Laki-laki",
+        "P": "Perempuan"
+      },
+      indonesianMonths = [
+        "Januari",
+        "Februari",
+        "Maret",
+        "April",
+        "Mei",
+        "Juni",
+        "Juli",
+        "Agustus",
+        "September",
+        "Oktober",
+        "November",
+        "Desember"
+      ];
+
+  function prettyTTL(d) {
+    var bits = [d.tempat_lahir, prettyDate(d)]
+    return bits
+      .filter(notEmpty)
+      .join("<br>");
+  }
+
+  function prettyDate(d) {
+    var date = df.parse(d.tanggal_lahir);
+    if (date) {
+      return [
+        date.getDate(),
+        indonesianMonths[date.getMonth()],
+        date.getFullYear()
+      ].join(" ");
+    }
+    return null;
+  }
+
+  function age(d) {
+    var date = df.parse(d.tanggal_lahir);
+    if (date) {
+      var years = d3.time.year.range(date, now).length;
+      return "(" + years + " thn)";
+    }
+    return null;
   }
 
 })(this);
