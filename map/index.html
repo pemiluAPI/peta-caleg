@@ -192,6 +192,10 @@
         // kick it all off
         app.init();
 
+        if (!location.hash) {
+          location.hash = "DPD";
+        }
+
         var get = api.get.bind(api);
         PetaCaleg.utils.progressQueue()
           .defer(get, "geographic/api/getmap", {
