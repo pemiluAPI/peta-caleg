@@ -181,6 +181,15 @@ ul.candidate-info .header {
 
 ul.candidate-info .content {
   font-weight: bold;
+  display: block;
+  margin-left: 10px;
+}
+
+.breadcrumb {
+          border-radius: 0;
+  -webkit-border-radius: 0;
+     -moz-border-radius: 0;
+      -ms-border-radius: 0;
 }
 
 .breadcrumb li.active a {
