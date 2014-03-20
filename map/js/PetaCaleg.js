@@ -155,8 +155,8 @@
 
   PetaCaleg.App = new PetaCaleg.Class({
     defaults: {
-      routes: [
-      ]
+      collapseSingleDistricts: false,
+      routes: []
     },
 
     initialize: function(options) {
@@ -461,6 +461,12 @@
 
         if (error) return callback(error);
 
+        if (dapil.length === 1 && !that.options.collapseSingleDistricts) {
+          console.warn("only 1 dapil in:", context.provinsi, dapil[0]);
+          // context.breadcrumbs.pop();
+          context.dapil = dapil[0].id;
+          // return callback(null, dapil[0]);
+        }
         // console.log("dapil:", dapil);
 
         if (that.map) {
@@ -498,7 +504,7 @@
           }
         } else {
 
-          if (dapil.length === 1) {
+          if (that.options.collapseSingleDistricts && dapil.length === 1) {
             console.warn("only 1 dapil in:", context.provinsi, dapil[0]);
             context.breadcrumbs.pop();
             // context.dapil = dapil[0].id;
@@ -506,9 +512,9 @@
           } else {
             that.content.call(utils.classify, "list-", "dapil");
             that.listDapil(dapil, context);
+            // that.map.zoomToInitialBounds();
+            return callback();
           }
-          // that.map.zoomToInitialBounds();
-          return callback();
         }
       });
     },
