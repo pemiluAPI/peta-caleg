@@ -328,14 +328,14 @@
     doProvinces: function(context, callback) {
       var that = this,
           crumb = {
-            text: "Provinsi (loading...)",
+            text: "Loading Provinsi...",
             context: utils.copy(context, {}, ["lembaga"]),
             loading: true
           };
       context.breadcrumbs.push(crumb);
       this.setBreadcrumbs(context.breadcrumbs);
       return this.getProvinces(context, function(error, provinces) {
-        crumb.text = "Provinsi";
+        crumb.text = "Select a Provinsi";
         crumb.loading = false;
         that.setBreadcrumbs(context.breadcrumbs);
 
@@ -363,7 +363,7 @@
           var province = utils.first(provinces, context.provinsi);
 
           if (province) {
-            crumb.text += ": " + province.nama;
+            crumb.text = "Provinsi: " + province.nama;
             // crumb.context = utils.copy(context, {}, ["lembaga", "provinsi"]);
             that.setBreadcrumbs(context.breadcrumbs);
 
@@ -387,7 +387,7 @@
     doCandidates: function(context, callback) {
       var that = this,
           crumb = {
-            text: "Caleg (loading...)",
+            text: "Loading Caleg...",
             context: utils.copy(context, {}, ["lembaga", "provinsi", "dapil", "partai"]),
             loading: true
           };
@@ -395,7 +395,7 @@
       this.setBreadcrumbs(context.breadcrumbs);
       this.content.call(utils.classify, "list-", "caleg");
       return this.getCandidates(context, function(error, candidates) {
-        crumb.text = "Caleg";
+        crumb.text = "Select a Caleg";
         crumb.loading = false;
         that.setBreadcrumbs(context.breadcrumbs);
 
@@ -406,7 +406,7 @@
           var candidate = utils.first(candidates, context.caleg);
 
           if (candidate) {
-            crumb.text += ": " + candidate.nama;
+            crumb.text = "Caleg: " + candidate.nama;
             // crumb.context = utils.copy(context, {}, ["lembaga", "provinsi", "dapil", "partai", "caleg"]);
             that.setBreadcrumbs(context.breadcrumbs);
 
@@ -448,14 +448,14 @@
     doDapil: function(context, callback) {
       var that = this,
           crumb = {
-            text: "Dapil (loading...)",
+            text: "Loading Dapil...",
             context: utils.copy(context, {}, ["lembaga", "provinsi"]),
             loading: true
           };
       context.breadcrumbs.push(crumb);
       this.setBreadcrumbs(context.breadcrumbs);
       return this.getDapil(context, function(error, dapil) {
-        crumb.text = "Dapil";
+        crumb.text = "Select a Dapil";
         crumb.loading = false;
         that.setBreadcrumbs(context.breadcrumbs);
 
@@ -490,7 +490,7 @@
           var selected = utils.first(dapil, context.dapil);
 
           if (selected) {
-            crumb.text += ": " + selected.nama;
+            crumb.text = "Dapil: " + selected.nama;
             // crumb.context = utils.copy(context, {}, ["lembaga", "provinsi", "dapil"]);
             that.setBreadcrumbs(context.breadcrumbs);
 
@@ -596,7 +596,7 @@
     doPartai: function(context, callback) {
       var that = this,
           crumb = {
-            text: "Partai (loading...)",
+            text: "Loading Partai...",
             context: utils.copy(context, {}, ["lembaga", "provinsi", "dapil"])
           };
       context.breadcrumbs.push(crumb);
@@ -604,7 +604,7 @@
       return this.getPartai(context, function(error, partai) {
         if (error) return callback(error);
 
-        crumb.text = "Partai";
+        crumb.text = "Select a Partai";
         crumb.loading = false;
         that.setBreadcrumbs(context.breadcrumbs);
 
@@ -612,7 +612,7 @@
           var selected = utils.first(partai, context.partai);
 
           if (selected) {
-            crumb.text += ": " + selected.nama;
+            crumb.text = "Partai: " + selected.nama;
             // crumb.context = utils.copy(context, {}, ["lembaga", "provinsi", "dapil", "partai"]);
             that.setBreadcrumbs(context.breadcrumbs);
 
