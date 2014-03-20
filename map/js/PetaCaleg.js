@@ -26,7 +26,9 @@
     if (!dest) dest = {};
     if (!keys) keys = Object.keys(source);
     keys.forEach(function(key) {
-      dest[key] = source[key];
+      if (source.hasOwnProperty(key)) {
+        dest[key] = source[key];
+      }
     });
     return dest;
   };
@@ -50,6 +52,31 @@
       klass.push(prefix + value);
       return klass.join(" ");
     });
+  };
+
+  utils.diff = function(a, b) {
+    var diff = [];
+    for (var k in a) {
+      if (a[k] != b[k]) {
+        // console.log("diff(" + k + "):", [a[k], b[k]]);
+        diff.push({
+          source: "a",
+          key: k,
+          value: a[k]
+        });
+      }
+    }
+    for (var k in b) {
+      if (!a.hasOwnProperty(k)) {
+        // console.log("diff(" + k + "):", [a[k], b[k]]);
+        diff.push({
+          source: "b",
+          key: k,
+          value: b[k]
+        });
+      }
+    }
+    return diff;
   };
 
   utils.progressQueue = function() {
@@ -440,13 +467,15 @@
 
     getProvinces: function(context, callback) {
       var params = utils.copy(context, {}, ["lembaga"]),
-          getBound = this.api.get.bind(this.api);
+          getBound = this.api.get.bind(this.api),
+          that = this;
       return utils.progressQueue()
         .defer(getBound, "candidate/api/provinsi", params)
         .defer(getBound, "geographic/api/getmap", {
           filename: "admin-provinsi-md.topojson"
         })
         .await(function(error, res, topology) {
+          that.checkContext(context);
           if (error) return callback(error);
 
           var provinces = res.results.provinsi;
@@ -586,7 +615,8 @@
     getDapil: function(context, callback) {
       var params = utils.copy(context, {}, ["lembaga", "provinsi"]),
           getBound = this.api.get.bind(this.api),
-          filename;
+          filename,
+          that = this;
 
       switch (context.lembaga) {
         case "DPR":
@@ -601,6 +631,7 @@
         .defer(getBound, "candidate/api/dapil", params)
         .defer(getBound, "geographic/api/getmap", {filename: filename})
         .await(function(error, res, topology) {
+          that.checkContext(context);
           if (error) return callback(error);
 
           var dapil = res.results.dapil;
@@ -658,12 +689,15 @@
 
     getPartai: function(context, callback) {
       var params = utils.copy(context, {}, ["lembaga", "provinsi", "dapil"]),
-          getBound = this.api.get.bind(this.api);
+          getBound = this.api.get.bind(this.api),
+          that = this;
       return utils.progressQueue()
         .defer(getBound, "candidate/api/caleg", params)
         .defer(getBound, "candidate/api/partai")
         .await(function(error, caleg, partai) {
+          that.checkContext(context);
           if (error) return callback(error);
+
           var candidates = caleg.results.caleg,
               parties = partai.results.partai;
 
@@ -774,6 +808,21 @@
                 .attr("href", href),
           body = items.append("div")
             .attr("class", "media-body");
+    },
+
+    checkContext: function(context) {
+      var keys = ["lembaga", "provinsi", "dapil", "partai"],
+          a = utils.copy(this.context, {}, keys),
+          b = utils.copy(context, {}, keys),
+          diff = utils.diff(a, b);
+      // console.log("comparing:", a, b);
+      if (diff.length) {
+        throw [
+          "context check failed:",
+          JSON.stringify(diff),
+          "(bailing)"
+        ].join(" ");
+      }
     },
 
     makeMapIcon: function(selection, context) {
