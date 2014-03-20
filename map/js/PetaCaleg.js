@@ -235,7 +235,7 @@
     },
 
     update: function(callback) {
-      var context = this.getContext(),
+      var context = this.context,
           that = this,
           breadcrumbs = context.breadcrumbs = [],
           content = this.content,
