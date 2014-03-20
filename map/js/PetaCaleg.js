@@ -808,7 +808,6 @@
           body = items.append("div")
             .attr("class", "media-body");
 
-
       head.append("span")
         .attr("class", 'no-urut')
         .text(function(d) {
