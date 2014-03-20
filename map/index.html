@@ -208,18 +208,6 @@
           // otherwise, we clear the content and scroll the body into view
           // (which scrolls to the top)
           app.content.html("");
-
-          d3.select(window)
-            .transition()
-            .duration(400)
-            .ease("linear")
-            .tween("scroll", function() {
-              if (this.scrollY < 200) return function() {};
-              var i = d3.interpolate(this.scrollY, 0);
-              return function(t) {
-                this.scrollTo(this.scrollX, i(t));
-              };
-            });
         });
 
         // kick it all off
