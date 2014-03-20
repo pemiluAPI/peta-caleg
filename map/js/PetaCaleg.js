@@ -211,10 +211,22 @@
       var context = this.getContext(),
           that = this,
           breadcrumbs = context.breadcrumbs = [],
+          content = this.content,
           done = function(error) {
-            console.log("done!");
+            if (error) {
+              console.error("error:", error);
+              content.classed("error", true)
+                .append("div")
+                  .attr("class", "alert alert-danger")
+                  .text(error);
+            } else {
+              console.log("done!");
+            }
             that.setBreadcrumbs(breadcrumbs);
           };
+
+      content.selectAll(".alert")
+        .remove();
 
       if (context.lembaga) {
         var lembaga = context.lembaga;
@@ -335,6 +347,7 @@
       context.breadcrumbs.push(crumb);
       this.setBreadcrumbs(context.breadcrumbs);
       return this.getProvinces(context, function(error, provinces) {
+
         crumb.text = "Select a Provinsi";
         crumb.loading = false;
         that.setBreadcrumbs(context.breadcrumbs);
@@ -399,6 +412,8 @@
         crumb.loading = false;
         that.setBreadcrumbs(context.breadcrumbs);
 
+        if (error) return callback(error);
+
         // console.log("candidates:", candidates);
         that.listCandidates(candidates, context);
 
@@ -431,8 +446,13 @@
         })
         .await(function(error, res, topology) {
           if (error) return callback(error);
-          var provinces = res.results.provinsi,
-              collection = new PetaCaleg.GeoCollection(topology);
+
+          var provinces = res.results.provinsi;
+          if (!provinces.length) {
+            return callback("No provinces found.");
+          }
+
+          var collection = new PetaCaleg.GeoCollection(topology);
           // sort provinces by name ascending
           provinces.sort(function(a, b) {
             return d3.ascending(a.nama, b.nama);
@@ -580,10 +600,15 @@
         .defer(getBound, "geographic/api/getmap", {filename: filename})
         .await(function(error, res, topology) {
           if (error) return callback(error);
-          var dapil = res.results.dapil,
-              collection = new PetaCaleg.GeoCollection(topology, {
-                idProperty: "id_dapil"
-              });
+
+          var dapil = res.results.dapil;
+          if (!dapil.length) {
+            return callback("No dapil found.");
+          }
+
+          var collection = new PetaCaleg.GeoCollection(topology, {
+            idProperty: "id_dapil"
+          });
           // console.log("dapil collection:", collection);
           dapil.forEach(function(d) {
             d.feature = collection.getFeatureById(d.id);
@@ -638,15 +663,22 @@
         .await(function(error, caleg, partai) {
           if (error) return callback(error);
           var candidates = caleg.results.caleg,
-              parties = partai.results.partai,
-              candidatesByParty = d3.nest()
+              parties = partai.results.partai;
+
+          if (!candidates.length) {
+            return callback("No parties found (no candidates).");
+          } else if (!parties.length) {
+            return callback("No parties found.");
+          }
+          var candidatesByParty = d3.nest()
                 .key(function(d) { return d.partai.id; })
                 .map(candidates),
               matching = parties.filter(function(d) {
                 return candidatesByParty[d.id];
               });
-          // console.log("candidates by party:", candidatesByParty, "+", parties, "->", matching);
-          return callback(null, matching);
+          return matching.length
+            ? callback(null, matching)
+            : callback("No matching candidates found (among " + candidates.length + ") in " + parties.length + " parties");
         });
     },
 
@@ -764,11 +796,16 @@
         .defer(getBound, "candidate/api/partai")
         .await(function(error, caleg, partai) {
           if (error) return callback(error);
-          var candidates = caleg.results.caleg,
-              partiesById = d3.nest()
-                .key(function(d) { return d.id; })
-                .rollup(function(d) { return d[0]; })
-                .map(partai.results.partai);
+
+          var candidates = caleg.results.caleg;
+          if (!candidates.length) {
+            return callback("No candidates found.");
+          }
+
+          var partiesById = d3.nest()
+            .key(function(d) { return d.id; })
+            .rollup(function(d) { return d[0]; })
+            .map(partai.results.partai);
           candidates.forEach(function(d) {
             d.partai = partiesById[d.partai.id];
           });
