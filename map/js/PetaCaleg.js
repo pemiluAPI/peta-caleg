@@ -364,7 +364,7 @@
 
           if (province) {
             crumb.text = "Provinsi: " + province.nama;
-            // crumb.context = utils.copy(context, {}, ["lembaga", "provinsi"]);
+            crumb.context = utils.copy(context, {}, ["lembaga", "provinsi"]);
             that.setBreadcrumbs(context.breadcrumbs);
 
             if (that.map) {
@@ -407,7 +407,7 @@
 
           if (candidate) {
             crumb.text = "Caleg: " + candidate.nama;
-            // crumb.context = utils.copy(context, {}, ["lembaga", "provinsi", "dapil", "partai", "caleg"]);
+            crumb.context = utils.copy(context, {}, ["lembaga", "provinsi", "dapil", "partai", "caleg"]);
             that.setBreadcrumbs(context.breadcrumbs);
 
             that.selectCandidate(candidate);
@@ -491,7 +491,7 @@
 
           if (selected) {
             crumb.text = "Dapil: " + selected.nama;
-            // crumb.context = utils.copy(context, {}, ["lembaga", "provinsi", "dapil"]);
+            crumb.context = utils.copy(context, {}, ["lembaga", "provinsi", "dapil"]);
             that.setBreadcrumbs(context.breadcrumbs);
 
             if (that.map) {
@@ -602,18 +602,18 @@
       context.breadcrumbs.push(crumb);
       this.setBreadcrumbs(context.breadcrumbs);
       return this.getPartai(context, function(error, partai) {
-        if (error) return callback(error);
-
         crumb.text = "Select a Partai";
         crumb.loading = false;
         that.setBreadcrumbs(context.breadcrumbs);
+
+        if (error) return callback(error);
 
         if (context.partai) {
           var selected = utils.first(partai, context.partai);
 
           if (selected) {
             crumb.text = "Partai: " + selected.nama;
-            // crumb.context = utils.copy(context, {}, ["lembaga", "provinsi", "dapil", "partai"]);
+            crumb.context = utils.copy(context, {}, ["lembaga", "provinsi", "dapil", "partai"]);
             that.setBreadcrumbs(context.breadcrumbs);
 
             return callback(null, selected);
