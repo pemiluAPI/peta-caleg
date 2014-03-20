@@ -680,7 +680,7 @@
               });
           return matching.length
             ? callback(null, matching)
-            : callback("No matching candidates found (among " + candidates.length + ") in " + parties.length + " parties");
+            : callback("Tidak ada data calon yang tersedia untuk partai ini.");
         });
     },
 
