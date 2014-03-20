@@ -217,12 +217,12 @@
           };
 
       if (context.lembaga) {
-        lembagadisplay = context.lembaga;
-        if (lembagadisplay == "DPRDI") {
-          lembagadisplay = "DPRD I";
+        var lembaga = context.lembaga;
+        if (lembaga == "DPRDI") {
+          lembaga = "DPRD I";
         }
         breadcrumbs.push({
-          text: lembagadisplay,
+          text: "Lembaga: " + lembaga,
           context: utils.copy(context, {}, ["lembaga"])
         });
 
@@ -363,10 +363,9 @@
           var province = utils.first(provinces, context.provinsi);
 
           if (province) {
-            context.breadcrumbs.push({
-              text: province.nama,
-              context: utils.copy(context, {}, ["lembaga", "provinsi"])
-            });
+            crumb.text += ": " + province.nama;
+            // crumb.context = utils.copy(context, {}, ["lembaga", "provinsi"]);
+            that.setBreadcrumbs(context.breadcrumbs);
 
             if (that.map) {
               that.map.zoomToFeature(province.feature);
@@ -407,10 +406,10 @@
           var candidate = utils.first(candidates, context.caleg);
 
           if (candidate) {
-            context.breadcrumbs.push({
-              text: candidate.nama,
-              context: utils.copy(context, {}, ["lembaga", "provinsi", "caleg"])
-            });
+            crumb.text += ": " + candidate.nama;
+            // crumb.context = utils.copy(context, {}, ["lembaga", "provinsi", "dapil", "partai", "caleg"]);
+            that.setBreadcrumbs(context.breadcrumbs);
+
             that.selectCandidate(candidate);
             return callback(null, candidate);
           } else {
@@ -485,10 +484,9 @@
           var selected = utils.first(dapil, context.dapil);
 
           if (selected) {
-            context.breadcrumbs.push({
-              text: selected.nama,
-              context: utils.copy(context, {}, ["lembaga", "provinsi", "dapil"])
-            });
+            crumb.text += ": " + selected.nama;
+            // crumb.context = utils.copy(context, {}, ["lembaga", "provinsi", "dapil"]);
+            that.setBreadcrumbs(context.breadcrumbs);
 
             if (that.map) {
               that.map.zoomToFeature(selected.feature);
@@ -608,10 +606,9 @@
           var selected = utils.first(partai, context.partai);
 
           if (selected) {
-            context.breadcrumbs.push({
-              text: selected.nama,
-              context: utils.copy(context, {}, ["lembaga", "provinsi", "dapil", "partai"])
-            });
+            crumb.text += ": " + selected.nama;
+            // crumb.context = utils.copy(context, {}, ["lembaga", "provinsi", "dapil", "partai"]);
+            that.setBreadcrumbs(context.breadcrumbs);
 
             return callback(null, selected);
           } else {
