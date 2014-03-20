@@ -215,7 +215,9 @@
           done = function(error) {
             if (error) {
               console.error("error:", error);
-              content.classed("error", true)
+              content
+                .html("")
+                .classed("error", true)
                 .append("div")
                   .attr("class", "alert alert-danger")
                   .text(error);
