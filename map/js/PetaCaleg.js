@@ -267,7 +267,7 @@
           context: utils.copy(context, {}, ["lembaga"])
         });
 
-        this.content
+        content
           .call(utils.classify, "lembaga-", context.lembaga)
           .call(utils.classify, "list-", "none");
 
@@ -435,7 +435,6 @@
           };
       context.breadcrumbs.push(crumb);
       this.setBreadcrumbs(context.breadcrumbs);
-      this.content.call(utils.classify, "list-", "caleg");
       return this.getCandidates(context, function(error, candidates) {
         crumb.text = "Pilih Caleg";
         crumb.loading = false;
@@ -444,7 +443,12 @@
         if (error) return callback(error);
 
         // console.log("candidates:", candidates);
-        that.listCandidates(candidates, context);
+        that.content.call(utils.classify, "list-", "caleg");
+        if (that.content.select("ul.caleg").empty()) {
+          that.listCandidates(candidates, context);
+        } else {
+          console.info("already have candidates list!");
+        }
 
         if (context.caleg) {
           var candidate = utils.first(candidates, context.caleg);
@@ -876,9 +880,10 @@
         });
       }).bind(this);
 
-      var title = this.content.append("h3")
-            .text("Caleg"),
-          list = this.content.append("ul")
+      this.content.append("h3")
+        .text("Caleg");
+
+      var list = this.content.append("ul")
             .attr("class", "caleg list-group"),
           items = list.selectAll("li")
             .data(candidates)
