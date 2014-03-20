@@ -350,7 +350,7 @@
       this.setBreadcrumbs(context.breadcrumbs);
       return this.getProvinces(context, function(error, provinces) {
 
-        crumb.text = "Select a Provinsi";
+        crumb.text = "Pilih Provinsi";
         crumb.loading = false;
         that.setBreadcrumbs(context.breadcrumbs);
 
@@ -410,7 +410,7 @@
       this.setBreadcrumbs(context.breadcrumbs);
       this.content.call(utils.classify, "list-", "caleg");
       return this.getCandidates(context, function(error, candidates) {
-        crumb.text = "Select a Caleg";
+        crumb.text = "Pilih Caleg";
         crumb.loading = false;
         that.setBreadcrumbs(context.breadcrumbs);
 
@@ -477,7 +477,7 @@
       context.breadcrumbs.push(crumb);
       this.setBreadcrumbs(context.breadcrumbs);
       return this.getDapil(context, function(error, dapil) {
-        crumb.text = "Select a Dapil";
+        crumb.text = "Pilih Dapil";
         crumb.loading = false;
         that.setBreadcrumbs(context.breadcrumbs);
 
@@ -629,7 +629,7 @@
       context.breadcrumbs.push(crumb);
       this.setBreadcrumbs(context.breadcrumbs);
       return this.getPartai(context, function(error, partai) {
-        crumb.text = "Select a Partai";
+        crumb.text = "Pilih Partai";
         crumb.loading = false;
         that.setBreadcrumbs(context.breadcrumbs);
 
