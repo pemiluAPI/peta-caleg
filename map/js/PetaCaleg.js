@@ -529,12 +529,12 @@
       var title = this.content.append("h3")
             .text("Dapil"),
           list = this.content.append("ul")
-            .attr("class", "dapil media-list"),
+            .attr("class", "dapil list-group"),
           items = list.selectAll("li")
             .data(dapil)
             .enter()
             .append("li")
-              .attr("class", "dapil media"),
+              .attr("class", "dapil list-group-item"),
           icon = items.append("a")
             .attr("class", "pull-left")
             .attr("href", href)
@@ -662,12 +662,12 @@
       var title = this.content.append("h3")
             .text("Partai"),
           list = this.content.append("ul")
-            .attr("class", "partai media-list"),
+            .attr("class", "partai list-group"),
           items = list.selectAll("li")
             .data(partai)
             .enter()
             .append("li")
-              .attr("class", "partai media"),
+              .attr("class", "partai list-group-item"),
           icon = items.append("a")
             .attr("class", "pull-left")
             .attr("href", href)
@@ -715,12 +715,12 @@
       var title = this.content.append("h3")
             .text("Provinsi"),
           list = this.content.append("ul")
-            .attr("class", "provinsi media-list"),
+            .attr("class", "provinsi list-group"),
           items = list.selectAll("li")
             .data(provinces)
             .enter()
             .append("li")
-              .attr("class", "provinsi media"),
+              .attr("class", "provinsi list-group-item"),
           icon = items.append("a")
             .attr("class", "pull-left")
             .attr("href", href)
@@ -789,12 +789,12 @@
       var title = this.content.append("h3")
             .text("Caleg"),
           list = this.content.append("ul")
-            .attr("class", "caleg media-list"),
+            .attr("class", "caleg list-group"),
           items = list.selectAll("li")
             .data(candidates)
             .enter()
             .append("li")
-              .attr("class", "caleg media"),
+              .attr("class", "caleg list-group-item"),
           icon = items.append("a")
             .attr("class", "pull-left")
             .attr("href", href)
