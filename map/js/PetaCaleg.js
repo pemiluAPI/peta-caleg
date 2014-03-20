@@ -757,11 +757,11 @@
             .attr("class", "nama")
             .append("a")
               .text(function(d) {
-                return d.nama;
+                return d.nama_lengkap;
               })
               .attr("href", href),
           subtitle = head.filter(function(d) {
-              return d.nama != d.nama_lengkap;
+              return false;
             })
             .append("h5")
               .attr("class", "nama-lengkap")
