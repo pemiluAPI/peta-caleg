@@ -241,7 +241,12 @@ ul.candidate-info .content {
 }
 
 .breadcrumb li.active a {
-  color: inherit !important;
+  color: inherit;
+  font-weight: bold;
+}
+
+.breadcrumb li.action a {
+  color: #000;
 }
 
 /* overwrite bootcamp styles for modal window */
