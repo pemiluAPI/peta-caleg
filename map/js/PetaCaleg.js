@@ -812,7 +812,7 @@
           var cannames = d.caleg.slice(0, numlist).map(function(d) {
             return d.nama;
           });
-          return cannames.join("; ") + " and " + numleft + " more candidates."
+          return cannames.join("; ") + " dan " + numleft + " calon lagi."
         });
     },
 
