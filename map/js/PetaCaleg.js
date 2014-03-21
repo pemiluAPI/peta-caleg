@@ -160,16 +160,21 @@
   utils.autoClick = function(selection) {
     selection
       .classed("auto-click", true)
-      .on("click.auto", click);
+      .on("click.auto", click, true);
 
     function click() {
-      if (d3.event.target !== this) return;
+      var e = d3.event;
+      if (e.target.nodeName === "A") return;
       var a = d3.select(this)
         .select("a")
           .node();
       if (a) {
         a.click();
-        d3.event.preventDefault();
+        try {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+        } catch (err) {
+        }
         return false;
       }
     }
