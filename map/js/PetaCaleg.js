@@ -809,11 +809,12 @@
         .text(function(d) {
           var numlist = Math.min(d.caleg.length, 3);
           var numleft = d.caleg.length - numlist;
+          var suffix = (numleft) ? " dan " + numleft + " calon lagi." : ".";
           var cannames = d.caleg.map(function(d) {
             return d.nama;
           });
           cannames = d3.shuffle(cannames).slice(0, numlist);
-          return cannames.join("; ") + " dan " + numleft + " calon lagi."
+          return cannames.join("; ") + suffix;
         });
     },
 
