@@ -802,7 +802,12 @@
       body.append("h6")
         .attr("class", "num-caleg")
         .text(function(d) {
-          return d.caleg.length + " caleg";
+          var numlist = Math.min(d.caleg.length, 3);
+          var numleft = d.caleg.length - numlist;
+          var cannames = d.caleg.slice(0, numlist).map(function(d) {
+            return d.nama;
+          });
+          return cannames.join(", ") + " and " + numleft + " more candidates."
         });
     },
 
