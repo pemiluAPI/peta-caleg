@@ -740,7 +740,8 @@
                 .key(function(d) { return d.partai.id; })
                 .map(candidates),
               matching = parties.filter(function(d) {
-                return candidatesByParty[d.id];
+                d.caleg = candidatesByParty[d.id];
+                return notEmpty(d.caleg);
               });
           return matching.length
             ? callback(null, matching)
@@ -797,6 +798,12 @@
               }),
           body = items.append("div")
             .attr("class", "media-body");
+
+      body.append("h6")
+        .attr("class", "num-caleg")
+        .text(function(d) {
+          return d.caleg.length + " caleg";
+        });
     },
 
     clearContent: function() {
