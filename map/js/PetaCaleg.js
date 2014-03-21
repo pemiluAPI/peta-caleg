@@ -952,53 +952,77 @@
           return d.nama;
         });
 
-      var ul = body.append("ul")
-        .attr("class", "candidate-info");
-
-      var fields = [
-        {name: "Tempat dan Tanggal Lahir", key: function getTTL(d) {
-          return [prettyTTL(d), age(d)]
-            .filter(notEmpty)
-            .join(" ");
-        }},
-        {name: "Jenis Kelamin",            key: function getGender(d) {
-          return jenisMap[d.jenis_kelamin];
-        }},
-        {name: "Status Perkawinan",        key: function getMaritalStatus(d) {
-          return d.status_perkawinan;
-        }},
-        {name: "Agama",                    key: function getReligion(d) {
-          return d.agama;
-        }},
-        {name: "Tempat Tinggal",           key: function getResidence(d) {
-          return [
-                "provinsi",
-                "kab_kota",
-                "kecamatan",
-                "kelurahan"
-              ].map(function(f) {
-                return d[f + "_tinggal"];
-              })
+      var columns = [
+        [
+          {name: "Tempat dan Tanggal Lahir", key: function getTTL(d) {
+            return [prettyTTL(d), age(d)]
               .filter(notEmpty)
-              .join(", ");
-        }}
+              .join(" ");
+          }},
+          {name: "Jenis Kelamin",            key: function getGender(d) {
+            return jenisMap[d.jenis_kelamin];
+          }},
+          {name: "Status Perkawinan",        key: function getMaritalStatus(d) {
+            return d.status_perkawinan;
+          }}
+        ],
+        [
+          {name: "Agama",                    key: function getReligion(d) {
+            return d.agama;
+          }},
+          {name: "Tempat Tinggal",           key: function getResidence(d) {
+            return [
+                  "provinsi",
+                  "kab_kota",
+                  "kecamatan",
+                  "kelurahan"
+                ].map(function(f) {
+                  return d[f + "_tinggal"];
+                })
+                .filter(notEmpty)
+                .join(", ");
+          }}
+        ]
       ];
 
-      var li = ul.selectAll("li")
-        .data(function(d) {
-          return fields.map(function(field) {
-            return {
-              caleg: d,
-              field: field,
-              value: field.key(d)
-            };
-          })
-          .filter(function(d) {
-            return d.value;
-          });
-        })
-        .enter()
-        .append("li");
+      var ul = body.selectAll("ul.candidate-info")
+            .data(function(d) {
+              // each "column" will is a list of fields + values
+              var cols = columns.map(function(fields) {
+                return {
+                  caleg: d,
+                  fields: fields.map(function(field) {
+                    return {
+                      caleg: d,
+                      field: field,
+                      value: field.key(d)
+                    };
+                  })
+                  .filter(function(d) {
+                    return d.value;
+                  })
+                };
+              });
+
+              // ensure that there are at least 2 fields in the first column
+              var first = cols[0].fields,
+                  second = cols[1].fields;
+              while (first.length < 2 && second.length) {
+                first.push(second.pop());
+              }
+
+              return cols;
+            })
+            .enter()
+            .append("ul")
+              .attr("class", "candidate-info"),
+          li = ul.selectAll("li")
+            .data(function(d) {
+              // and each column gets a list item for each of its fields
+              return d.fields;
+            })
+            .enter()
+            .append("li");
 
       li.append("span")
         .attr("class", "header")
