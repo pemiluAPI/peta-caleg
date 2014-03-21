@@ -172,6 +172,10 @@ svg.media-object {
   width: 100px;
 }
 
+.caleg-peek {
+  max-width: 32em;
+}
+
 #content > .panel {
   margin: 15px 0;
 }

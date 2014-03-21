@@ -805,7 +805,8 @@
             .attr("class", "media-body");
 
       // add a preview list of candidates
-      var title = body.append("h6"),
+      var title = body.append("h6")
+            .attr("class", "caleg-peek"),
           list = title.selectAll("span.caleg")
             .data(function(d) {
               var numlist = Math.min(d.caleg.length, 3);
