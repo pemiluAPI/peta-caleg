@@ -804,18 +804,18 @@
           body = items.append("div")
             .attr("class", "media-body");
 
-      var list = body.append("h6")
-        .selectAll("span.caleg")
-        .data(function(d) {
-          var numlist = Math.min(d.caleg.length, 3);
-          var numleft = d.caleg.length - numlist;
-          var suffix = (numleft) ? " dan " + numleft + " calon lagi." : ".";
-          copy = d.caleg.slice();
-          return d3.shuffle(copy).slice(0, numlist);
-        })
-        .enter()
-        .append("span")
-          .attr("class", "caleg");
+      // add a preview list of candidates
+      var title = body.append("h6"),
+          list = title.selectAll("span.caleg")
+            .data(function(d) {
+              var numlist = Math.min(d.caleg.length, 3);
+              d.numleft = d.caleg.length - numlist;
+              copy = d.caleg.slice();
+              return d3.shuffle(copy).slice(0, numlist);
+            })
+            .enter()
+            .append("span")
+              .attr("class", "caleg");
 
       list.append("span")
         .attr("class", "glyphicon glyphicon-user");
@@ -823,6 +823,11 @@
       list.append("span")
         .text(function(d) {
           return " " + d.nama + " ";
+        });
+
+      title.append("span")
+        .text(function(d) {
+          return (d.numleft) ? " dan " + d.numleft + " calon lagi." : ".";
         });
     },
 
