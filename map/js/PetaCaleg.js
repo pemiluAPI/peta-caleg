@@ -390,7 +390,7 @@
     doProvinces: function(context, callback) {
       var that = this,
           crumb = {
-            text: "Loading Provinsi...",
+            text: "Memuat Provinsi...",
             context: utils.copy(context, {}, ["lembaga"]),
             loading: true
           };
@@ -451,7 +451,7 @@
     doCandidates: function(context, callback) {
       var that = this,
           crumb = {
-            text: "Loading Caleg...",
+            text: "Memuat Caleg...",
             context: utils.copy(context, {}, ["lembaga", "provinsi", "dapil", "partai"]),
             loading: true
           };
@@ -526,7 +526,7 @@
     doDapil: function(context, callback) {
       var that = this,
           crumb = {
-            text: "Loading Dapil...",
+            text: "Memuat Dapil...",
             context: utils.copy(context, {}, ["lembaga", "provinsi"]),
             loading: true
           };
@@ -683,7 +683,7 @@
     doPartai: function(context, callback) {
       var that = this,
           crumb = {
-            text: "Loading Partai...",
+            text: "Memuat Partai...",
             context: utils.copy(context, {}, ["lembaga", "provinsi", "dapil"])
           };
       context.breadcrumbs.push(crumb);
