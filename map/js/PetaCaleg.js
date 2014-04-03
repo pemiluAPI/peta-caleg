@@ -80,84 +80,6 @@
     return diff;
   };
 
-  utils.progressQueue = function() {
-    return queue();
-    // FIXME
-    var q = queue(),
-        dispatch = d3.dispatch("load", "error", "progress"),
-        defer = q.defer,
-        await = q.await,
-        UNKNOWN_LENGTH = 100 * 1024,
-        requests = [];
-
-    q.defer = function(load) {
-      var args = [].slice.call(arguments, 1);
-      return defer(function(callback) {
-        var req;
-        args.push(function(error, data) {
-          if (error) return callback.call(this, error);
-          else if (!req) return;
-          req.loaded = req.total;
-          req.progress = 1;
-          var index = requests.indexOf(req);
-          if (index > -1) {
-            requests.splice(index, 1);
-            progress();
-          }
-          return callback.call(this, error, data);
-        });
-        console.log("defer(", load, args, ")");
-        req = load.apply(null, args);
-        if (req) {
-          req.on("progress", function() {
-            var e = d3.event;
-            if (e.lengthComputable) {
-              req.loaded = e.loaded;
-              req.total = e.total;
-              progress();
-            }
-          });
-          req.total = req.loaded = req.progress = 0;
-          requests.push(req);
-        }
-      });
-    };
-
-    function progress() {
-      var total = 0,
-          loaded = 0;
-      requests.forEach(function(req) {
-        if (req.total) {
-          total += req.total;
-          loaded += req.loaded;
-        } else {
-          total += UNKNOWN_LENGTH;
-        }
-      });
-
-      console.log("progress:", loaded, total);
-
-      if (total > 0) {
-        var progress = loaded / total;
-        dispatch.progress({
-          total: total,
-          loaded: loaded,
-          progress: progress
-        });
-
-        if (progress >= 1) {
-          dispatch.load({
-            total: total,
-            loaded: loaded,
-            requests: requests
-          });
-        }
-      }
-    }
-
-    return d3.rebind(q, dispatch, "on");
-  };
-
   utils.autoClick = function(selection) {
     selection
       .classed("auto-click", true)
@@ -502,7 +424,7 @@
       var params = utils.copy(context, {}, ["lembaga"]),
           getBound = this.api.get.bind(this.api),
           that = this;
-      return utils.progressQueue()
+      return queue()
         .defer(getBound, "candidate/api/provinsi", params)
         .defer(getBound, "geographic/api/getmap", {
           filename: "admin-provinsi-md.topojson"
@@ -662,7 +584,7 @@
           break;
       }
 
-      return utils.progressQueue()
+      return queue()
         .defer(getBound, "candidate/api/dapil", params)
         .defer(getBound, "geographic/api/getmap", {filename: filename})
         .await(function(error, res, topology) {
@@ -727,7 +649,7 @@
       var params = utils.copy(context, {}, ["lembaga", "provinsi", "dapil"]),
           getBound = this.api.get.bind(this.api),
           that = this;
-      return utils.progressQueue()
+      return queue()
         .defer(getBound, "candidate/api/caleg", params)
         .defer(getBound, "candidate/api/partai")
         .await(function(error, caleg, partai) {
@@ -907,7 +829,7 @@
             : callback(null, res.results.caleg);
         });
       }
-      return utils.progressQueue()
+      return queue()
         .defer(getBound, "candidate/api/caleg", params)
         .defer(getBound, "candidate/api/partai")
         .await(function(error, caleg, partai) {
