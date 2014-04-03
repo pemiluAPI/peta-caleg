@@ -1349,7 +1349,7 @@
               new google.maps.LatLng(sw.lat() - pad, sw.lng() - pad),
               new google.maps.LatLng(ne.lat() + pad, ne.lng() + pad)
             );
-        console.log(bounds.toString(), "->", smaller.toString(), [w, h]);
+        // console.log(bounds.toString(), "->", smaller.toString(), [w, h]);
         return google.maps.Map.prototype.fitBounds.call(this, smaller);
       },
 
