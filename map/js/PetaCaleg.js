@@ -1416,6 +1416,21 @@
         d3.rebind(this, this.dispatch, "on");
       },
 
+      fitBounds: function(bounds) {
+        var sw = bounds.getSouthWest(),
+            ne = bounds.getNorthEast(),
+            h = sw.lat() - ne.lat(),
+            w = sw.lng() - ne.lng(),
+            scale = .24,
+            pad = Math.max(h * scale, w * scale),
+            smaller = new google.maps.LatLngBounds(
+              new google.maps.LatLng(sw.lat() - pad, sw.lng() - pad),
+              new google.maps.LatLng(ne.lat() + pad, ne.lng() + pad)
+            );
+        console.log(bounds.toString(), "->", smaller.toString(), [w, h]);
+        return google.maps.Map.prototype.fitBounds.call(this, smaller);
+      },
+
       zoomToFeature: function(feature) {
         var bounds = d3.geo.bounds(feature); // [[W, N], [E, S]]
         this.fitBounds(new google.maps.LatLngBounds(
