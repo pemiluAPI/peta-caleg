@@ -133,9 +133,9 @@ h3 {
 
 #pemilu-logo a {
   display: inline-block;
-  width: 75px;
-  height: 38px;
-  background-image: url(../img/apipemilu-logo-header.png?bar);
+  width: 65px;
+  height: 32px;
+  background-image: url(../img/apipemilu-logo-header.png?new);
   background-repeat: no-repeat;
   background-size: auto 80%;
   background-position: bottom right;
@@ -148,9 +148,7 @@ h3 {
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) { 
   /* Retina-specific stuff here */
   #pemilu-logo a {
-    width: 75px;
-    height: 38px;
-    background-image: url(../img/apipemilu-logo-header@2x.png);
+    background-image: url(../img/apipemilu-logo-header@2x.png?new);
   }
 }
 
