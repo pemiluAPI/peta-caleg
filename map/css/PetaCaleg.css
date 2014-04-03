@@ -6,7 +6,7 @@ body {
 }
 
 #peta {
-  height: 280px;
+  height: 420px;
 }
 
 #content {
@@ -30,7 +30,7 @@ body {
 
 @media (max-width: 768px) {
   #peta {
-    height: 200px;
+    height: 230px;
   }
 
   .navbar-header:before,
