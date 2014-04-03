@@ -43,6 +43,10 @@ body {
     clear: none !important;
   }
 
+  #navbar .navbar-nav > li > a {
+    padding-right: 0 !important;
+  }
+
   ul.navbar-nav {
     float: left;
     margin: 5px 0;
@@ -52,9 +56,9 @@ body {
     float: right !important;
   }
 
-  .navbar-text {
+  #top .navbar-text {
     float: left;
-    /* margin-right: 15px; */
+    margin-right: 15px;
   }
 
 }
