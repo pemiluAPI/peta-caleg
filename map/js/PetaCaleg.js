@@ -221,6 +221,7 @@
       this.map = this.options.map;
       this.content = d3.select(this.options.content);
       this.breadcrumb = d3.select(this.options.breadcrumb);
+      this.candidateDialog = this.options.candidateDialog;
 
       this.context = {};
 
@@ -502,6 +503,10 @@
             that.setBreadcrumbs(context.breadcrumbs);
 
             that.selectCandidate(candidate);
+
+            if (context.more === "more") {
+              that.showCandidateDialog(candidate);
+            }
             return callback(null, candidate);
           } else {
             console.warn("no such candidate:", context.caleg, "in", candidates);
@@ -1076,6 +1081,16 @@
         .html(function(d) {
           return d.value;
         });
+
+      if (this.candidateDialog) {
+        body.append("a")
+          .attr("class", "more")
+          .attr("href", function(d) {
+            return href(d) + "/more";
+          })
+          .text("more information")
+          .on("click", this.showCandidateDialog.bind(this));
+      }
     },
 
     selectCandidate: function(candidate) {
@@ -1087,6 +1102,48 @@
           .each(function(d) {
             // this.scrollIntoView();
           });
+    },
+
+    showCandidateDialog: function(candidate) {
+      if (!this.candidateDialog) return;
+
+      if (this._candidateReq) {
+        this._candidateReq.abort();
+        this._candidateReq = null;
+      }
+
+      var dialog = this.candidateDialog,
+          that = this;
+
+      dialog._selection
+        .classed("loading", true)
+        .select(".modal-title")
+          .text(candidate.nama);
+
+      var dbody = dialog._selection
+        .select(".modal-body")
+        .text("");
+
+      var dtitle = dbody.append("h4")
+        .text("Loading...");
+
+      var uri = "candidate/api/caleg/" + candidate.id;
+      this._candidateReq = this.api.get(uri, function(error, res) {
+        dialog._selection.classed("loading", false);
+
+        console.log("got caleg data:", res);
+        that._candidateReq = null;
+
+        dtitle.text("more information!");
+      });
+
+      dialog.show();
+    },
+
+    hideCandidateDialog: function() {
+      if (!this.candidateDialog) return;
+
+      this.candidateDialog.hide();
     }
 
   });
