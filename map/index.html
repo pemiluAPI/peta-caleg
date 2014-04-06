@@ -151,38 +151,11 @@
           ]
         });
 
-        var aboutDialog = d3.select("#about");
-        aboutDialog
-          .on("click.background", function() {
-            if (d3.event.target === this) {
-              aboutDialog.call(closeDialog);
-              history.back();
-            } else {
-              console.log("(click elsewhere)");
-            }
-          })
-          .selectAll(".close")
-            .on("click.close", function() {
-              aboutDialog.call(closeDialog);
-              history.back();
-            });
+        var aboutDialog = new PetaCaleg.Dialog("#about");
 
         app.resolver.add("about", function(context) {
-          console.log("about!", context);
-          aboutDialog.call(openDialog);
+          aboutDialog.show();
         });
-
-        function openDialog(selection) {
-          selection
-            .style("display", "block")
-            .classed("in", true);
-        }
-
-        function closeDialog(selection) {
-          selection
-            .style("display", "none")
-            .classed("in", false);
-        }
 
         var lastHash,
             body = document.querySelector("body");

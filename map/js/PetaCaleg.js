@@ -1351,6 +1351,41 @@
     }
   });
 
+  PetaCaleg.Dialog = new PetaCaleg.Class({
+    initialize: function(selector) {
+      var that = this;
+      this._selection = d3.select(selector)
+        .on("click.background", function() {
+          if (d3.event.target === this) {
+            that.close();
+          }
+        });
+
+      this._selection
+        .select(".close")
+          .on("click.close", this.close.bind(this));
+
+      this.hide();
+    },
+
+    show: function() {
+      this._selection
+        .style("display", "block")
+        .classed("in", true);
+    },
+
+    hide: function() {
+      this._selection
+        .style("display", "none")
+        .classed("in", false);
+    },
+
+    close: function() {
+      this.hide();
+      window.history.back();
+    }
+  });
+
   if (typeof google === "object" && google.maps) {
 
     // technique lifted from:
