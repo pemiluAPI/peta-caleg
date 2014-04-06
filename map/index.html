@@ -98,6 +98,22 @@
       </div>
     </div>
 
+    <div id="caleg-dialog" class="modal fade" tabindex="-1" role="dialog"
+      aria-labelledby="about-label" aria-hidden="false"
+      style="display: none">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="about-label">Caleg</h4>
+          </div>
+          <div class="modal-body">
+            <h4>Caleg info here</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <svg class="shared">
       <defs>
         <g id="map-bg"></g>
@@ -140,15 +156,19 @@
             "{lembaga}",
             "{lembaga}/provinsi/{provinsi}",
             "{lembaga}/provinsi/{provinsi}/caleg/{caleg}",
+            "{lembaga}/provinsi/{provinsi}/caleg/{caleg}/{more}",
             "{lembaga}",
             // these are for 1-dapil provinsi
             "{lembaga}/provinsi/{provinsi}/partai/{partai}",
             "{lembaga}/provinsi/{provinsi}/partai/{partai}/caleg/{caleg}",
+            "{lembaga}/provinsi/{provinsi}/partai/{partai}/caleg/{caleg}/{more}",
             // and for provinsi -> dapil -> partai
             "{lembaga}/provinsi/{provinsi}/dapil/{dapil}",
             "{lembaga}/provinsi/{provinsi}/dapil/{dapil}/partai/{partai}",
             "{lembaga}/provinsi/{provinsi}/dapil/{dapil}/partai/{partai}/caleg/{caleg}",
-          ]
+            "{lembaga}/provinsi/{provinsi}/dapil/{dapil}/partai/{partai}/caleg/{caleg}/{more}",
+          ],
+          candidateDialog: new PetaCaleg.Dialog("#caleg-dialog")
         });
 
         var aboutDialog = new PetaCaleg.Dialog("#about");
