@@ -1365,6 +1365,8 @@
         .select(".close")
           .on("click.close", this.close.bind(this));
 
+      this.dispatch = d3.dispatch("show", "hide");
+      d3.rebind(this, this.dispatch, "on");
       this.hide();
     },
 
@@ -1372,12 +1374,14 @@
       this._selection
         .style("display", "block")
         .classed("in", true);
+      this.dispatch.show();
     },
 
     hide: function() {
       this._selection
         .style("display", "none")
         .classed("in", false);
+      this.dispatch.hide();
     },
 
     close: function() {
