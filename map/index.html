@@ -98,7 +98,7 @@
       </div>
     </div>
 
-    <div id="caleg-dialog" class="modal fade" tabindex="-1" role="dialog"
+    <div id="caleg-modal" class="modal fade" tabindex="-1" role="dialog"
       aria-labelledby="about-label" aria-hidden="false"
       style="display: none">
       <div class="modal-dialog">
@@ -168,12 +168,12 @@
             "{lembaga}/provinsi/{provinsi}/dapil/{dapil}/partai/{partai}/caleg/{caleg}",
             "{lembaga}/provinsi/{provinsi}/dapil/{dapil}/partai/{partai}/caleg/{caleg}/{more}",
           ],
-          candidateDialog: new PetaCaleg.Dialog("#caleg-dialog")
+          candidateModal: new PetaCaleg.Modal("#caleg-modal")
         });
 
-        var aboutDialog = new PetaCaleg.Dialog("#about");
+        var aboutModal = new PetaCaleg.Modal("#about");
         app.resolver.add("about", function(context) {
-          aboutDialog.show();
+          aboutModal.show();
         });
 
         var lastHash,

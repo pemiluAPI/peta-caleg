@@ -221,7 +221,7 @@
       this.map = this.options.map;
       this.content = d3.select(this.options.content);
       this.breadcrumb = d3.select(this.options.breadcrumb);
-      this.candidateDialog = this.options.candidateDialog;
+      this.candidateModal = this.options.candidateModal;
 
       this.context = {};
 
@@ -505,7 +505,7 @@
             that.selectCandidate(candidate);
 
             if (context.more === "more") {
-              that.showCandidateDialog(candidate);
+              that.showCandidateModal(candidate);
             }
             return callback(null, candidate);
           } else {
@@ -1082,14 +1082,14 @@
           return d.value;
         });
 
-      if (this.candidateDialog) {
+      if (this.candidateModal) {
         body.append("a")
           .attr("class", "more")
           .attr("href", function(d) {
             return href(d) + "/more";
           })
           .text("more information")
-          .on("click", this.showCandidateDialog.bind(this));
+          .on("click", this.showCandidateModal.bind(this));
       }
     },
 
@@ -1104,46 +1104,46 @@
           });
     },
 
-    showCandidateDialog: function(candidate) {
-      if (!this.candidateDialog) return;
+    showCandidateModal: function(candidate) {
+      if (!this.candidateModal) return;
 
       if (this._candidateReq) {
         this._candidateReq.abort();
         this._candidateReq = null;
       }
 
-      var dialog = this.candidateDialog,
+      var modal = this.candidateModal,
           that = this;
 
-      dialog._selection
+      modal._selection
         .classed("loading", true)
         .select(".modal-title")
           .text(candidate.nama);
 
-      var dbody = dialog._selection
+      var mbody = modal._selection
         .select(".modal-body")
         .text("");
 
-      var dtitle = dbody.append("h4")
+      var mtitle = mbody.append("h4")
         .text("Loading...");
 
       var uri = "candidate/api/caleg/" + candidate.id;
       this._candidateReq = this.api.get(uri, function(error, res) {
-        dialog._selection.classed("loading", false);
+        modal._selection.classed("loading", false);
 
         console.log("got caleg data:", res);
         that._candidateReq = null;
 
-        dtitle.text("more information!");
+        mtitle.text("more information!");
       });
 
-      dialog.show();
+      modal.show();
     },
 
-    hideCandidateDialog: function() {
-      if (!this.candidateDialog) return;
+    hideCandidateModal: function() {
+      if (!this.candidateModal) return;
 
-      this.candidateDialog.hide();
+      this.candidateModal.hide();
     }
 
   });
@@ -1408,7 +1408,7 @@
     }
   });
 
-  PetaCaleg.Dialog = new PetaCaleg.Class({
+  PetaCaleg.Modal = new PetaCaleg.Class({
     initialize: function(selector) {
       var that = this;
       this._selection = d3.select(selector)
