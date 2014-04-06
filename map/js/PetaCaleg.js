@@ -1125,7 +1125,7 @@
         .text("");
 
       var mtitle = mbody.append("h4")
-        .text("Loading...");
+        .text("Memuat...");
 
       var uri = "candidate/api/caleg/" + candidate.id;
       this._candidateReq = this.api.get(uri, function(error, res) {
