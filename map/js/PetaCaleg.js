@@ -231,10 +231,10 @@
         "status_perkawinan": {name: "Status Perkawinan", key: function getMaritalStatus(d) {
           return d.status_perkawinan;
         }},
-        "agama": {name: "Agama",                    key: function getReligion(d) {
+        "agama": {name: "Agama", key: function getReligion(d) {
           return d.agama;
         }},
-        "tempat_tinggal": {name: "Tempat Tinggal",           key: function getResidence(d) {
+        "tempat_tinggal": {name: "Tempat Tinggal", key: function getResidence(d) {
           return [
                 "provinsi",
                 "kab_kota",
@@ -1101,7 +1101,7 @@
 
       var ul = body.selectAll("ul.candidate-info")
             .data(function(d) {
-              // each "column" will is a list of fields + values
+              // each "column" is a list of fields + values
               var cols = columns.map(function(fields) {
                 return {
                   caleg: d,
@@ -1229,7 +1229,7 @@
             ul = mbody.datum(info)
               .selectAll("ul.candidate-info")
               .data(function(d) {
-                // each "column" will is a list of fields + values
+                // each "column" is a list of fields + values
                 return columns.map(function(fields) {
                   return {
                     caleg: d,
@@ -1916,7 +1916,10 @@
   }
 
   function listify(items) {
-    return "<ol><li>" + items.join("</li><li>") + "</li></ol>";
+    if (items.length > 0) {
+      return "<ol><li>" + items.join("</li><li>") + "</li></ol>";
+    }
+    return ""
   }
 
 })(this);
