@@ -1545,7 +1545,13 @@
   });
 
   PetaCaleg.Modal = new PetaCaleg.Class({
-    initialize: function(selector) {
+    defaults: {
+      closeHash: ""
+    },
+
+    initialize: function(selector, options) {
+      this.options = utils.extend({}, PetaCaleg.Modal.defaults, options);
+
       var that = this;
       this._selection = d3.select(selector)
         .on("click.background", function() {
@@ -1579,7 +1585,12 @@
 
     close: function() {
       this.hide();
-      window.history.back();
+      var history = window.history;
+      if (history.length) {
+        history.go(-1);
+      } else {
+        location.hash = this.options.closeHash;
+      }
     }
   });
 
