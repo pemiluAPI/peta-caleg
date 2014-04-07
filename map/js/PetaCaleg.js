@@ -429,20 +429,9 @@
     },
 
     showProgress: function(req) {
-      if (this._progressReq) {
-        this._progressReq.on("progress", null);
-        this._progressReq = null;
-      }
-
       var container = this.breadcrumb
             .classed("loading", true),
           loader = container.select(".progress");
-
-      if (!req || req.empty()) {
-        container.classed("loading", false);
-        loader.classed("done", true);
-        return req;
-      }
 
       if (loader.empty()) {
         loader = container.insert("div", "*")
@@ -463,6 +452,20 @@
               .style("width", "0%"),
           rest = loader.select(".progress-bar.rest")
             .style("width", "100%");
+
+      if (this._progressReq) {
+        container.classed("loading", false);
+        this._progressReq.on("progress", null);
+        this._progressReq = null;
+      }
+
+      if (!req || req.empty()) {
+        container.classed("loading", false);
+        bar.style("width", "100%");
+        rest.style("width", "0%");
+        loader.classed("done", true);
+        return req;
+      }
 
       req.on("progress", function(e) {
         var done = e.progress >= 1,
