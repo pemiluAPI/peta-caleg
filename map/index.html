@@ -151,13 +151,14 @@
           breadcrumb: "#breadcrumb",
           // where to render content (listings + detail views)
           content:    "#content",
+          // the modal dialog in which to show candidate info
+          candidateModal: new PetaCaleg.Modal("#caleg-modal"),
           // valid URLs
           routes: [
             "{lembaga}",
             "{lembaga}/provinsi/{provinsi}",
             "{lembaga}/provinsi/{provinsi}/caleg/{caleg}",
             "{lembaga}/provinsi/{provinsi}/caleg/{caleg}/{more}",
-            "{lembaga}",
             // these are for 1-dapil provinsi
             "{lembaga}/provinsi/{provinsi}/partai/{partai}",
             "{lembaga}/provinsi/{provinsi}/partai/{partai}/caleg/{caleg}",
@@ -167,8 +168,7 @@
             "{lembaga}/provinsi/{provinsi}/dapil/{dapil}/partai/{partai}",
             "{lembaga}/provinsi/{provinsi}/dapil/{dapil}/partai/{partai}/caleg/{caleg}",
             "{lembaga}/provinsi/{provinsi}/dapil/{dapil}/partai/{partai}/caleg/{caleg}/{more}",
-          ],
-          candidateModal: new PetaCaleg.Modal("#caleg-modal")
+          ]
         });
 
         var aboutModal = new PetaCaleg.Modal("#about");
