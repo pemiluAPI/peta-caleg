@@ -1155,8 +1155,8 @@
 
         var link = body.select("ul:last-child")
           .append("li")
+            .attr("class", "more")
             .append("a")
-              .attr("class", "more")
               .attr("href", function(d) {
                 return href(d) + "/more";
               })

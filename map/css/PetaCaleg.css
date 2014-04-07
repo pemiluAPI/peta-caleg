@@ -286,6 +286,11 @@ ul.candidate-info li + li {
   margin-top: 5px;
 }
 
+ul.candidate-info li.more {
+  margin-left: 15px;
+  margin-top: 20px;
+}
+
 ul.candidate-info .header {
   display: block;
   font-size: 75%;
