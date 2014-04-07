@@ -169,7 +169,7 @@
 
     function click() {
       var e = d3.event;
-      if (e.target.nodeName === "A") return;
+      if (e.target.nodeName === "A" || e.target.parentNode.nodeName === "A") return;
       var a = d3.select(this)
         .select("a")
           .node();
@@ -435,7 +435,7 @@
           that.map.on("select", null);
           that.map.selectFeatureById(context.provinsi);
           that.map.on("select", function(props) {
-            console.log("select province:", props.id, props);
+            // console.log("select province:", props.id, props);
             location.hash = that.resolver.getUrlForData({
               lembaga: context.lembaga,
               provinsi: props.id
@@ -506,6 +506,8 @@
 
             if (context.more === "more") {
               that.showCandidateModal(candidate);
+            } else {
+              that.hideCandidateModal();
             }
             return callback(null, candidate);
           } else {
@@ -1083,14 +1085,21 @@
         });
 
       if (this.candidateModal) {
-        body.append("a")
+        var that = this;
+
+        var link = body.append("a")
           .attr("class", "more")
           .attr("href", function(d) {
             return href(d) + "/more";
           })
-          .text("More...")
-          .on("click", this.showCandidateModal.bind(this));
+          .on("click", function(d) {
+            that.showCandidateModal(d);
+          });
 
+        link.append("span")
+          .attr("class", "glyphicon glyphicon-plus-sign");
+        link.append("span")
+          .text(" More");
       }
     },
 
