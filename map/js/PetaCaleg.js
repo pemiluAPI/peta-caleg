@@ -205,6 +205,9 @@
     if (proto && typeof proto.defaults === "object") {
       klass.defaults = utils.extend({}, parent ? parent.defaults : null, proto.defaults);
     }
+    if (proto && typeof proto.statics === "object") {
+      utils.extend(klass, proto.statics);
+    }
     return klass;
   };
 
