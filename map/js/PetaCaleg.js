@@ -44,12 +44,12 @@
             req.on("load.progress", function() {
               req.loaded = req.total;
               loaded++;
-              console.log("loaded", loaded, "of", reqs.length);
+              // console.log("loaded", loaded, "of", reqs.length);
               update();
             });
 
             req.loaded = 0;
-            req.total = 1024 * 1024;
+            req.total = 1024 * 1024; // XXX this is not quite right
             reqs.push(req);
             update();
           });
@@ -76,6 +76,7 @@
             total += req.total;
             loaded += req.loaded;
           });
+          // console.log("loaded:\t", loaded, "total:\t", total);
           dispatch.progress({
             total: total,
             loaded: loaded,
@@ -428,14 +429,21 @@
     },
 
     showProgress: function(req) {
+      if (this._progressReq) {
+        this._progressReq.on("progress", null);
+        this._progressReq = null;
+      }
+
       var container = this.breadcrumb
             .classed("loading", true),
           loader = container.select(".progress");
+
       if (!req || req.empty()) {
         container.classed("loading", false);
         loader.classed("done", true);
         return req;
       }
+
       if (loader.empty()) {
         loader = container.insert("div", "*")
           .attr("class", "progress done");
@@ -448,12 +456,14 @@
           .attr("role", "progressbar")
           .style("width", "100%");
       }
+
       var bar = loader
             .classed("done", false)
             .select(".progress-bar")
               .style("width", "0%"),
           rest = loader.select(".progress-bar.rest")
             .style("width", "100%");
+
       req.on("progress", function(e) {
         var done = e.progress >= 1,
             pct = Math.floor(e.progress * 100);
@@ -461,7 +471,7 @@
         rest.style("width", (100 - pct) + "%");
         loader.classed("done", done);
       });
-      return req;
+      return this._progressReq = req;
     },
 
     setBreadcrumbs: function(breadcrumbs) {
