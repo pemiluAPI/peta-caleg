@@ -217,6 +217,85 @@
       routes: []
     },
 
+    statics: {
+      CALEG_FIELDS: {
+        "tempat_lahir": {name: "Tempat dan Tanggal Lahir", key: function getTTL(d) {
+          return [prettyTTL(d), age(d)]
+            .filter(notEmpty)
+            .join(" ");
+        }},
+        "jenis_kelamin": {name: "Jenis Kelamin", key: function getGender(d) {
+          return jenisMap[d.jenis_kelamin];
+        }},
+        "status_perkawinan": {name: "Status Perkawinan", key: function getMaritalStatus(d) {
+          return d.status_perkawinan;
+        }},
+        "agama": {name: "Agama",                    key: function getReligion(d) {
+          return d.agama;
+        }},
+        "tempat_tinggal": {name: "Tempat Tinggal",           key: function getResidence(d) {
+          return [
+                "provinsi",
+                "kab_kota",
+                "kecamatan",
+                "kelurahan"
+              ].map(function(f) {
+                return d[f + "_tinggal"];
+              })
+              .filter(notEmpty)
+              .join(", ");
+        }},
+        "nama_pasangan": {name: "Nama Pasangan", key: function(d) {
+          return d.nama_pasangan;
+        }},
+        "jumlah_anak": {name: "Jumlah Anak", key: function(d) {
+          return d.jumlah_anak;
+        }},
+        "riwayat_pendidikan": {name: "Riwayat Pendidikan", key: function(d) {
+          return listify(d.riwayat_pendidikan.map(function(r) {
+            return r.ringkasan;
+          }));
+        }},
+        "riwayat_pekerjaan": {name: "Riwayat Pekerjaan", key: function(d) {
+          return listify(d.riwayat_pekerjaan.map(function(r) {
+            return r.ringkasan;
+          }));
+        }},
+        "riwayat_organisasi": {name: "Riwayat Organisasi", key: function(d) {
+          return listify(d.riwayat_organisasi.map(function(r) {
+            return r.ringkasan;
+          }));
+        }}
+      },
+      CALEG_BASIC_COLUMNS: [
+        [
+          "tempat_lahir",
+          "jenis_kelamin",
+          "status_perkawinan"
+        ],
+        [
+          "agama",
+          "tempat_tinggal"
+        ]
+      ],
+      CALEG_DETAIL_COLUMNS: [
+        [
+          "tempat_lahir",
+          "jenis_kelamin",
+          "status_perkawinan",
+          "nama_pasangan",
+          "jumlah_anak",
+          "agama",
+          "tempat_tinggal"
+        ],
+        [
+          "riwayat_pendidikan",
+          "riwayat_pekerjaan",
+          "riwayat_organisasi"
+        ]
+      ]
+    },
+
     initialize: function(options) {
       this.options = utils.extend({}, PetaCaleg.App.defaults, options);
 
@@ -1003,38 +1082,12 @@
           return d.nama;
         });
 
-      var columns = [
-        [
-          {name: "Tempat dan Tanggal Lahir", key: function getTTL(d) {
-            return [prettyTTL(d), age(d)]
-              .filter(notEmpty)
-              .join(" ");
-          }},
-          {name: "Jenis Kelamin",            key: function getGender(d) {
-            return jenisMap[d.jenis_kelamin];
-          }},
-          {name: "Status Perkawinan",        key: function getMaritalStatus(d) {
-            return d.status_perkawinan;
-          }}
-        ],
-        [
-          {name: "Agama",                    key: function getReligion(d) {
-            return d.agama;
-          }},
-          {name: "Tempat Tinggal",           key: function getResidence(d) {
-            return [
-                  "provinsi",
-                  "kab_kota",
-                  "kecamatan",
-                  "kelurahan"
-                ].map(function(f) {
-                  return d[f + "_tinggal"];
-                })
-                .filter(notEmpty)
-                .join(", ");
-          }}
-        ]
-      ];
+      var columns = PetaCaleg.App.CALEG_BASIC_COLUMNS
+        .map(function(fields) {
+          return fields.map(function(key) {
+            return PetaCaleg.App.CALEG_FIELDS[key];
+          });
+        });
 
       var ul = body.selectAll("ul.candidate-info")
             .data(function(d) {
@@ -1090,14 +1143,16 @@
       if (this.candidateModal) {
         var that = this;
 
-        var link = body.append("a")
-          .attr("class", "more")
-          .attr("href", function(d) {
-            return href(d) + "/more";
-          })
-          .on("click", function(d) {
-            that.showCandidateModal(d);
-          });
+        var link = body.select("ul:last-child")
+          .append("li")
+            .append("a")
+              .attr("class", "more")
+              .attr("href", function(d) {
+                return href(d) + "/more";
+              })
+              .on("click", function(d) {
+                that.showCandidateModal(d);
+              });
 
         link.append("span")
           .attr("class", "glyphicon glyphicon-plus-sign");
@@ -1137,6 +1192,10 @@
         .select(".modal-body")
         .text("");
 
+      mbody.append("img")
+        .attr("class", "photo")
+        .attr("src", candidate.foto_url);
+
       var mtitle = mbody.append("h4")
         .text("Memuat...");
 
@@ -1147,7 +1206,58 @@
         console.log("got caleg data:", res);
         that._candidateReq = null;
 
-        mtitle.text("more information!");
+        mtitle.remove();
+
+        var columns = PetaCaleg.App.CALEG_DETAIL_COLUMNS
+          .map(function(fields) {
+            return fields.map(function(key) {
+              return PetaCaleg.App.CALEG_FIELDS[key];
+            });
+          });
+
+        var info = res.results.caleg[0],
+            ul = mbody.datum(info)
+              .selectAll("ul.candidate-info")
+              .data(function(d) {
+                // each "column" will is a list of fields + values
+                return columns.map(function(fields) {
+                  return {
+                    caleg: d,
+                    fields: fields.map(function(field) {
+                      return {
+                        caleg: d,
+                        field: field,
+                        value: field.key(d)
+                      };
+                    })
+                    .filter(function(d) {
+                      return d.value;
+                    })
+                  };
+                });
+              })
+              .enter()
+              .append("ul")
+                .attr("class", "candidate-info"),
+            li = ul.selectAll("li")
+              .data(function(d) {
+                // and each column gets a list item for each of its fields
+                return d.fields;
+              })
+              .enter()
+              .append("li");
+
+        li.append("span")
+          .attr("class", "header")
+          .text(function(d) {
+            return d.field.name;
+          });
+
+        li.append("span")
+          .attr("class", "content")
+          .html(function(d) {
+            return d.value;
+          });
       });
 
       modal.show();
@@ -1793,6 +1903,10 @@
       return "(" + years + " thn)";
     }
     return null;
+  }
+
+  function listify(items) {
+    return "<ol><li>" + items.join("</li><li>") + "</li></ol>";
   }
 
 })(this);

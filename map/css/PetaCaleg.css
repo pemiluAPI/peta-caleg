@@ -293,6 +293,26 @@ ul.candidate-info .content {
   margin-left: 15px;
 }
 
+ul.candidate-info ol,
+ul.candidate-info ol > li {
+  list-style: square;
+  padding-left: 0;
+  margin-left: 1em;
+}
+
+  ul.candidate-info ol > li {
+    margin-left: 0;
+    padding-left: 0;
+  }
+
+  .modal ul.candidate-info .header {
+    font-size: 100%;
+  }
+
+.caleg span.more {
+  white-space: nowrap;
+}
+
 .breadcrumb {
           border-radius: 0;
   -webkit-border-radius: 0;
@@ -316,6 +336,11 @@ ul.candidate-info .content {
   font-size: 42px;
   border: 0px;
   outline: 0px;
+}
+
+.modal-body > img.photo {
+  display: block;
+  margin: 0 0 1em 0;
 }
 
 .zoom-control {
