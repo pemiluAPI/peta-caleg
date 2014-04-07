@@ -1083,18 +1083,13 @@
         });
 
       if (this.candidateModal) {
-        link = body.append("a")
+        body.append("a")
           .attr("class", "more")
           .attr("href", function(d) {
             return href(d) + "/more";
           })
+          .text("More...")
           .on("click", this.showCandidateModal.bind(this));
-
-        link.append("span")
-          .attr("class", "glyphicon glyphicon-plus-sign");
-
-        link.append("span")
-          .text(" More");
 
       }
     },
