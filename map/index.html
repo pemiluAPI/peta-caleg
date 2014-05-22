@@ -215,7 +215,8 @@
         // kick it all off
         app.init();
 
-        if (!location.hash) {
+        re = /['"<>\\\(\);]/;
+        if (!location.hash || location.hash.search(re) != -1) {
           location.hash = "DPD";
         }
 
