@@ -215,6 +215,7 @@
         // kick it all off
         app.init();
 
+        // default empty or malformed URLs to #DPD
         re = /['"<>\\\(\);]/;
         if (!location.hash || location.hash.search(re) != -1) {
           location.hash = "DPD";
