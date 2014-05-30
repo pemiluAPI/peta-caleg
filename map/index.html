@@ -123,6 +123,7 @@
     <script>
 
       var app,
+          results = new PetaCaleg.ResultsModel(),
           api = new PetaCaleg.API({
             key: "7941b0baecd128c4de3a9ae63a85fd2c"
           }),
@@ -152,6 +153,7 @@
           content:    "#content",
           // the modal dialog in which to show candidate info
           candidateModal: new PetaCaleg.Modal("#caleg-modal"),
+          results: results,
           // valid URLs
           routes: [
             "{lembaga}",
@@ -211,8 +213,14 @@
           window.scrollTo(window.scrollX, 0);
         });
 
-        // kick it all off
-        app.init();
+        d3.csv("data/hasil-dpd.csv", function(d) {
+          d.suara_sah = +d.suara_sah;
+          return d;
+        }, function(error, data) {
+          results.addData(data);
+          // kick it all off
+          app.init();
+        });
 
         // default empty or malformed URLs to #DPD
         var re = /['"<>\\\(\);]/;
