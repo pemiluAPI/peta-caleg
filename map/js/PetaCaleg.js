@@ -558,7 +558,9 @@
         } else {
           that.content.call(utils.classify, "list-", "provinsi");
           that.listProvinces(provinces, context);
-          that.map.zoomToInitialBounds();
+          if (that.map) {
+            that.map.zoomToInitialBounds();
+          }
           return callback();
         }
       });
