@@ -302,6 +302,7 @@
 
       this.api = this.options.api;
       this.map = this.options.map;
+      this.results = this.options.results;
       this.content = d3.select(this.options.content);
       this.breadcrumb = d3.select(this.options.breadcrumb);
       this.candidateModal = this.options.candidateModal;
@@ -1050,6 +1051,14 @@
     listCandidates: function(candidates, context) {
       this.clearContent();
 
+      var votes;
+      if (this.results) {
+        votes = this.results.mergeCandidates(candidates);
+        candidates.sort(function(a, b) {
+          return d3.descending(a._votes, b._votes);
+        });
+      }
+
       var href = (function(d) {
         return "#" + this.resolver.getUrlForData({
           lembaga:  context.lembaga,
@@ -1084,18 +1093,54 @@
           body = items.append("div")
             .attr("class", "media-body");
 
-      head.append("span")
-        .attr("class", 'no-urut')
+      var title = head.append("h4");
+
+      title.append("span")
+        .attr("class", "no-urut")
         .text(function(d) {
           return d.urutan;
         });
 
-      head.append("a")
+      title.append("a")
         .attr("class", "candidate-name")
         .attr("href", href)
         .text(function(d) {
           return d.nama;
         });
+
+      if (votes && votes.total > 0) {
+        items.classed("has-votes", function(d) {
+          return d._votes > 0;
+        });
+
+        var hasVotes = items,
+            formatVotes = d3.format(","),
+            formatPercent = d3.format(".1f"),
+            vtitle = hasVotes.select(".media-header")
+              .append("h5")
+                .attr("class", "votes");
+        vtitle.append("div")
+          .attr("class", "bar")
+          .style("width", function(d) {
+            return d._vote_percent.toFixed(1) + "%";
+          });
+        vtitle.append("b")
+          .attr("class", "percent")
+          .text(function(d) {
+            return formatPercent(d._vote_percent) + "%";
+          });
+        vtitle.append("span")
+          .text(" (");
+        vtitle.append("b")
+          .attr("class", "count")
+          .text(function(d) {
+            return formatVotes(d._votes);
+          });
+        vtitle.append("span")
+          .text(" suara)");
+      } else {
+        console.warn("no votes!", votes);
+      }
 
       var columns = PetaCaleg.App.CALEG_BASIC_COLUMNS
         .map(function(fields) {
@@ -1491,6 +1536,92 @@
       this.abort();
       return this.get(uri, params, callback);
     }
+  });
+
+  PetaCaleg.ResultsModel = new PetaCaleg.Class({
+    initialize: function() {
+      this._rows = [];
+      this._rowsByCandidate = {};
+    },
+
+    addData: function(rows) {
+      this._rows = rows;
+      this._rowsByCandidate = d3.nest()
+        .key(function(d) { return d.id; })
+        .rollup(function(d) { return d[0]; })
+        .map(this._rows);
+    },
+
+    mergeCandidates: function(candidates, key) {
+      if (!key) key = "_results";
+      var lookup = this._rowsByCandidate,
+          voteKey = "suara_sah",
+          rows = candidates.filter(function(d) {
+            return d[key] = lookup[d.id];
+          }),
+          total = rows.reduce(function(mem, d) {
+            return mem + (d._votes = d[key][voteKey]);
+          }, 0);
+      // console.log("total:", total);
+      candidates.forEach(function(d) {
+        d._vote_percent = d._votes / total * 100;
+      });
+      return {
+        total: total,
+        rows: rows
+      };
+    },
+
+    query: function(context) {
+      var tests = [];
+      if (context.provinsi) {
+        var province = context.provinsi;
+        tests.push(function(d) { return d.id_provinsi == province; });
+      }
+      if (context.dapil) {
+        var dapil = context.dapil;
+        tests.push(function(d) { return d.id_dapil == dapil; });
+      }
+      if (context.partai) {
+        var party = context.partai;
+        tests.push(function(d) { return d.id_partai == party; });
+      }
+      var rows = this._rows.filter(function(d) {
+            return tests.every(function(test) {
+              return test(d);
+            });
+          }),
+          voteKey = "suara_sah",
+          total = rows.reduce(function(mem, d) {
+            mem += (d._votes = d[voteKey]);
+            return mem;
+          }, 0);
+      console.log("vote total:", total);
+      rows.forEach(function(d) {
+        d._vote_percent = 100 * d._votes / total;
+      });
+      return {
+        rows: rows,
+        votes: total
+      };
+    },
+
+    load: function(url) {
+      return d3.csv(url, function(error, data) {
+        if (error) return callback(error);
+        that.addData(data);
+        callback(null, this);
+      });
+    },
+
+    loadFromAPI: function(api, uri, callback) {
+      var that = this;
+      return api.get(uri, function(error, data) {
+        if (error) return callback(error);
+        that.addData(data);
+        callback(null, this);
+      });
+    },
   });
 
   PetaCaleg.MapIcon = new PetaCaleg.Class({
