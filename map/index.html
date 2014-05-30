@@ -123,9 +123,8 @@
     <script>
 
       var app,
-          resolver = new PetaCaleg.Resolver(),
           api = new PetaCaleg.API({
-            key: "7941b0baecd128c4de3a9ae63a85fd2c" // XXX
+            key: "7941b0baecd128c4de3a9ae63a85fd2c"
           }),
           nav = d3.select("#nav-lembaga")
             .selectAll("li")
@@ -196,7 +195,7 @@
             // console.info("[context] descending +", subhash);
             // and if that bit begins with "/caleg" (candidate), we bail
             if (subhash.indexOf("/caleg") === 0) {
-              console.info("descending into candidate; not scrolling");
+              // console.info("descending into candidate; not scrolling");
               return;
             }
           } else if (last && last.indexOf("/caleg") > -1 && hash.indexOf("/caleg") > -1) {
@@ -216,7 +215,7 @@
         app.init();
 
         // default empty or malformed URLs to #DPD
-        re = /['"<>\\\(\);]/;
+        var re = /['"<>\\\(\);]/;
         if (!location.hash || location.hash.search(re) != -1) {
           location.hash = "DPD";
         }
@@ -245,7 +244,7 @@
               .datum(makeCollection(admin))
               .attr("d", mapIcon.path);
 
-            console.info("done drawing map background");
+            // console.info("done drawing map background");
 
             function makeCollection(topology, key) {
               if (key) {
