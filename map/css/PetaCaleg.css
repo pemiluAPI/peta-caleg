@@ -130,7 +130,7 @@ h3 {
   }
 
   #top .navbar .active a {
-    background-color: #f0f;
+    background-color: #ff00ff;
   }
 
 #nav-lembaga {
@@ -190,27 +190,6 @@ svg.media-object {
 .media-header > * {
   margin: 0;
 }
-
-.caleg {
-  overflow: hidden;
-}
-
-  .caleg .votes {
-    position: relative;
-    z-index: 100;
-  }
-
-  .caleg .votes .bar {
-    position: absolute;
-    bottom: -5px;
-    left: auto;
-    width: 0;
-    height: 4px;
-    background: #f0f;
-    z-index: -1;
-    margin-left: 110px;
-  }
-
 
 .caleg.active .media-header {
   margin-bottom: 10px;
@@ -281,6 +260,7 @@ svg.media-object {
   .caleg .media-header .no-urut {
     color: #666;
     display: inline-block;
+    float: left;
     margin: 0 .33em 1px 0;
   }
 
