@@ -213,14 +213,7 @@
           window.scrollTo(window.scrollX, 0);
         });
 
-        d3.csv("data/hasil-dpd.csv", function(d) {
-          d.suara_sah = +d.suara_sah;
-          return d;
-        }, function(error, data) {
-          results.addData(data);
-          // kick it all off
-          app.init();
-        });
+        app.init();
 
         // default empty or malformed URLs to #DPD
         var re = /['"<>\\\(\);]/;

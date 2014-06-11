@@ -1053,6 +1053,10 @@
 
       var votes;
       if (this.results) {
+
+        this.results.initialize()
+        this.results.addData(candidates)
+
         votes = this.results.mergeCandidates(candidates);
         candidates.sort(function(a, b) {
           return d3.descending(a._votes, b._votes);
