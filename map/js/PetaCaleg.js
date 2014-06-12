@@ -929,10 +929,15 @@
             .attr("class", "caleg-peek"),
           list = title.selectAll("span.caleg")
             .data(function(d) {
-              var numlist = Math.min(d.caleg.length, 3);
-              d.numleft = d.caleg.length - numlist;
-              copy = d.caleg.slice();
-              return d3.shuffle(copy).slice(0, numlist);
+              var votedCandidates = new Array();
+              for (var i = 0; i < d.caleg.length; i++) {
+                if (d.caleg[i].terpilih === "true") {
+                  votedCandidates.push(d.caleg[i]);
+                }
+              };
+
+              d.numleft = d.caleg.length - votedCandidates.length;
+              return votedCandidates;
             })
             .enter()
             .append("span")
@@ -948,7 +953,13 @@
 
       title.append("span")
         .text(function(d) {
-          return (d.numleft) ? " dan " + d.numleft + " calon lagi." : ".";
+          if (d.numleft < d.caleg.length) {
+            return " terpilih dan " + d.numleft + " calon lain tidak terpilih.";
+          } else if (d.numleft === d.caleg.length) {
+            return " " + d.numleft + " calon tidak terpilih."; 
+          } else if (d.numleft === 0) {
+            return " terpilih.";
+          }         
         });
     },
 
