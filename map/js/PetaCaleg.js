@@ -1061,6 +1061,15 @@
         candidates.sort(function(a, b) {
           return d3.descending(a._votes, b._votes);
         });
+
+        //init _relative_to_top_vote_percent after sorting for votes opacity background
+        candidates.forEach(function(d, i) {
+          d._relative_to_top_vote_percent = 1;
+          if ( i > 0) {
+            var top_votes = candidates[0]._votes;
+            d._relative_to_top_vote_percent = d._votes / top_votes;
+          }
+        });
       }
 
       var href = (function(d) {
@@ -1132,12 +1141,11 @@
             formatPercent = d3.format(".1f"),
             vtitle = hasVotes.select(".media-header")
               .append("h5")
-                .attr("class", "votes");
-        vtitle.append("div")
-          .attr("class", "bar")
-          .style("width", function(d) {
-            return d._vote_percent.toFixed(1) + "%";
-          });
+                .attr("class", "votes")
+                .attr("style", function(d) {
+                  var opac = d._relative_to_top_vote_percent.toFixed(2);
+                  return "background : rgba(255,0,255," + opac + ");"
+                });
         vtitle.append("b")
           .attr("class", "percent")
           .text(function(d) {
@@ -1576,7 +1584,7 @@
           total = rows.reduce(function(mem, d) {
             return mem + (d._votes = d[key][voteKey]);
           }, 0);
-      // console.log("total:", total);
+
       candidates.forEach(function(d) {
         d._vote_percent = d._votes / total * 100;
       });
