@@ -225,6 +225,22 @@ svg.media-object {
     /* border: 2px solid #686868; */
   }
 
+.terpilih-tag {
+    margin-top: -23px;
+    font-size: 15px;
+}
+
+.terpilih-tag span{
+    color: white;
+    background: rgb(0, 0, 0); /* fallback color */
+    background: rgba(0, 0, 0, 0.6);
+    padding: 5px 17px 5px 16px;
+}
+
+a.terpilih-tag:hover, a.terpilih-tag:focus{
+  text-decoration: none;   
+}
+
 .list-group-item {
   padding: 10px;
 }

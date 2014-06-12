@@ -1085,17 +1085,27 @@
               .attr("class", "caleg list-group-item")
               .call(utils.autoClick),
           icon = items.append("a")
-            .attr("class", "pull-left")
+            .attr("class", "pull-left terpilih-tag")
             .attr("href", href)
-            .append("img")
-              .attr("class", "media-object photo")
-              .attr("src", function(d) {
-                return d.foto_url;
-              }),
+            .append("div"),
           head = items.append("div")
             .attr("class", "media-header"),
           body = items.append("div")
             .attr("class", "media-body");
+
+      icon.append("img")
+          .attr("class", "media-object photo")
+          .attr("src", function(d) {
+            return d.foto_url;
+          })
+
+      icon.append("h2")
+            .attr("style", function(d) {
+              if (d.terpilih === "true") { return "display: block" }
+              else { return "display: none" }
+            })
+            .attr("class", "terpilih-tag")
+            .append("span").text("TERPILIH")
 
       var title = head.append("h4");
 
