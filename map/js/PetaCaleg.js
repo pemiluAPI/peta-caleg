@@ -775,10 +775,33 @@
             .text(function(d) {
               return ""; // :TODO: list contained kab/kota, kecamatan, kelurahan here
             });
+
+      // add a preview list of winners
+    var title = body.append("h6")
+        .attr("class", "caleg-peek"),
+        list = title.selectAll("span.caleg")
+          .data(function(d) {
+            return d.caleg;
+          })
+          .enter()
+          .append("span")
+            .attr("class", "caleg");
+
+          list.append("span")
+            .attr("class", "glyphicon glyphicon-user");
+
+          list.append("span")
+            .text(function(d) {
+              return " " + d.nama + " ";
+            });
+
+          title.append("span")
+            .text("terpilih.");
     },
 
     getDapil: function(context, callback) {
       var params = utils.copy(context, {}, ["lembaga", "provinsi"]),
+          electedCandidatesParams = utils.copy(context, {"acara_terpilih" : true}, ["lembaga", "provinsi"]),
           getBound = this.api.get.bind(this.api),
           filename,
           that = this;
@@ -793,12 +816,14 @@
       }
 
       return this.showProgress(queue()
+        .defer(getBound, "candidate/api/caleg", electedCandidatesParams)
         .defer(getBound, "candidate/api/dapil", params)
         .defer(getBound, "geographic/api/getmap", {filename: filename})
-        .await(function(error, res, topology) {
+        .await(function(error, caleg, res, topology) {
           that.checkContext(context);
           if (error) return callback(error);
 
+          var candidates = caleg.results.caleg
           var dapil = res.results.dapil;
           if (!dapil.length) {
             return callback("Tidak ada dapil.");
@@ -807,12 +832,21 @@
           var collection = new PetaCaleg.GeoCollection(topology, {
             idProperty: "id_dapil"
           });
-          // console.log("dapil collection:", collection);
+
           dapil.forEach(function(d) {
             d.feature = collection.getFeatureById(d.id);
             if (!d.feature) console.warn("no feature for:", d.id, d);
           });
-          return callback(null, dapil);
+          
+          var candidatesByDapil = d3.nest()
+                .key(function(d) { return d.dapil.id; })
+                .map(candidates),
+              matching = dapil.filter(function(d) {
+                d.caleg = candidatesByDapil[d.id];
+                return notEmpty(d.caleg);
+              });
+
+          return callback(null, matching);
         }));
     },
 
