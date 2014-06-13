@@ -521,8 +521,6 @@
 
         if (error) return callback(error);
 
-        // console.log("provinces:", provinces);
-
         if (that.map) {
           var features = provinces.map(function(d) {
             return d.feature;
@@ -619,18 +617,22 @@
 
     getProvinces: function(context, callback) {
       var params = utils.copy(context, {}, ["lembaga"]),
+          electedCandidatesParams = utils.copy(context, {"acara_terpilih" : true}, ["lembaga"]),
           getBound = this.api.get.bind(this.api),
           that = this;
       return this.showProgress(queue()
+        .defer(getBound, "candidate/api/caleg", electedCandidatesParams)
         .defer(getBound, "candidate/api/provinsi", params)
         .defer(getBound, "geographic/api/getmap", {
           filename: "admin-provinsi-md.topojson"
         })
-        .await(function(error, res, topology) {
+        .await(function(error, caleg, provinsi, topology) {
           that.checkContext(context);
           if (error) return callback(error);
 
-          var provinces = res.results.provinsi;
+          var candidates = caleg.results.caleg
+          var provinces = provinsi.results.provinsi;
+
           if (!provinces.length) {
             return callback("Tidak ada provinsi.");
           }
@@ -644,7 +646,16 @@
             d.feature = collection.getFeatureById(d.id);
             if (!d.feature) console.warn("no feature for:", d.id, d);
           });
-          return callback(null, provinces);
+
+          var candidatesByProvince = d3.nest()
+                .key(function(d) { return d.provinsi.id; })
+                .map(candidates),
+              matching = provinces.filter(function(d) {
+                d.caleg = candidatesByProvince[d.id];
+                return notEmpty(d.caleg);
+              });
+
+          return callback(null, matching);
         }));
     },
 
@@ -924,7 +935,7 @@
           body = items.append("div")
             .attr("class", "media-body");
 
-      // add a preview list of candidates
+      // add a preview list of winners
       var title = body.append("h6")
             .attr("class", "caleg-peek"),
           list = title.selectAll("span.caleg")
@@ -1003,6 +1014,29 @@
                 .attr("href", href),
           body = items.append("div")
             .attr("class", "media-body");
+
+    // add a preview list of winners
+    var title = body.append("h6")
+        .attr("class", "caleg-peek"),
+      list = title.selectAll("span.caleg")
+        .data(function(d) {
+          return d.caleg;
+        })
+        .enter()
+        .append("span")
+          .attr("class", "caleg");
+
+        list.append("span")
+          .attr("class", "glyphicon glyphicon-user");
+
+        list.append("span")
+          .text(function(d) {
+            return " " + d.nama + " ";
+          });
+
+        title.append("span")
+          .text("terpilih.");
+       
     },
 
     checkContext: function(context) {
