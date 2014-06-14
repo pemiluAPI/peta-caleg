@@ -622,15 +622,17 @@
           that = this;
       return this.showProgress(queue()
         .defer(getBound, "candidate/api/caleg", electedCandidatesParams)
+        .defer(getBound, "candidate/api/partai")
         .defer(getBound, "candidate/api/provinsi", params)
         .defer(getBound, "geographic/api/getmap", {
           filename: "admin-provinsi-md.topojson"
         })
-        .await(function(error, caleg, provinsi, topology) {
+        .await(function(error, caleg, partai, provinsi, topology) {
           that.checkContext(context);
           if (error) return callback(error);
 
           var candidates = caleg.results.caleg
+          var parties = partai.results.partai
           var provinces = provinsi.results.provinsi;
 
           if (!provinces.length) {
@@ -647,15 +649,33 @@
             if (!d.feature) console.warn("no feature for:", d.id, d);
           });
 
-          var candidatesByProvince = d3.nest()
+        
+          if (context.lembaga === "DPD") {
+            var candidatesByProvince = d3.nest()
+              .key(function(d) { return d.provinsi.id; })
+              .map(candidates),
+            matching = provinces.filter(function(d) {
+              d.caleg = candidatesByProvince[d.id];
+              return notEmpty(d.caleg);
+            });
+          } else {
+
+            //creating a double nested object
+            // province: Object
+            //   - partai : Array (partys that have winners in each province)
+            //       - caleg : Array (winners from each party in each province)
+
+            var candidatesByProvince = d3.nest()
                 .key(function(d) { return d.provinsi.id; })
+                .key(function(d) { return d.partai.id; })
                 .map(candidates),
               matching = provinces.filter(function(d) {
-                d.caleg = candidatesByProvince[d.id];
-                return notEmpty(d.caleg);
+                d.calegByParties = candidatesByProvince[d.id];
+                return typeof d.calegByParties != 'undefined';
               });
+          }
 
-          return callback(null, matching);
+            return callback(null, matching);
         }));
     },
 
@@ -1049,28 +1069,47 @@
           body = items.append("div")
             .attr("class", "media-body");
 
-    // add a preview list of winners
-    var title = body.append("h6")
-        .attr("class", "caleg-peek"),
-      list = title.selectAll("span.caleg")
-        .data(function(d) {
-          return d.caleg;
-        })
-        .enter()
-        .append("span")
-          .attr("class", "caleg");
+      // add a preview list of winners
+      
+      var title = body.append("h6")
+          .attr("class", "caleg-peek");
 
-        list.append("span")
-          .attr("class", "glyphicon glyphicon-user");
+      if (context.lembaga === "DPD") {
+        var list = title.selectAll("span.caleg")
+          .data(function(d) {
+            return d.caleg;
+          })
+          .enter()
+          .append("span")
+            .attr("class", "caleg");
 
-        list.append("span")
-          .text(function(d) {
-            return " " + d.nama + " ";
-          });
+          list.append("span")
+            .attr("class", "glyphicon glyphicon-user");
 
-        title.append("span")
-          .text("terpilih.");
-       
+          list.append("span")
+            .text(function(d) {
+              return " " + d.nama + " ";
+            });
+
+          title.append("span")
+            .text("terpilih.");
+      } else {
+        var list = title.selectAll("div.partai")
+          .data(function(d) {
+            //d.calegByParties is an object, we need them as an array
+            var partyAsArray = new Array();
+            for (var elem in d.calegByParties) {
+              partyAsArray.push(d.calegByParties[elem]);
+            }
+            return partyAsArray;
+          })
+          .enter()
+          .append("div")
+            .attr("class", "partai")
+            .text(function (d) {
+              return "Caleg terpilih dari partai " + d[0].partai.nama + " :";
+            });
+      }
     },
 
     checkContext: function(context) {
