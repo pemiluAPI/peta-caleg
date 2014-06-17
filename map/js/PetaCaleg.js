@@ -671,8 +671,11 @@
                   .key(function(d) { return d.partai.id; })
                   .map(candidates),
                 matching = provinces.filter(function(d) {
-                  d.calegByParties = candidatesByProvince[d.id];
-                  return typeof d.calegByParties != 'undefined';
+                  if (candidatesByProvince[d.id] != 'undefined') {
+                    d.calegByParties = d3.values(candidatesByProvince[d.id]);
+                    return true;
+                  }
+                  return false;
                 });
           }
 
@@ -1098,12 +1101,7 @@
       } else {
         var list = title.selectAll("div.partai")
           .data(function(d) {
-            //d.calegByParties is an object, we need them as an array
-            var partyAsArray = new Array();
-            for (var elem in d.calegByParties) {
-              partyAsArray.push(d.calegByParties[elem]);
-            }
-            return partyAsArray;
+            return d.calegByParties;
           })
           .enter()
           .append("div")
