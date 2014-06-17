@@ -652,12 +652,12 @@
         
           if (context.lembaga === "DPD") {
             var candidatesByProvince = d3.nest()
-              .key(function(d) { return d.provinsi.id; })
-              .map(candidates),
-            matching = provinces.filter(function(d) {
-              d.caleg = candidatesByProvince[d.id];
-              return notEmpty(d.caleg);
-            });
+                  .key(function(d) { return d.provinsi.id; })
+                  .map(candidates),
+                matching = provinces.filter(function(d) {
+                  d.caleg = candidatesByProvince[d.id];
+                  return notEmpty(d.caleg);
+                });
 
           } else {
 
@@ -667,13 +667,13 @@
             //       - caleg : Array (winners from each party in each province)
 
             var candidatesByProvince = d3.nest()
-              .key(function(d) { return d.provinsi.id; })
-              .key(function(d) { return d.partai.id; })
-              .map(candidates),
-            matching = provinces.filter(function(d) {
-              d.calegByParties = candidatesByProvince[d.id];
-              return typeof d.calegByParties != 'undefined';
-            });
+                  .key(function(d) { return d.provinsi.id; })
+                  .key(function(d) { return d.partai.id; })
+                  .map(candidates),
+                matching = provinces.filter(function(d) {
+                  d.calegByParties = candidatesByProvince[d.id];
+                  return typeof d.calegByParties != 'undefined';
+                });
           }
 
           return callback(null, matching);
