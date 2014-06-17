@@ -1087,16 +1087,16 @@
           .append("span")
             .attr("class", "caleg");
 
-          list.append("span")
-            .attr("class", "glyphicon glyphicon-user");
+        list.append("span")
+          .attr("class", "glyphicon glyphicon-user");
 
-          list.append("span")
-            .text(function(d) {
-              return " " + d.nama + " ";
-            });
+        list.append("span")
+          .text(function(d) {
+            return " " + d.nama + " ";
+          });
 
-          title.append("span")
-            .text("terpilih.");
+        title.append("span")
+          .text("terpilih.");
             
       } else {
         var list = title.selectAll("div.partai")
@@ -1105,10 +1105,22 @@
           })
           .enter()
           .append("div")
-            .attr("class", "partai")
-            .text(function (d) {
-              return "Caleg terpilih dari partai " + d[0].partai.nama + " :";
-            });
+            .attr("class", "partai");
+
+        list.append("span")
+          .text(function(d) {
+            return " " + d[0].partai.nama + ": "
+          })
+          .each(function(d) {
+            d3.select(this).append("span")
+              .attr("class", "glyphicon glyphicon-user");
+            d3.select(this).append("span")
+              .text(function(d) {
+                return " " + d[0].nama + " ";
+              });
+            d3.select(this).append("span")
+              .text("terpilih.");
+          });
       }
     },
 
