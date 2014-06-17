@@ -651,28 +651,26 @@
 
         
           if (context.lembaga === "DPD") {
+            // nest candidates by province
             var candidatesByProvince = d3.nest()
                   .key(function(d) { return d.provinsi.id; })
                   .map(candidates),
                 matching = provinces.filter(function(d) {
+                  // save the array of candidates to the 'caleg' property of the province object
                   d.caleg = candidatesByProvince[d.id];
                   return notEmpty(d.caleg);
                 });
 
           } else {
-
-            //creating a double nested object
-            // province: Object
-            //   - partai : Array (partys that have winners in each province)
-            //       - caleg : Array (winners from each party in each province)
-
+            // nest candidates by province and party
             var candidatesByProvince = d3.nest()
                   .key(function(d) { return d.provinsi.id; })
                   .key(function(d) { return d.partai.id; })
                   .map(candidates),
                 matching = provinces.filter(function(d) {
                   if (candidatesByProvince[d.id] != 'undefined') {
-                    d.calegByParties = d3.values(candidatesByProvince[d.id]);
+                    // save an array (for each party) of arrays of candidates to the 'caleg' property of the province object
+                    d.caleg = d3.values(candidatesByProvince[d.id]);
                     return true;
                   }
                   return false;
@@ -800,7 +798,7 @@
               return ""; // :TODO: list contained kab/kota, kecamatan, kelurahan here
             });
 
-      // add a preview list of winners
+      // add a preview list of elected candidates
     var title = body.append("h6")
         .attr("class", "caleg-peek"),
         list = title.selectAll("span.caleg")
@@ -993,7 +991,7 @@
           body = items.append("div")
             .attr("class", "media-body");
 
-      // add a preview list of winners
+      // add a preview list of elected candidates
       var title = body.append("h6")
             .attr("class", "caleg-peek"),
           list = title.selectAll("span.caleg")
@@ -1073,14 +1071,14 @@
           body = items.append("div")
             .attr("class", "media-body");
 
-      // add a preview list of winners
-      
+      // add a preview list of elected candidates
       var title = body.append("h6")
           .attr("class", "caleg-peek");
 
       if (context.lembaga === "DPD") {
         var list = title.selectAll("span.caleg")
           .data(function(d) {
+            // caleg is an array of objects (candidates)
             return d.caleg;
           })
           .enter()
@@ -1099,28 +1097,38 @@
           .text("terpilih.");
             
       } else {
-        var list = title.selectAll("div.partai")
+        var partyList = title.selectAll("div.partai")
           .data(function(d) {
-            return d.calegByParties;
+            // caleg is an array (party) of arrays of objects (candidates)
+            return d.caleg;
           })
           .enter()
           .append("div")
             .attr("class", "partai");
 
-        list.append("span")
+        partyList.append("span")
           .text(function(d) {
             return " " + d[0].partai.nama + ": "
-          })
-          .each(function(d) {
-            d3.select(this).append("span")
-              .attr("class", "glyphicon glyphicon-user");
-            d3.select(this).append("span")
-              .text(function(d) {
-                return " " + d[0].nama + " ";
-              });
-            d3.select(this).append("span")
-              .text("terpilih.");
           });
+
+        var calegList = partyList.selectAll("span.caleg")
+          .data(function(d) {
+            return d;
+          })
+          .enter()
+          .append("span")
+            .attr("class", "caleg");
+
+        calegList.append("span")
+          .attr("class", "glyphicon glyphicon-user");
+
+        calegList.append("span")
+          .text(function(d) {
+            return " " + d.nama + " ";
+          });
+
+        partyList.append("span")
+          .text("terpilih.");
       }
     },
 
