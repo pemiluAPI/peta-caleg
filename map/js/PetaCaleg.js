@@ -658,6 +658,7 @@
               d.caleg = candidatesByProvince[d.id];
               return notEmpty(d.caleg);
             });
+
           } else {
 
             //creating a double nested object
@@ -666,16 +667,16 @@
             //       - caleg : Array (winners from each party in each province)
 
             var candidatesByProvince = d3.nest()
-                .key(function(d) { return d.provinsi.id; })
-                .key(function(d) { return d.partai.id; })
-                .map(candidates),
-              matching = provinces.filter(function(d) {
-                d.calegByParties = candidatesByProvince[d.id];
-                return typeof d.calegByParties != 'undefined';
-              });
+              .key(function(d) { return d.provinsi.id; })
+              .key(function(d) { return d.partai.id; })
+              .map(candidates),
+            matching = provinces.filter(function(d) {
+              d.calegByParties = candidatesByProvince[d.id];
+              return typeof d.calegByParties != 'undefined';
+            });
           }
 
-            return callback(null, matching);
+          return callback(null, matching);
         }));
     },
 
@@ -1093,6 +1094,7 @@
 
           title.append("span")
             .text("terpilih.");
+            
       } else {
         var list = title.selectAll("div.partai")
           .data(function(d) {
