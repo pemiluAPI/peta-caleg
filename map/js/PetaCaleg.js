@@ -1971,7 +1971,7 @@
             ne = bounds.getNorthEast(),
             h = sw.lat() - ne.lat(),
             w = sw.lng() - ne.lng(),
-            scale = .24,
+            scale = .14,
             pad = Math.max(h * scale, w * scale),
             smaller = new google.maps.LatLngBounds(
               new google.maps.LatLng(sw.lat() - pad, sw.lng() - pad),
