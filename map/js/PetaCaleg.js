@@ -1505,6 +1505,7 @@
       switch (data.type) {
         case "Topology":
           if (!topologyKey) topologyKey = Object.keys(data.objects)[0];
+          // extract the GeoJSON FeatureCollection from the topoJSON data
           collection = topojson.feature(data, data.objects[topologyKey]);
           break;
         case "FeatureCollection":
@@ -2099,7 +2100,9 @@
 
       updateLayerStyle: function(layer) {
         var key = layer.selected ? "on" : "off";
-        if (layer.hover) key += "Hover";
+        if (layer.hover) {
+          key += "Hover";
+        }
         return layer.setOptions(this.featureStyles[key]);
       }
     });
