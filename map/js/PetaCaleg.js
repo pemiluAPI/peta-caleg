@@ -798,7 +798,7 @@
               return ""; // :TODO: list contained kab/kota, kecamatan, kelurahan here
             });
 
-      // add a preview list of elected candidates
+    // add a preview list of elected candidates
     var title = body.append("h6")
         .attr("class", "caleg-peek"),
         list = title.selectAll("span.caleg")
@@ -2074,6 +2074,22 @@
         });
       },
 
+      randomColorFeatures: function() {
+        // xxx
+        this.displayLayers.forEach(function(layer) {
+          if (layer.selected == false) {
+            var randomStyle = {
+              fillColor: '#'+('00000'+(Math.random()*(1<<24)|0).toString(16)).slice(-6),
+              fillOpacity: .5,
+              strokeColor: "#cccccc",
+              strokeWeight: .5,
+              strokeOpacity: 1
+            };
+            layer.setOptions(randomStyle);
+          }
+        })
+      },
+
       selectFeature: function(feature) {
         return this.selectFeatureById(feature.id);
       },
@@ -2094,6 +2110,8 @@
         if (selected.length) {
           this.dispatch.select(selected[0].geojsonProperties);
         }
+
+        this.randomColorFeatures();
 
         return selected;
       },
