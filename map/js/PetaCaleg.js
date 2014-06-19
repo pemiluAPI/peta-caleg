@@ -2053,9 +2053,6 @@
         var that = this,
             addListener = google.maps.event.addListener;
         addListener(layer, "mouseover", function() {
-          // xxx
-          // test setting the color
-          that.setFeatureColorById(this.geojsonProperties.id, '#'+('00000'+(Math.random()*(1<<24)|0).toString(16)).slice(-6));
           that.setHoverFlag(this.geojsonProperties, true);
         });
         addListener(layer, "click", function() {
