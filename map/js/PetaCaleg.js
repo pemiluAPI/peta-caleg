@@ -2053,6 +2053,9 @@
         var that = this,
             addListener = google.maps.event.addListener;
         addListener(layer, "mouseover", function() {
+          // xxx
+          // test setting the color
+          that.setFeatureColorById(this.geojsonProperties.id, '#'+('00000'+(Math.random()*(1<<24)|0).toString(16)).slice(-6));
           that.setHoverFlag(this.geojsonProperties, true);
         });
         addListener(layer, "click", function() {
@@ -2074,18 +2077,13 @@
         });
       },
 
-      randomColorFeatures: function() {
-        // xxx
+      setFeatureColorById: function(id, newColor) {
+        var that = this;
         this.displayLayers.forEach(function(layer) {
-          if (layer.selected == false) {
-            var randomStyle = {
-              fillColor: '#'+('00000'+(Math.random()*(1<<24)|0).toString(16)).slice(-6),
-              fillOpacity: .5,
-              strokeColor: "#cccccc",
-              strokeWeight: .5,
-              strokeOpacity: 1
-            };
-            layer.setOptions(randomStyle);
+          if (layer.geojsonProperties.id == id) {
+            // layer.baseColor is a custom parameter
+            layer.baseColor = newColor;
+            that.updateLayerStyle(layer);
           }
         })
       },
@@ -2099,6 +2097,7 @@
             that = this;
         this.displayLayers.forEach(function(layer) {
           if (layer.geojsonProperties.id == id) {
+            // layer.selected is a custom parameter
             layer.selected = true;
             selected.push(layer);
           } else {
@@ -2111,17 +2110,24 @@
           this.dispatch.select(selected[0].geojsonProperties);
         }
 
-        this.randomColorFeatures();
-
         return selected;
       },
 
       updateLayerStyle: function(layer) {
+        // layer.selected is a custom parameter
         var key = layer.selected ? "on" : "off";
         if (layer.hover) {
           key += "Hover";
         }
-        return layer.setOptions(this.featureStyles[key]);
+        var baseColor = layer.baseColor ? layer.baseColor : this.featureStyles[key].fillColor;
+        var updateStyle = {
+          fillColor: baseColor,
+          fillOpacity: this.featureStyles[key].fillOpacity,
+          strokeColor: this.featureStyles[key].strokeColor,
+          strokeWeight: this.featureStyles[key].strokeWeight,
+          strokeOpacity: this.featureStyles[key].strokeOpacity
+        };
+        return layer.setOptions(updateStyle);
       }
     });
 
