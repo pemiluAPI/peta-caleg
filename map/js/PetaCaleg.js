@@ -804,9 +804,11 @@
               return ""; // :TODO: list contained kab/kota, kecamatan, kelurahan here
             });
 
+    // xxx (list Dapil)
+
     // add a preview list of elected candidates
     var title = body.append("h6")
-        .attr("class", "caleg-peek"),
+          .attr("class", "caleg-peek"),
         list = title.selectAll("span.caleg")
           .data(function(d) {
             return d.caleg;
@@ -815,16 +817,16 @@
           .append("span")
             .attr("class", "caleg");
 
-          list.append("span")
-            .attr("class", "glyphicon glyphicon-user");
+    list.append("span")
+      .attr("class", "glyphicon glyphicon-user");
 
-          list.append("span")
-            .text(function(d) {
-              return " " + d.nama + " ";
-            });
+    list.append("span")
+      .text(function(d) {
+        return " " + d.nama + " ";
+      });
 
-          title.append("span")
-            .text("terpilih.");
+    title.append("span")
+      .text("terpilih.");
     },
 
     getDapil: function(context, callback) {
@@ -1115,7 +1117,8 @@
           .append("div")
             .attr("class", "partai");
 
-        // xxx
+        // xxx (list Provinsi)
+
         partyList.append("img")
           .attr("src", function(d) {
             return provinces[0].partai[+d[0].partai.id].url_logo_small;
@@ -1187,7 +1190,6 @@
             return callback("Tidak ada caleg.");
           }
 
-          // xxx
           var partaiByID = d3.nest()
             .key(function(d) { return d.id; })
             .rollup(function(d) { return d[0]; })
