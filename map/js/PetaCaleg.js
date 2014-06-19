@@ -49,7 +49,7 @@
             });
 
             req.loaded = 0;
-            req.total = 1024 * 1024; // XXX this is not quite right
+            req.total = 1024 * 1024; // :TODO: this is not quite right
             reqs.push(req);
             update();
           });
@@ -632,8 +632,12 @@
           if (error) return callback(error);
 
           var candidates = caleg.results.caleg
-          var parties = partai.results.partai
           var provinces = provinsi.results.provinsi;
+
+          var partaiByID = d3.nest()
+            .key(function(d) { return d.id; })
+            .rollup(function(d) { return d[0]; })
+            .map(partai.results.partai);
 
           if (!provinces.length) {
             return callback("Tidak ada provinsi.");
@@ -663,14 +667,16 @@
 
           } else {
             // nest candidates by province and party
-            var candidatesByProvince = d3.nest()
+            var candidatesByProvinceAndParty = d3.nest()
                   .key(function(d) { return d.provinsi.id; })
                   .key(function(d) { return d.partai.id; })
                   .map(candidates),
                 matching = provinces.filter(function(d) {
-                  if (candidatesByProvince[d.id] != 'undefined') {
+                  if (candidatesByProvinceAndParty[d.id] != 'undefined') {
                     // save an array (for each party) of arrays of candidates to the 'caleg' property of the province object
-                    d.caleg = d3.values(candidatesByProvince[d.id]);
+                    d.caleg = d3.values(candidatesByProvinceAndParty[d.id]);
+                    // save a party lookup to the province object (for looking up party image URLs)
+                    d.partai = partaiByID;
                     return true;
                   }
                   return false;
@@ -885,7 +891,9 @@
         crumb.action = true;
         that.setBreadcrumbs(context.breadcrumbs);
 
-        if (error) return callback(error);
+        if (error) {
+          return callback(error);
+        }
 
         if (context.partai) {
           var selected = utils.first(partai, context.partai);
@@ -1071,10 +1079,10 @@
           body = items.append("div")
             .attr("class", "media-body");
 
-      // add a preview list of elected candidates
       var title = body.append("h6")
           .attr("class", "caleg-peek");
 
+      // list elected DPD candidates in this province
       if (context.lembaga === "DPD") {
         var list = title.selectAll("span.caleg")
           .data(function(d) {
@@ -1096,20 +1104,24 @@
         title.append("span")
           .text("terpilih.");
             
+      // list elected DPR, DPRD candidates by party
       } else {
         var partyList = title.selectAll("div.partai")
           .data(function(d) {
-            // caleg is an array (party) of arrays of objects (candidates)
+            // caleg is an array (parties) of arrays of objects (candidates)
             return d.caleg;
           })
           .enter()
           .append("div")
             .attr("class", "partai");
 
-        partyList.append("span")
-          .text(function(d) {
-            return " " + d[0].partai.nama + ": "
-          });
+        // xxx
+        partyList.append("img")
+          .attr("src", function(d) {
+            return provinces[0].partai[+d[0].partai.id].url_logo_small;
+          })
+          .attr("width", "15")
+          .attr("height", "15");
 
         var calegList = partyList.selectAll("span.caleg")
           .data(function(d) {
@@ -1175,12 +1187,13 @@
             return callback("Tidak ada caleg.");
           }
 
-          var partiesById = d3.nest()
+          // xxx
+          var partaiByID = d3.nest()
             .key(function(d) { return d.id; })
             .rollup(function(d) { return d[0]; })
             .map(partai.results.partai);
           candidates.forEach(function(d) {
-            d.partai = partiesById[d.partai.id];
+            d.partai = partaiByID[d.partai.id];
           });
           return callback(null, candidates);
         }));
@@ -1423,7 +1436,7 @@
       this._candidateReq = this.api.get(uri, function(error, res) {
         modal._selection.classed("loading", false);
 
-        console.log("got caleg data:", res);
+        // console.log("got caleg data:", res);
         that._candidateReq = null;
 
         mtitle.remove();
@@ -1527,18 +1540,14 @@
         // console.log(d.id, ":", d);
       });
 
-      this.lookup = d3.nest()
-        .key(function(d) {
-          return d.id;
-        })
-        .rollup(function(d) {
-          return d[0];
-        })
+      this.featureLookup = d3.nest()
+        .key(function(d) { return d.id; })
+        .rollup(function(d) { return d[0]; })
         .map(collection.features);
     },
 
     getFeatureById: function(id) {
-      return this.lookup[id];
+      return this.featureLookup[id];
     }
   });
 
@@ -1757,7 +1766,7 @@
             mem += (d._votes = d[voteKey]);
             return mem;
           }, 0);
-      console.log("vote total:", total);
+      // console.log("vote total:", total);
       rows.forEach(function(d) {
         d._vote_percent = 100 * d._votes / total;
       });
