@@ -653,6 +653,7 @@
             if (!d.feature) console.warn("no feature for:", d.id, d);
           });
 
+          // xxx (setting up data for listing provinces)
         
           if (context.lembaga === "DPD") {
             // nest candidates by province
@@ -804,29 +805,47 @@
               return ""; // :TODO: list contained kab/kota, kecamatan, kelurahan here
             });
 
-    // xxx (list Dapil)
+    // xxx (listing Dapil)
 
     // add a preview list of elected candidates
     var title = body.append("h6")
-          .attr("class", "caleg-peek"),
-        list = title.selectAll("span.caleg")
-          .data(function(d) {
-            return d.caleg;
-          })
-          .enter()
-          .append("span")
-            .attr("class", "caleg");
+          .attr("class", "caleg-peek");
 
-    list.append("span")
+    var partyList = title.selectAll("div.partai")
+      .data(function(d) {
+        // caleg is an array (parties) of arrays of objects (candidates)
+        return d.caleg;
+      })
+      .enter()
+      .append("div")
+        .attr("class", "partai");
+
+    partyList.append("img")
+      .attr("src", function(d) {
+        return dapil[0].partai[+d[0].partai.id].url_logo_small;
+      })
+      .attr("width", "15")
+      .attr("height", "15");
+
+    var calegList = partyList.selectAll("span.caleg")
+      .data(function(d) {
+        return d;
+      })
+      .enter()
+      .append("span")
+        .attr("class", "caleg");
+
+    calegList.append("span")
       .attr("class", "glyphicon glyphicon-user");
 
-    list.append("span")
+    calegList.append("span")
       .text(function(d) {
         return " " + d.nama + " ";
       });
 
-    title.append("span")
+    partyList.append("span")
       .text("terpilih.");
+
     },
 
     getDapil: function(context, callback) {
@@ -847,33 +866,49 @@
 
       return this.showProgress(queue()
         .defer(getBound, "candidate/api/caleg", electedCandidatesParams)
+        .defer(getBound, "candidate/api/partai")
         .defer(getBound, "candidate/api/dapil", params)
         .defer(getBound, "geographic/api/getmap", {filename: filename})
-        .await(function(error, caleg, res, topology) {
+        .await(function(error, caleg, partai, dapil, topology) {
           that.checkContext(context);
           if (error) return callback(error);
 
           var candidates = caleg.results.caleg
-          var dapil = res.results.dapil;
-          if (!dapil.length) {
+          var districts = dapil.results.dapil;
+          if (!districts.length) {
             return callback("Tidak ada dapil.");
           }
+
+          var partaiByID = d3.nest()
+            .key(function(d) { return d.id; })
+            .rollup(function(d) { return d[0]; })
+            .map(partai.results.partai);
 
           var collection = new PetaCaleg.GeoCollection(topology, {
             idProperty: "id_dapil"
           });
 
-          dapil.forEach(function(d) {
+          districts.forEach(function(d) {
             d.feature = collection.getFeatureById(d.id);
             if (!d.feature) console.warn("no feature for:", d.id, d);
           });
+
+          // xxx (setting up data for listing dapil)
           
-          var candidatesByDapil = d3.nest()
+          // nest candidates by district and party
+          var candidatesByDistrictAndParty = d3.nest()
                 .key(function(d) { return d.dapil.id; })
+                .key(function(d) { return d.partai.id; })
                 .map(candidates),
-              matching = dapil.filter(function(d) {
-                d.caleg = candidatesByDapil[d.id];
-                return notEmpty(d.caleg);
+              matching = districts.filter(function(d) {
+                if (candidatesByDistrictAndParty[d.id] != 'undefined') {
+                  // save an array (for each party) of arrays of candidates to the 'caleg' property of the district object
+                  d.caleg = d3.values(candidatesByDistrictAndParty[d.id]);
+                  // save a party lookup to the district object (for looking up party image URLs)
+                  d.partai = partaiByID;
+                  return true;
+                }
+                return false;
               });
 
           return callback(null, matching);
