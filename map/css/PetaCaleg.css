@@ -259,6 +259,10 @@ a.terpilih-tag:hover, a.terpilih-tag:focus{
   width: 100px;
 }
 
+.partai img {
+  margin-right: 5px;
+}
+
 .caleg-peek {
   max-width: 32em;
 }
