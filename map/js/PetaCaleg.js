@@ -795,7 +795,7 @@
             .append("h4")
               .append("a")
                 .text(function(d) {
-                  return d.nama;
+                  return d.nama + " calon terpilih";
                 })
                 .attr("href", href),
           body = items.append("div")
@@ -838,9 +838,6 @@
       .text(function(d) {
         return " " + d.nama + " ";
       });
-
-    partyList.append("span")
-      .text("terpilih.");
 
     },
 
