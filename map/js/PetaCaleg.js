@@ -809,7 +809,7 @@
 
     // add a preview list of elected candidates
     var title = body.append("ul")
-          .attr("class", "caleg-peek");
+          .attr("class", "party-peek");
 
     var partyList = title.selectAll("ul.partai")
       .data(function(d) {
@@ -1114,11 +1114,13 @@
 
       // xxx (listing Provinsi)
 
-      var title = body.append("ul")
-          .attr("class", "caleg-peek");
+      var title = body.append("ul");
 
       // list elected DPD candidates in this province
       if (context.lembaga === "DPD") {
+        // caleg-peek class for listing candidates not organized by party
+        title.attr("class", "caleg-peek");
+
         var list = title.selectAll("span.caleg")
           .data(function(d) {
             // caleg is an array of objects (candidates)
@@ -1139,6 +1141,9 @@
             
       // list elected DPR, DPRD candidates by party
       } else {
+        // party-peek class for listing candidates organized by party
+        title.attr("class", "party-peek");
+
         var partyList = title.selectAll("ul.partai")
           .data(function(d) {
             // caleg is an array (parties) of arrays of objects (candidates)
