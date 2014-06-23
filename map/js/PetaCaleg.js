@@ -1747,7 +1747,9 @@
     },
 
     mergeCandidates: function(candidates, key) {
-      if (!key) key = "_results";
+      if (!key) {
+        key = "_results";
+      }
       var lookup = this._rowsByCandidate,
           voteKey = "suara_sah",
           rows = candidates.filter(function(d) {
@@ -1787,8 +1789,7 @@
           }),
           voteKey = "suara_sah",
           total = rows.reduce(function(mem, d) {
-            mem += (d._votes = d[voteKey]);
-            return mem;
+            return mem + (d._votes = d[voteKey]);
           }, 0);
       // console.log("vote total:", total);
       rows.forEach(function(d) {
