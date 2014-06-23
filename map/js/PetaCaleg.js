@@ -808,24 +808,19 @@
     // xxx (listing Dapil)
 
     // add a preview list of elected candidates
-    var title = body.append("h6")
+    var title = body.append("ul")
           .attr("class", "caleg-peek");
 
-    var partyList = title.selectAll("div.partai")
+    var partyList = title.selectAll("ul.partai")
       .data(function(d) {
         // caleg is an array (parties) of arrays of objects (candidates)
         return d.caleg;
       })
       .enter()
-      .append("div")
-        .attr("class", "partai");
-
-    partyList.append("img")
-      .attr("src", function(d) {
-        return dapil[0].partai[+d[0].partai.id].url_logo_small;
-      })
-      .attr("width", "15")
-      .attr("height", "15");
+      .append("li")
+        .attr("class", function(d) {
+              return "partai-" + d[0].partai.id;
+            });
 
     var calegList = partyList.selectAll("span.caleg")
       .data(function(d) {
@@ -839,6 +834,7 @@
       .attr("class", "glyphicon glyphicon-user");
 
     calegList.append("span")
+      .attr("class", "caleg-name")
       .text(function(d) {
         return " " + d.nama + " ";
       });
@@ -1036,8 +1032,10 @@
           body = items.append("div")
             .attr("class", "media-body");
 
+    // xxx (listing Partai)
+
       // add a preview list of elected candidates
-      var title = body.append("h6")
+      var title = body.append("ul")
             .attr("class", "caleg-peek"),
           list = title.selectAll("span.caleg")
             .data(function(d) {
@@ -1059,6 +1057,7 @@
         .attr("class", "glyphicon glyphicon-user");
 
       list.append("span")
+        .attr("class", "caleg-name")
         .text(function(d) {
           return " " + d.nama + " ";
         });
@@ -1110,13 +1109,15 @@
             .append("h4")
               .append("a")
                 .text(function(d) {
-                  return d.nama;
+                  return d.nama + " calon terpilih";
                 })
                 .attr("href", href),
           body = items.append("div")
             .attr("class", "media-body");
 
-      var title = body.append("h6")
+      // xxx (listing Provinsi)
+
+      var title = body.append("ul")
           .attr("class", "caleg-peek");
 
       // list elected DPD candidates in this province
@@ -1134,32 +1135,23 @@
           .attr("class", "glyphicon glyphicon-user");
 
         list.append("span")
+          .attr("class", "caleg-name")
           .text(function(d) {
             return " " + d.nama + " ";
           });
-
-        title.append("span")
-          .text("terpilih.");
             
       // list elected DPR, DPRD candidates by party
       } else {
-        var partyList = title.selectAll("div.partai")
+        var partyList = title.selectAll("ul.partai")
           .data(function(d) {
             // caleg is an array (parties) of arrays of objects (candidates)
             return d.caleg;
           })
           .enter()
-          .append("div")
-            .attr("class", "partai");
-
-        // xxx (list Provinsi)
-
-        partyList.append("img")
-          .attr("src", function(d) {
-            return provinces[0].partai[+d[0].partai.id].url_logo_small;
-          })
-          .attr("width", "15")
-          .attr("height", "15");
+          .append("li")
+            .attr("class", function(d) {
+              return "partai-" + d[0].partai.id;
+            });
 
         var calegList = partyList.selectAll("span.caleg")
           .data(function(d) {
@@ -1173,12 +1165,10 @@
           .attr("class", "glyphicon glyphicon-user");
 
         calegList.append("span")
+          .attr("class", "caleg-name")
           .text(function(d) {
             return " " + d.nama + " ";
           });
-
-        partyList.append("span")
-          .text("terpilih.");
       }
     },
 

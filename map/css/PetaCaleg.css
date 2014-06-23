@@ -271,6 +271,62 @@ a.terpilih-tag:hover, a.terpilih-tag:focus{
   color: #666666;
 }
 
+.caleg-peek .caleg {
+  background: #eeeeee;
+  margin-right: 5px;
+}
+
+.caleg-peek .caleg-name {
+  white-space: nowrap;
+}
+
+/* hard coded mini partai images */
+ul.caleg-peek li.partai-1 {
+  list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/01-17.jpg);
+}
+ul.caleg-peek li.partai-2 {
+  list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/02-17.jpg);
+}
+ul.caleg-peek li.partai-3 {
+  list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/03-17.jpg);
+}
+ul.caleg-peek li.partai-4 {
+  list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/04-17.jpg);
+}
+ul.caleg-peek li.partai-5 {
+  list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/05-17.jpg);
+}
+ul.caleg-peek li.partai-6 {
+  list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/06-17.jpg);
+}
+ul.caleg-peek li.partai-7 {
+  list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/07-17.jpg);
+}
+ul.caleg-peek li.partai-8 {
+  list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/08-17.jpg);
+}
+ul.caleg-peek li.partai-9 {
+  list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/09-17.jpg);
+}
+ul.caleg-peek li.partai-10 {
+  list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/10-17.jpg);
+}
+ul.caleg-peek li.partai-11 {
+  list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/11-17.jpg);
+}
+ul.caleg-peek li.partai-12 {
+  list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/12-17.jpg);
+}
+ul.caleg-peek li.partai-13 {
+  list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/13-17.jpg);
+}
+ul.caleg-peek li.partai-14 {
+  list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/14-17.jpg);
+}
+ul.caleg-peek li.partai-15 {
+  list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/15-17.jpg);
+}
+
 #content > .panel {
   margin: 15px 0;
 }
