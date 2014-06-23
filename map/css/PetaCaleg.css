@@ -263,21 +263,19 @@ a.terpilih-tag:hover, a.terpilih-tag:focus{
   margin-right: 5px;
 }
 
-.caleg-peek {
+ul.caleg-peek {
+  margin-top: 5px;
   max-width: 32em;
+  padding-left: 25px;
 }
 
-.caleg-peek .glyphicon-user {
+ul.caleg-peek .glyphicon-user {
   color: #666666;
 }
 
-.caleg-peek .caleg {
-  background: #eeeeee;
+ul.caleg-peek .caleg {
+  background: #f2f2f2;
   margin-right: 5px;
-}
-
-.caleg-peek .caleg-name {
-  white-space: nowrap;
 }
 
 /* hard coded mini partai images */
