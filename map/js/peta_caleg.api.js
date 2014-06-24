@@ -2,7 +2,7 @@
 
   peta_caleg.api = function() {
     var key = "XXX",
-        base = "http://api.pemiluapi.org/",
+        base = "http://apipemilucache.appspot.com/",
         api = {},
         cache = {},
         last;

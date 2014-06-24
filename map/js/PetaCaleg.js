@@ -1679,7 +1679,7 @@
   PetaCaleg.API = new PetaCaleg.Class({
     defaults: {
       key: "you must provide a key",
-      baseUrl: "http://api.pemiluapi.org/",
+      baseUrl: "http://apipemilucache.appspot.com/",
       cache: true
     },
 
