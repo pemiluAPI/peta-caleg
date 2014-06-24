@@ -28,17 +28,12 @@ body {
   width: 110px;
 }
 
-@media (max-width: 768px) {
+@media (max-width:768px) {
   #peta {
     height: 230px;
   }
 
-  .navbar-header:before,
-  .navbar-header:after,
-  .navbar-nav:before,
-  .navbar-nav:after,
-  .navbar-text:before,
-  .navbar-text:after {
+  .navbar-header:before, .navbar-header:after, .navbar-nav:before, .navbar-nav:after, .navbar-text:before, .navbar-text:after {
     display: none !important;
     clear: none !important;
   }
@@ -60,10 +55,9 @@ body {
     float: left;
     margin-right: 15px;
   }
-
 }
 
-@media (max-width: 768px) and (orientation: landscape) {
+@media (max-width:768px) and (orientation:landscape) {
   #peta {
     height: 230px;
   }
@@ -77,43 +71,43 @@ h3 {
   margin-bottom: 0;
 }
 
-  .breadcrumb .progress {
-    float: right;
-    width: 3em;
-    background: #ddd;
-    word-wrap: none;
-  }
+.breadcrumb .progress {
+  float: right;
+  width: 3em;
+  background: #ddd;
+  word-wrap: none;
+}
 
-  .breadcrumb .progress-bar {
-    /* this kills the width transition */
-            transition: .5s background-color;
-    -webkit-transition: .5s background-color;
-  }
+.breadcrumb .progress-bar {
+  /* this kills the width transition */
+  transition: .5s background-color;
+  -webkit-transition: .5s background-color;
+}
 
-  .breadcrumb .progress.done .progress-bar {
-    background-color: #ccc;
-  }
+.breadcrumb .progress.done .progress-bar {
+  background-color: #ccc;
+}
 
-  /* snagged from bootstrap.css's .progress-striped bits */
-  .breadcrumb .progress .progress-bar.rest {
-    background-color: #ccc;
-    background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
-    background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
-    background-size: 40px 40px;
-            animation: progress-bar-stripes 2s linear infinite;
-    -webkit-animation: progress-bar-stripes 2s linear infinite;
-  }
+/* snagged from bootstrap.css's .progress-striped bits */
+.breadcrumb .progress .progress-bar.rest {
+  background-color: #ccc;
+  background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-size: 40px 40px;
+  animation: progress-bar-stripes 2s linear infinite;
+  -webkit-animation: progress-bar-stripes 2s linear infinite;
+}
 
 .navbar {
   min-height: 0px !important;
-          border-radius: 0;
+  border-radius: 0;
   -webkit-border-radius: 0;
-     -moz-border-radius: 0;
-      -ms-border-radius: 0;
+  -moz-border-radius: 0;
+  -ms-border-radius: 0;
 }
 
 .modal {
-  background-color: rgba(0,0,0,.1);
+  background-color: rgba(0, 0, 0, .1);
   overflow-y: auto;
 }
 
@@ -123,15 +117,15 @@ h3 {
   margin: 0;
 }
 
-  #top .navbar .navbar-text {
-    margin-top: 8px;
-    margin-bottom: 8px;
-    margin-left: 0;
-  }
+#top .navbar .navbar-text {
+  margin-top: 8px;
+  margin-bottom: 8px;
+  margin-left: 0;
+}
 
-  #top .navbar .active a {
-    background-color: #f0f;
-  }
+#top .navbar .active a {
+  background-color: #f0f;
+}
 
 #nav-lembaga {
   float: left !important;
@@ -143,16 +137,16 @@ h3 {
   clear: none !important;
 }
 
-  #nav-lembaga > li {
-    float: left !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-  }
+#nav-lembaga > li {
+  float: left !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
 
-  #nav-lembaga > li > a {
-    padding-top: 8px !important;
-    padding-bottom: 8px !important;
-  }
+#nav-lembaga > li > a {
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}
 
 #pemilu-logo {
   margin-top: 0;
@@ -169,17 +163,16 @@ h3 {
   background-position: bottom right;
 }
 
-  #pemilu-logo a span {
-    display: none;
-  }
+#pemilu-logo a span {
+  display: none;
+}
 
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) { 
+@media (-webkit-min-device-pixel-ratio:2), (min-resolution:192dpi) {
   /* Retina-specific stuff here */
   #pemilu-logo a {
     background-image: url(../img/apipemilu-logo-header@2x.png?new);
   }
 }
-
 
 svg.media-object {
   width: 100px;
@@ -195,13 +188,13 @@ svg.media-object {
   overflow: hidden;
 }
 
-  .caleg .votes {
-    position: relative;
-    display: inline;
-    z-index: 100;
-    padding: 3px 5px;
-    background: rgb(255, 0, 255); /* fallback color */
-  }
+.caleg .votes {
+  position: relative;
+  display: inline;
+  z-index: 100;
+  padding: 3px 5px;
+  background: rgb(255, 0, 255); /* fallback color */
+}
 
 .caleg.active .media-header {
   margin-bottom: 10px;
@@ -213,19 +206,19 @@ svg.media-object {
 }
 
 .terpilih-tag {
-    margin-top: -22px;
-    font-size: 15px;
+  margin-top: -22px;
+  font-size: 15px;
 }
 
-.terpilih-tag span{
-    color: white;
-    background: rgb(0, 0, 0); /* fallback color */
-    background: rgba(0, 0, 0, 0.6);
-    padding: 5px 17px 5px 16px;
+.terpilih-tag span {
+  color: white;
+  background: rgb(0, 0, 0); /* fallback color */
+  background: rgba(0, 0, 0, 0.6);
+  padding: 5px 17px 5px 16px;
 }
 
-a.terpilih-tag:hover, a.terpilih-tag:focus{
-  text-decoration: none;   
+a.terpilih-tag:hover, a.terpilih-tag:focus {
+  text-decoration: none;
 }
 
 .list-group-item {
@@ -238,18 +231,18 @@ a.terpilih-tag:hover, a.terpilih-tag:focus{
   clear: both;
 }
 
-  .caleg.list-group-item .media-body {
-    display: none;
-  }
+.caleg.list-group-item .media-body {
+  display: none;
+}
 
-  .caleg.list-group-item.active {
-    background: #f5f5f5;
-  }
+.caleg.list-group-item.active {
+  background: #f5f5f5;
+}
 
-  .caleg.list-group-item.active .media-body {
-    margin-top: 15px;
-    display: block;
-  }
+.caleg.list-group-item.active .media-body {
+  margin-top: 15px;
+  display: block;
+}
 
 .partai .media-object {
   width: 100px;
@@ -285,45 +278,59 @@ ul.caleg-peek .caleg, ul.party-peek .caleg {
 ul.party-peek li.partai-1 {
   list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/01-17.jpg);
 }
+
 ul.party-peek li.partai-2 {
   list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/02-17.jpg);
 }
+
 ul.party-peek li.partai-3 {
   list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/03-17.jpg);
 }
+
 ul.party-peek li.partai-4 {
   list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/04-17.jpg);
 }
+
 ul.party-peek li.partai-5 {
   list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/05-17.jpg);
 }
+
 ul.party-peek li.partai-6 {
   list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/06-17.jpg);
 }
+
 ul.party-peek li.partai-7 {
   list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/07-17.jpg);
 }
+
 ul.party-peek li.partai-8 {
   list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/08-17.jpg);
 }
+
 ul.party-peek li.partai-9 {
   list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/09-17.jpg);
 }
+
 ul.party-peek li.partai-10 {
   list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/10-17.jpg);
 }
+
 ul.party-peek li.partai-11 {
   list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/11-17.jpg);
 }
+
 ul.party-peek li.partai-12 {
   list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/12-17.jpg);
 }
+
 ul.party-peek li.partai-13 {
   list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/13-17.jpg);
 }
+
 ul.party-peek li.partai-14 {
   list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/14-17.jpg);
 }
+
 ul.party-peek li.partai-15 {
   list-style-image: url(http://apipemilu-caleg.s3-website-ap-southeast-1.amazonaws.com/partai/logos/15-17.jpg);
 }
@@ -346,14 +353,14 @@ ul.party-peek li.partai-15 {
   font-weight: bold;
 }
 
-  .caleg .media-header .no-urut {
-    color: #666;
-    display: inline-block;
-    margin: 0 .33em 1px 0;
-  }
+.caleg .media-header .no-urut {
+  color: #666;
+  display: inline-block;
+  margin: 0 .33em 1px 0;
+}
 
-  a.candidate-name {
-  }
+a.candidate-name {
+}
 
 #content .alert {
   margin-top: 15px;
@@ -366,8 +373,7 @@ ul.candidate-info {
   margin-right: 30px;
 }
 
-ul.candidate-info,
-ul.candidate-info li {
+ul.candidate-info, ul.candidate-info li {
   list-style-type: none;
 }
 
@@ -392,31 +398,30 @@ ul.candidate-info .content {
   margin-left: 15px;
 }
 
-ul.candidate-info ol,
-ul.candidate-info ol > li {
+ul.candidate-info ol, ul.candidate-info ol > li {
   list-style: square;
   padding-left: 0;
   margin-left: 1em;
 }
 
-  ul.candidate-info ol > li {
-    margin-left: 0;
-    padding-left: 0;
-  }
+ul.candidate-info ol > li {
+  margin-left: 0;
+  padding-left: 0;
+}
 
-  .modal ul.candidate-info .header {
-    font-size: 100%;
-  }
+.modal ul.candidate-info .header {
+  font-size: 100%;
+}
 
 .caleg span.more {
   white-space: nowrap;
 }
 
 .breadcrumb {
-          border-radius: 0;
+  border-radius: 0;
   -webkit-border-radius: 0;
-     -moz-border-radius: 0;
-      -ms-border-radius: 0;
+  -moz-border-radius: 0;
+  -ms-border-radius: 0;
 }
 
 .breadcrumb li.active a {
@@ -446,37 +451,37 @@ ul.candidate-info ol > li {
   margin: 15px;
 }
 
-  .zoom-control button {
-    display: block;
-    background: #000;
-    width: 2em;
-    height: 2em;
-    margin-bottom: 5px;
-    position: relative;
-  }
+.zoom-control button {
+  display: block;
+  background: #000;
+  width: 2em;
+  height: 2em;
+  margin-bottom: 5px;
+  position: relative;
+}
 
-  .zoom-control button:after {
-    display: block;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    height: 1em;
-    width: 1em;
-    text-align: center;
-    margin: -.72em 0 0 -.5em;
-    color: #fff;
-    font-size: 200%;
-    font-weight: normal;
-  }
+.zoom-control button:after {
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 1em;
+  width: 1em;
+  text-align: center;
+  margin: -.72em 0 0 -.5em;
+  color: #fff;
+  font-size: 200%;
+  font-weight: normal;
+}
 
-  .zoom-control button.in:after {
-    content: "+";
-    margin-top: -.74em;
-  }
+.zoom-control button.in:after {
+  content: "+";
+  margin-top: -.74em;
+}
 
-  .zoom-control button.out:after {
-    content: "\2212";
-  }
+.zoom-control button.out:after {
+  content: "\2212";
+}
 
 /* don't scale strokes */
 svg path {
