@@ -1273,10 +1273,8 @@
             .append("li")
               .attr("class", "caleg list-group-item")
               .call(utils.autoClick),
-          icon = items.append("a")
-            .attr("class", "pull-left terpilih-tag")
-            .attr("href", href)
-            .append("div"),
+          icon = items.append("div")
+            .attr("class", "pull-left"),
           head = items.append("div")
             .attr("class", "media-header"),
           body = items.append("div")
