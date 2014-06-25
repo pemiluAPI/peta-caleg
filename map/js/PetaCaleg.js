@@ -971,7 +971,16 @@
                 .map(candidates),
               matching = parties.filter(function(d) {
                 d.caleg = candidatesByParty[d.id];
-                return notEmpty(d.caleg);
+                if (notEmpty(d.caleg)) {
+                  // save the number of elected candidates in this party
+                  d.electedCount = d.caleg.reduce(function(mem, d) {
+                    var plus = (d['terpilih'] == 'true') ? 1 : 0;
+                    return mem + plus;
+                  }, 0);
+                  return true;
+                }
+                d.electedCount = 0;
+                return false;
               });
           return matching.length
             ? callback(null, matching)
@@ -981,6 +990,15 @@
 
     listPartai: function(partai, context) {
       this.clearContent();
+
+      // sort parties by ID
+      partai.sort(function(a, b) {
+        return d3.ascending(parseInt(a.id), parseInt(b.id));
+      });
+      // sort parties with elected candidates to the top
+      partai.sort(function(a, b) {
+        return d3.descending(a.electedCount, b.electedCount);
+      });
 
       var href = (function(d) {
         return "#" + this.resolver.getUrlForData({
@@ -1029,22 +1047,22 @@
           body = items.append("div")
             .attr("class", "media-body");
 
-    // xxx (listing Partai)
+      // xxx (listing Partai)
 
       // add a preview list of elected candidates
       var title = body.append("ul")
             .attr("class", "caleg-peek"),
           list = title.selectAll("span.caleg")
             .data(function(d) {
-              var votedCandidates = new Array();
+              var electedCandidates = new Array();
               for (var i = 0; i < d.caleg.length; i++) {
                 if (d.caleg[i].terpilih === "true") {
-                  votedCandidates.push(d.caleg[i]);
+                  electedCandidates.push(d.caleg[i]);
                 }
               };
 
-              d.numleft = d.caleg.length - votedCandidates.length;
-              return votedCandidates;
+              d.notElectedCount = d.caleg.length - electedCandidates.length;
+              return electedCandidates;
             })
             .enter()
             .append("span")
@@ -1061,11 +1079,11 @@
 
       title.append("span")
         .text(function(d) {
-          if (d.numleft < d.caleg.length) {
-            return " terpilih dan " + d.numleft + " calon lain tidak terpilih.";
-          } else if (d.numleft === d.caleg.length) {
-            return " " + d.numleft + " calon tidak terpilih."; 
-          } else if (d.numleft === 0) {
+          if (d.notElectedCount < d.caleg.length) {
+            return " terpilih dan " + d.notElectedCount + " calon lain tidak terpilih.";
+          } else if (d.notElectedCount === d.caleg.length) {
+            return " " + d.notElectedCount + " calon tidak terpilih."; 
+          } else if (d.notElectedCount === 0) {
             return " terpilih.";
           }         
         });
