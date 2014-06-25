@@ -1280,8 +1280,20 @@
         });
       }).bind(this);
 
-      this.content.append("h3")
+      var title = this.content.append("h3")
         .text("Caleg");
+
+      if (context.partai) {
+        var partai = candidates[0].partai;
+        if (partai) {
+          title.append("span")
+            .attr("class", "partai")
+            .text(" " + partai.nama)
+            .append("img")
+              .attr("class", "partai")
+              .attr("src", partai.url_logo_mini);
+        }
+      }
 
       var list = this.content.append("ul")
             .attr("class", "caleg list-group"),
