@@ -1286,10 +1286,12 @@
       if (context.partai) {
         var partai = candidates[0].partai;
         if (partai) {
-          title.append("img")
+          title.append("span")
             .attr("class", "partai")
-            .attr("title", partai.nama_lengkap)
-            .attr("src", partai.url_logo_mini);
+            .text(" " + partai.nama)
+            .append("img")
+              .attr("class", "partai")
+              .attr("src", partai.url_logo_mini);
         }
       }
 
