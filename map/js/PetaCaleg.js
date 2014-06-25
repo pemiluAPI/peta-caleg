@@ -1343,19 +1343,19 @@
                   return "background : rgba(255,0,255," + opac + ");"
                 });
         vtitle.append("b")
-          .attr("class", "percent")
-          .text(function(d) {
-            return formatPercent(d._vote_percent) + "%";
-          });
-        vtitle.append("span")
-          .text(" (");
-        vtitle.append("b")
           .attr("class", "count")
           .text(function(d) {
             return formatVotes(d._votes);
           });
         vtitle.append("span")
-          .text(" suara)");
+          .text(" suara");
+        vtitle.append("span")
+          .text(" (");
+        vtitle.append("b")
+          .attr("class", "percent")
+          .text(function(d) {
+            return formatPercent(d._vote_percent) + "%)";
+          });
       } else {
         console.warn("no votes!", votes);
       }
@@ -1451,7 +1451,9 @@
     },
 
     showCandidateModal: function(candidate) {
-      if (!this.candidateModal) return;
+      if (!this.candidateModal) {
+        return;
+      }
 
       if (this._candidateReq) {
         this._candidateReq.abort();
