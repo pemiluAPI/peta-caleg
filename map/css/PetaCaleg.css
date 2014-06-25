@@ -67,6 +67,12 @@ h3 {
   margin-top: 13px;
 }
 
+  h3 img {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 10px;
+  }
+
 .breadcrumb {
   margin-bottom: 0;
 }
