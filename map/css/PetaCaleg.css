@@ -188,12 +188,16 @@ svg.media-object {
   overflow: hidden;
 }
 
-.caleg .votes {
+.caleg .votes, .modal-body .votes {
   position: relative;
   display: inline;
   z-index: 100;
   padding: 3px 5px;
   background: rgb(255, 0, 255); /* fallback color */
+}
+
+.modal-body .votes {
+  display: block;
 }
 
 .caleg.active .media-header {
@@ -206,8 +210,9 @@ svg.media-object {
 }
 
 .terpilih-tag {
-  margin-top: -22px;
   font-size: 15px;
+  margin-top: -22px;
+  width: 100px;
 }
 
 .terpilih-tag span {

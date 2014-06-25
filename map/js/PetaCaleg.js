@@ -1302,7 +1302,7 @@
           .attr("class", "media-object photo")
           .attr("src", function(d) {
             return d.foto_url;
-          })
+          });
 
       icon.append("h2")
             .attr("style", function(d) {
@@ -1310,7 +1310,7 @@
               else { return "display: none" }
             })
             .attr("class", "terpilih-tag")
-            .append("span").text("TERPILIH")
+            .append("span").text("TERPILIH");
 
       var title = head.append("h4");
 
@@ -1333,8 +1333,6 @@
         });
 
         var hasVotes = items,
-            formatVotes = d3.format(","),
-            formatPercent = d3.format(".1f"),
             vtitle = hasVotes.select(".media-header")
               .append("h5")
                 .attr("class", "votes")
@@ -1345,16 +1343,14 @@
         vtitle.append("b")
           .attr("class", "count")
           .text(function(d) {
-            return formatVotes(d._votes);
+            return d3.format(",")(d._votes);
           });
         vtitle.append("span")
           .text(" suara");
-        vtitle.append("span")
-          .text(" (");
         vtitle.append("b")
           .attr("class", "percent")
           .text(function(d) {
-            return formatPercent(d._vote_percent) + "%)";
+            return " (" + d3.format(".1f")(d._vote_percent) + "%)";
           });
       } else {
         console.warn("no votes!", votes);
@@ -1472,9 +1468,32 @@
         .select(".modal-body")
         .text("");
 
-      mbody.append("img")
-        .attr("class", "photo")
+      icon = mbody.append("div");
+
+      icon.append("img")
+        .attr("class", "media-object photo")
         .attr("src", candidate.foto_url);
+
+      if (candidate.terpilih === "true") {
+        icon.append("h2")
+          .attr("style", "display: block")
+          .attr("class", "terpilih-tag")
+          .append("span").text("TERPILIH");
+      }
+
+      var opac = candidate._relative_to_top_vote_percent.toFixed(2);
+
+      var vtitle = mbody.append("h5")
+        .attr("class", "votes")
+        .attr("style", "background : rgba(255,0,255," + opac + ");");
+      vtitle.append("b")
+        .attr("class", "count")
+        .text(d3.format(",")(candidate._votes));
+      vtitle.append("span")
+        .text(" suara");
+      vtitle.append("b")
+        .attr("class", "percent")
+        .text(" (" + d3.format(".1f")(candidate._vote_percent) + "%)");
 
       var mtitle = mbody.append("h4")
         .text("Memuat...");
