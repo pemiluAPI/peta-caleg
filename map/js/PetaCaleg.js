@@ -671,7 +671,7 @@
             d.feature.provinsi = d;
           });
 
-          // xxx (setting up data for listing provinces)
+          // XXX (setting up data for listing provinces)
         
           if (context.lembaga === "DPD") {
             // nest candidates by province
@@ -714,7 +714,7 @@
      *
      * {
      *   partai: <the party object>,
-     *   caleg: <an Array or elected candidates>,
+     *   caleg: <an Array of elected candidates>,
      *   votes: <the total number of votes for elected candidates>
      * }
      */
@@ -875,7 +875,7 @@
               return ""; // :TODO: list contained kab/kota, kecamatan, kelurahan here
             });
 
-    // xxx (listing Dapil)
+    // XXX (listing Dapil)
 
     // add a preview list of elected candidates
     var title = body.append("ul")
@@ -883,18 +883,21 @@
 
     var partyList = title.selectAll("ul.partai")
       .data(function(d) {
-        // caleg is an array (parties) of arrays of objects (candidates)
-        return d.caleg;
+        // partaiRank is an array (parties) of objects with caleg properties pointing to arrays of candidates
+        // only display parties with elected candidates
+        return d.partaiRank.filter(function(d) {
+          return (d.votes > 0);
+        });
       })
       .enter()
       .append("li")
         .attr("class", function(d) {
-              return "partai-" + d[0].partai.id;
+              return "partai-" + d.partai.id;
             });
 
     var calegList = partyList.selectAll("span.caleg")
       .data(function(d) {
-        return d;
+        return d.caleg;
       })
       .enter()
       .append("span")
@@ -1121,7 +1124,7 @@
           body = items.append("div")
             .attr("class", "media-body");
 
-      // xxx (listing Partai)
+      // XXX (listing Partai)
 
       // add a preview list of elected candidates
       var title = body.append("ul")
@@ -1204,7 +1207,7 @@
           body = items.append("div")
             .attr("class", "media-body");
 
-      // xxx (listing Provinsi)
+      // XXX (listing Provinsi)
 
       var title = body.append("ul");
 
@@ -1236,20 +1239,24 @@
         // party-peek class for listing candidates organized by party
         title.attr("class", "party-peek");
 
+        // xxxx
         var partyList = title.selectAll("ul.partai")
           .data(function(d) {
-            // caleg is an array (parties) of arrays of objects (candidates)
-            return d.caleg;
+            // partaiRank is an array (parties) of objects with caleg properties pointing to arrays of candidates
+            // only display parties with elected candidates
+            return d.partaiRank.filter(function(d) {
+              return (d.votes > 0);
+            });
           })
           .enter()
           .append("li")
             .attr("class", function(d) {
-              return "partai-" + d[0].partai.id;
+              return "partai-" + d.partai.id;
             });
 
         var calegList = partyList.selectAll("span.caleg")
           .data(function(d) {
-            return d;
+            return d.caleg;
           })
           .enter()
           .append("span")
