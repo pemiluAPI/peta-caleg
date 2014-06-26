@@ -532,6 +532,7 @@
               return {
                 icon: {
                   url: rank.partai.url_logo_mini,
+                  baseColor: rank.partai.colors[0],
                   size: new google.maps.Size(17, 15),
                   anchor: new google.maps.Point(8, 7),
                   origin: new google.maps.Point(0, 0)
@@ -775,6 +776,7 @@
               return {
                 icon: {
                   url: rank.partai.url_logo_mini,
+                  baseColor: rank.partai.colors[0],
                   size: new google.maps.Size(17, 15),
                   anchor: new google.maps.Point(8, 7),
                   origin: new google.maps.Point(0, 0)
@@ -2184,6 +2186,12 @@
 
         this.displayLayers = this.addLayer(layer);
         this.displayMarkers = this.addMarkers(features, getMarkerOptions);
+
+        // apply colors to features
+        for (var key in features) {
+          var markerOptions = getMarkerOptions(features[key]);
+          this.setFeatureColorById(features[key].id, markerOptions.icon.baseColor);
+        }
       },
 
       getMarkerOptions: function(feature) {
