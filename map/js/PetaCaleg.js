@@ -525,7 +525,23 @@
           var features = provinces.map(function(d) {
             return d.feature;
           });
-          that.map.setDisplayFeatures(features, "provinsi");
+          that.map.setDisplayFeatures(features, "provinsi:" + context.lembaga, function(feature) {
+            var provinsi = feature.provinsi;
+            if (provinsi && provinsi.partaiRank) {
+              var rank = provinsi.partaiRank[0];
+              return {
+                icon: {
+                  url: rank.partai.url_logo_mini,
+                  size: new google.maps.Size(17, 15),
+                  anchor: new google.maps.Point(8, 7),
+                  origin: new google.maps.Point(0, 0)
+                }
+              };
+            } else {
+              // console.log("no provinsi ranking:", feature);
+            }
+            return {icon: "about:blank"};
+          });
           that.map.on("select", null);
           that.map.selectFeatureById(context.provinsi);
           that.map.on("select", function(props) {
@@ -650,7 +666,8 @@
           });
           provinces.forEach(function(d) {
             d.feature = collection.getFeatureById(d.id);
-            if (!d.feature) console.warn("no feature for:", d.id, d);
+            if (!d.feature) return console.warn("no feature for:", d.id, d);
+            d.feature.provinsi = d;
           });
 
           // xxx (setting up data for listing provinces)
@@ -678,6 +695,8 @@
                     d.caleg = d3.values(candidatesByProvinceAndParty[d.id]);
                     // save a party lookup to the province object (for looking up party image URLs)
                     d.partai = partaiByID;
+                    // build the ranked party listing by elected candidate vote totals
+                    d.partaiRank = that.getRankedParties(d.partai, d.caleg);
                     return true;
                   }
                   return false;
@@ -686,6 +705,39 @@
 
           return callback(null, matching);
         }));
+    },
+
+    /*
+     * collates a party mapping ({}) and nested candidate list [[], []]
+     * into a 1-D list of ranked objects with the following properties:
+     *
+     * {
+     *   partai: <the party object>,
+     *   caleg: <an Array or elected candidates>,
+     *   votes: <the total number of votes for elected candidates>
+     * }
+     */
+    getRankedParties: function(partai, candidates) {
+      return d3.values(partai)
+        .map(function(p) {
+          var caleg = [];
+          candidates.forEach(function(list) {
+            caleg = caleg.concat(list.filter(function(c) {
+              return c.partai.id == p.id
+                  && c.terpilih === "true";
+              }));
+          });
+          return {
+            partai: p,
+            caleg: caleg,
+            votes: caleg.reduce(function(mem, c) {
+              return mem + c.suara_sah;
+            }, 0)
+          };
+        })
+        .sort(function(a, b) {
+          return d3.descending(a.votes, b.votes);
+        });
     },
 
     doDapil: function(context, callback) {
@@ -716,7 +768,23 @@
           var features = dapil.map(function(d) {
             return d.feature;
           });
-          that.map.setDisplayFeatures(features, "dapil");
+          that.map.setDisplayFeatures(features, "dapil", function(feature) {
+            var dapil = feature.dapil;
+            if (dapil && dapil.partaiRank) {
+              var rank = dapil.partaiRank[0];
+              return {
+                icon: {
+                  url: rank.partai.url_logo_mini,
+                  size: new google.maps.Size(17, 15),
+                  anchor: new google.maps.Point(8, 7),
+                  origin: new google.maps.Point(0, 0)
+                }
+              };
+            } else {
+              console.log("no dapil:", feature);
+            }
+            return {icon: "about:blank"};
+          });
           that.map.on("select", null);
           that.map.selectFeatureById(context.dapil);
           that.map.on("select", function(props) {
@@ -866,8 +934,8 @@
           that.checkContext(context);
           if (error) return callback(error);
 
-          var candidates = caleg.results.caleg
-          var districts = dapil.results.dapil;
+          var candidates = caleg.results.caleg,
+              districts = dapil.results.dapil;
           if (!districts.length) {
             return callback("Tidak ada dapil.");
           }
@@ -883,11 +951,14 @@
 
           districts.forEach(function(d) {
             d.feature = collection.getFeatureById(d.id);
-            if (!d.feature) console.warn("no feature for:", d.id, d);
+            if (!d.feature) {
+              return console.warn("no feature for:", d.id, d);
+            }
+            d.feature.dapil = d;
           });
 
-          // xxx (setting up data for listing dapil)
-          
+          // XXX (setting up data for listing dapil)
+
           // nest candidates by district and party
           var candidatesByDistrictAndParty = d3.nest()
                 .key(function(d) { return d.dapil.id; })
@@ -899,6 +970,7 @@
                   d.caleg = d3.values(candidatesByDistrictAndParty[d.id]);
                   // save a party lookup to the district object (for looking up party image URLs)
                   d.partai = partaiByID;
+                  d.partaiRank = that.getRankedParties(d.partai, d.caleg);
                   return true;
                 }
                 return false;
@@ -1263,7 +1335,7 @@
         //init _relative_to_top_vote_percent after sorting for votes opacity background
         candidates.forEach(function(d, i) {
           d._relative_to_top_vote_percent = 1;
-          if ( i > 0) {
+          if (i > 0) {
             var top_votes = candidates[0]._votes;
             d._relative_to_top_vote_percent = d._votes / top_votes;
           }
@@ -2089,7 +2161,7 @@
         }
       },
 
-      setDisplayFeatures: function(features, id) {
+      setDisplayFeatures: function(features, id, getMarkerOptions) {
         if (this._displayId === id) return;
         this._displayId = id;
 
@@ -2103,6 +2175,7 @@
 
         // remove the old layers
         this.removeDisplayLayers();
+        this.removeDisplayMarkers();
 
         var layer = new GeoJSON({
           type: "FeatureCollection",
@@ -2110,6 +2183,41 @@
         }, this.featureStyles.off);
 
         this.displayLayers = this.addLayer(layer);
+        this.displayMarkers = this.addMarkers(features, getMarkerOptions);
+      },
+
+      getMarkerOptions: function(feature) {
+        return {
+          title: feature.id
+        };
+      },
+
+      addMarkers: function(features, getMarkerOptions) {
+        var map = this;
+        if (!getMarkerOptions) {
+          getMarkerOptions = this.getMarkerOptions.bind(this);
+        }
+        return features.map(function(f, i) {
+          var centroid = d3.geo.centroid(f),
+              options = utils.extend({
+                position: new google.maps.LatLng(centroid[1], centroid[0]),
+                map: map,
+                clickable: false
+              }, getMarkerOptions(f)),
+              marker = new google.maps.Marker(options);
+          marker.feature = f;
+          return marker;
+        });
+      },
+
+      removeDisplayMarkers: function() {
+        if (this.displayMarkers) {
+          var markers = this.displayMarkers;
+          while (markers.length) {
+            var marker = markers.shift();
+            marker.setMap(null);
+          }
+        }
       },
 
       removeDisplayLayers: function() {
