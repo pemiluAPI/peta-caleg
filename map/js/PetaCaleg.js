@@ -1044,9 +1044,9 @@
               matching = parties.filter(function(d) {
                 d.caleg = candidatesByParty[d.id];
                 if (notEmpty(d.caleg)) {
-                  // save the number of elected candidates in this party
+                  // save the number of votes received by elected candidates in this party
                   d.electedCount = d.caleg.reduce(function(mem, d) {
-                    var plus = (d['terpilih'] == 'true') ? 1 : 0;
+                    var plus = (d['terpilih'] == 'true') ? d['suara_sah'] : 0;
                     return mem + plus;
                   }, 0);
                   return true;
