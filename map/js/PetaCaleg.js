@@ -853,7 +853,7 @@
               .attr("class", "dapil list-group-item")
               .call(utils.autoClick),
           icon = items.append("a")
-            .attr("class", "pull-left")
+            .attr("class", "icon-pull-left")
             .attr("href", href)
             .append("svg")
               .attr("class", "media-object")
@@ -1092,7 +1092,7 @@
               .attr("class", "partai list-group-item")
               .call(utils.autoClick),
           icon = items.append("a")
-            .attr("class", "pull-left")
+            .attr("class", "icon-pull-left")
             .attr("href", href)
             .append("img")
               .attr("class", "media-object")
@@ -1186,7 +1186,7 @@
               .attr("class", "provinsi list-group-item")
               .call(utils.autoClick),
           icon = items.append("a")
-            .attr("class", "pull-left")
+            .attr("class", "icon-pull-left")
             .attr("href", href)
             .append("svg")
               .attr("class", "media-object")
@@ -1376,7 +1376,7 @@
               .attr("class", "caleg list-group-item")
               .call(utils.autoClick),
           icon = items.append("div")
-            .attr("class", "pull-left"),
+            .attr("class", "icon-pull-left"),
           head = items.append("div")
             .attr("class", "media-header"),
           body = items.append("div")

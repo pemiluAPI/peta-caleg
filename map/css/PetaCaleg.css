@@ -28,9 +28,19 @@ body {
   width: 110px;
 }
 
-@media (max-width:768px) {
+@media all and (min-width:769px) {
+  .icon-pull-left {
+    float: left !important;
+  }  
+}
+
+@media all and (max-width:768px) {
   #peta {
     height: 230px;
+  }
+
+  .icon-pull-left {
+    float: none !important;
   }
 
   .navbar-header:before, .navbar-header:after, .navbar-nav:before, .navbar-nav:after, .navbar-text:before, .navbar-text:after {
@@ -57,7 +67,7 @@ body {
   }
 }
 
-@media (max-width:768px) and (orientation:landscape) {
+@media all and (max-width:768px) and (orientation:landscape) {
   #peta {
     height: 230px;
   }
