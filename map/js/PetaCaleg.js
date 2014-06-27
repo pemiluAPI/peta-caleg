@@ -680,6 +680,9 @@
                 matching = provinces.filter(function(d) {
                   // save the array of candidates to the 'caleg' property of the province object
                   d.allCaleg = candidatesByProvince[d.id];
+                  if (!d.allCaleg) {
+                    d.allCaleg = [];
+                  }
                   // Kaltara will not have its own candidates, but we want to see it on the map...
                   // ...so we're returning true whether d.allCaleg is empty or not
                   return true;
