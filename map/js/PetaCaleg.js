@@ -514,7 +514,6 @@
       context.breadcrumbs.push(crumb);
       this.setBreadcrumbs(context.breadcrumbs);
       return this.getProvinces(context, function(error, provinces) {
-
         crumb.text = "Pilih Provinsi";
         crumb.action = true;
         that.setBreadcrumbs(context.breadcrumbs);
@@ -539,7 +538,7 @@
                 }
               };
             } else {
-              // console.log("no provinsi ranking:", feature);
+              //console.log("no provinsi ranking:", feature);
             }
             return {icon: "about:blank"};
           });
@@ -681,7 +680,9 @@
                 matching = provinces.filter(function(d) {
                   // save the array of candidates to the 'caleg' property of the province object
                   d.allCaleg = candidatesByProvince[d.id];
-                  return notEmpty(d.allCaleg);
+                  // Kaltara will not have its own candidates, but we want to see it on the map...
+                  // ...so we're returning true whether d.allCaleg is empty or not
+                  return true;
                 });
 
           } else {
