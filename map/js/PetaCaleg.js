@@ -704,6 +704,16 @@
                   }
                   return false;
                 });
+                // :TODO: temporary hack to associate Kaltim results with Kaltara
+                var kaltimRank = matching.filter(function(d) {
+                  return (d.id == 64);
+                })[0].partaiRank;
+                for (var check in matching) {
+                  if (matching[check].id == 65) {
+                    matching[check].partaiRank = kaltimRank;
+                    break;
+                  }
+                }
           }
 
           return callback(null, matching);
