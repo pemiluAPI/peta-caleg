@@ -44,7 +44,7 @@
             req.on("load.progress", function() {
               req.loaded = req.total;
               loaded++;
-              // console.log("loaded", loaded, "of", reqs.length);
+              //console.log("loaded", loaded, "of", reqs.length);
               update();
             });
 
@@ -76,7 +76,7 @@
             total += req.total;
             loaded += req.loaded;
           });
-          // console.log("loaded:\t", loaded, "total:\t", total);
+          //console.log("loaded:\t", loaded, "total:\t", total);
           dispatch.progress({
             total: total,
             loaded: loaded,
@@ -142,7 +142,7 @@
     var diff = [];
     for (var k in a) {
       if (a[k] != b[k]) {
-        // console.log("diff(" + k + "):", [a[k], b[k]]);
+        //console.log("diff(" + k + "):", [a[k], b[k]]);
         diff.push({
           source: "a",
           key: k,
@@ -152,7 +152,7 @@
     }
     for (var k in b) {
       if (!a.hasOwnProperty(k)) {
-        // console.log("diff(" + k + "):", [a[k], b[k]]);
+        //console.log("diff(" + k + "):", [a[k], b[k]]);
         diff.push({
           source: "b",
           key: k,
@@ -362,7 +362,7 @@
                   .attr("class", "alert alert-danger")
                   .text(error);
             } else {
-              // console.log("done!");
+              //console.log("done!");
             }
             that.setBreadcrumbs(breadcrumbs);
           };
@@ -526,26 +526,26 @@
           });
           that.map.setDisplayFeatures(features, "provinsi:" + context.lembaga, function(feature) {
             var provinsi = feature.provinsi;
-            if (provinsi && provinsi.partaiRank) {
-              var rank = provinsi.partaiRank[0];
+            if (provinsi && provinsi.results) {
+              var topRankedPartyID = provinsi.results.partai.id;
               return {
                 icon: {
-                  url: rank.partai.url_logo_mini,
-                  baseColor: rank.partai.colors[0],
+                  url: provinsi.partai[topRankedPartyID].url_logo_mini,
+                  baseColor: provinsi.partai[topRankedPartyID].colors[0],
                   size: new google.maps.Size(17, 15),
                   anchor: new google.maps.Point(8, 7),
                   origin: new google.maps.Point(0, 0)
                 }
               };
             } else {
-              //console.log("no provinsi ranking:", feature);
+              console.log("no provinsi or provinsi results:", feature);
             }
             return {icon: "about:blank"};
           });
           that.map.on("select", null);
           that.map.selectFeatureById(context.provinsi);
           that.map.on("select", function(props) {
-            // console.log("select province:", props.id, props);
+            //console.log("select province:", props.id, props);
             location.hash = that.resolver.getUrlForData({
               lembaga: context.lembaga,
               provinsi: props.id
@@ -597,7 +597,7 @@
 
         if (error) return callback(error);
 
-        // console.log("candidates:", candidates);
+        //console.log("candidates:", candidates);
         that.content.call(utils.classify, "list-", "caleg");
         if (that.content.select("ul.caleg").empty()) {
           that.listCandidates(candidates, context);
@@ -634,21 +634,28 @@
     getProvinces: function(context, callback) {
       var params = utils.copy(context, {}, ["lembaga"]),
           electedCandidatesParams = utils.copy(context, {"acara_terpilih" : true}, ["lembaga"]),
+          resultsParams = utils.copy(context, {"tahun": "2014", "area": "provinsi", "filter": "jumlah", "range": 1}, ["lembaga"]),
           getBound = this.api.get.bind(this.api),
           that = this;
       return this.showProgress(queue()
         .defer(getBound, "candidate/api/caleg", electedCandidatesParams)
+        .defer(getBound, "results/api/hasil_legislatif", resultsParams)
         .defer(getBound, "candidate/api/partai")
         .defer(getBound, "candidate/api/provinsi", params)
         .defer(getBound, "geographic/api/getmap", {
           filename: "admin-provinsi-md.topojson"
         })
-        .await(function(error, caleg, partai, provinsi, topology) {
+        .await(function(error, caleg, hasil, partai, provinsi, topology) {
           that.checkContext(context);
           if (error) return callback(error);
 
-          var candidates = caleg.results.caleg
+          var candidates = caleg.results.caleg;
           var provinces = provinsi.results.provinsi;
+
+          var resultsByProvinceID = d3.nest()
+            .key(function(d) { return d.provinsi.id; })
+            .rollup(function(d) { return d[0]; })
+            .map(hasil.results.hasil);
 
           var partaiByID = d3.nest()
             .key(function(d) { return d.id; })
@@ -700,6 +707,8 @@
                     d.partai = partaiByID;
                     // build the ranked party listing by elected candidate vote totals
                     d.partaiRank = that.getRankedParties(d.partai, d3.values(candidatesByProvinceAndParty[d.id]));
+                    // save a reference to the results object for this province
+                    d.results = resultsByProvinceID[d.id];
                     return true;
                   }
                   return false;
@@ -721,7 +730,7 @@
     },
 
     /*
-     * collates a party mapping ({}) and nested candidate list [[], []]
+     * collates a party mapping ({}) and nested winning candidate list [[], []]
      * into a 1-D list of ranked objects with the following properties:
      *
      * {
@@ -775,7 +784,7 @@
           context.dapil = dapil[0].id;
           // return callback(null, dapil[0]);
         }
-        // console.log("dapil:", dapil);
+        //console.log("dapil:", dapil);
 
         if (that.map) {
           var features = dapil.map(function(d) {
@@ -783,26 +792,26 @@
           });
           that.map.setDisplayFeatures(features, "dapil", function(feature) {
             var dapil = feature.dapil;
-            if (dapil && dapil.partaiRank) {
-              var rank = dapil.partaiRank[0];
+            if (dapil && dapil.results) {
+              var topRankedPartyID = dapil.results.partai.id;
               return {
                 icon: {
-                  url: rank.partai.url_logo_mini,
-                  baseColor: rank.partai.colors[0],
+                  url: dapil.partai[topRankedPartyID].url_logo_mini,
+                  baseColor: dapil.partai[topRankedPartyID].colors[0],
                   size: new google.maps.Size(17, 15),
                   anchor: new google.maps.Point(8, 7),
                   origin: new google.maps.Point(0, 0)
                 }
               };
             } else {
-              console.log("no dapil:", feature);
+              console.log("no dapil or dapil results:", feature);
             }
             return {icon: "about:blank"};
           });
           that.map.on("select", null);
           that.map.selectFeatureById(context.dapil);
           that.map.on("select", function(props) {
-            // console.log("select dapil:", props.id, props);
+            //console.log("select dapil:", props.id, props);
             location.hash = that.resolver.getUrlForData({
               lembaga: context.lembaga,
               provinsi: context.provinsi,
@@ -929,6 +938,7 @@
     getDapil: function(context, callback) {
       var params = utils.copy(context, {}, ["lembaga", "provinsi"]),
           electedCandidatesParams = utils.copy(context, {"acara_terpilih" : true}, ["lembaga", "provinsi"]),
+          resultsParams = utils.copy(context, {"tahun": "2014", "area": "dapil", "filter": "jumlah", "range": 1}, ["lembaga"]),
           getBound = this.api.get.bind(this.api),
           filename,
           that = this;
@@ -944,18 +954,24 @@
 
       return this.showProgress(queue()
         .defer(getBound, "candidate/api/caleg", electedCandidatesParams)
+        .defer(getBound, "results/api/hasil_legislatif", resultsParams)
         .defer(getBound, "candidate/api/partai")
         .defer(getBound, "candidate/api/dapil", params)
         .defer(getBound, "geographic/api/getmap", {filename: filename})
-        .await(function(error, caleg, partai, dapil, topology) {
+        .await(function(error, caleg, hasil, partai, dapil, topology) {
           that.checkContext(context);
           if (error) return callback(error);
 
-          var candidates = caleg.results.caleg,
-              districts = dapil.results.dapil;
+          var candidates = caleg.results.caleg;
+          var districts = dapil.results.dapil;
           if (!districts.length) {
             return callback("Tidak ada dapil.");
           }
+
+          var resultsByDapilID = d3.nest()
+            .key(function(d) { return d.dapil.id; })
+            .rollup(function(d) { return d[0]; })
+            .map(hasil.results.hasil);
 
           var partaiByID = d3.nest()
             .key(function(d) { return d.id; })
@@ -986,6 +1002,8 @@
                   // save a party lookup to the district object (for looking up party image URLs)
                   d.partai = partaiByID;
                   d.partaiRank = that.getRankedParties(d.partai, d3.values(candidatesByDistrictAndParty[d.id]));
+                  // save a reference to the results object for this dapil
+                  d.results = resultsByDapilID[d.id];
                   return true;
                 }
                 return false;
@@ -1288,7 +1306,7 @@
           a = utils.copy(this.context, {}, keys),
           b = utils.copy(context, {}, keys),
           diff = utils.diff(a, b);
-      // console.log("comparing:", a, b);
+      //console.log("comparing:", a, b);
       if (diff.length) {
         throw [
           "context check failed:",
@@ -1605,7 +1623,7 @@
       this._candidateReq = this.api.get(uri, function(error, res) {
         modal._selection.classed("loading", false);
 
-        // console.log("got caleg data:", res);
+        //console.log("got caleg data:", res);
         that._candidateReq = null;
 
         mtitle.remove();
@@ -1706,7 +1724,7 @@
       var id = options.idProperty;
       collection.features.forEach(function(d) {
         d.id = d.properties[id] || d[id];
-        // console.log(d.id, ":", d);
+        //console.log(d.id, ":", d);
       });
 
       this.featureLookup = d3.nest()
@@ -1936,7 +1954,7 @@
           total = rows.reduce(function(mem, d) {
             return mem + (d._votes = d[voteKey]);
           }, 0);
-      // console.log("vote total:", total);
+      //console.log("vote total:", total);
       rows.forEach(function(d) {
         d._vote_percent = 100 * d._votes / total;
       });
@@ -2157,7 +2175,7 @@
               new google.maps.LatLng(sw.lat() - pad, sw.lng() - pad),
               new google.maps.LatLng(ne.lat() + pad, ne.lng() + pad)
             );
-        // console.log(bounds.toString(), "->", smaller.toString(), [w, h]);
+        //console.log(bounds.toString(), "->", smaller.toString(), [w, h]);
         return google.maps.Map.prototype.fitBounds.call(this, smaller);
       },
 
@@ -2184,7 +2202,7 @@
         if (this._displayId === id) return;
         this._displayId = id;
 
-        // console.log("features:", features);
+        //console.log("features:", features);
 
         // copy the id down to the properties, because this is the part that
         // gets passed down to GeoJSON layers
