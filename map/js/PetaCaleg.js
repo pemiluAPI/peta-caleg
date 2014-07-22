@@ -538,7 +538,7 @@
                 }
               };
             } else {
-              console.log("no provinsi or provinsi results:", feature);
+              //console.log("no provinsi or provinsi results:", feature);
             }
             return {icon: "about:blank"};
           });
@@ -807,7 +807,7 @@
                 }
               };
             } else {
-              console.log("no dapil or dapil results:", feature);
+              //console.log("no dapil or dapil results:", feature);
             }
             return {icon: "about:blank"};
           });
