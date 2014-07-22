@@ -714,12 +714,15 @@
                   return false;
                 });
                 // :TODO: temporary hack to associate Kaltim results with Kaltara
-                var kaltimRank = matching.filter(function(d) {
+                var kaltimAll = matching.filter(function(d) {
                   return (d.id == 64);
-                })[0].partaiRank;
+                })[0];
+                var kaltimRank = kaltimAll.partaiRank;
+                var kaltimResults = kaltimAll.results;
                 for (var check in matching) {
                   if (matching[check].id == 65) {
                     matching[check].partaiRank = kaltimRank;
+                    matching[check].results = kaltimResults;
                     break;
                   }
                 }
